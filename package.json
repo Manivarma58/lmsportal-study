@@ -1,0 +1,26 @@
+{
+  "name": "lms-portal-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-Grade Full-Stack Learning Management System (LMS)",
+  "scripts": {
+    "dev:server": "npm run dev --prefix LMSPortal/Server",
+    "start:server": "npm start --prefix LMSPortal/Server",
+    "seed": "npm run seed --prefix LMSPortal/Server",
+    "dev:client": "npm run dev --prefix LMSPortal/Client",
+    "build:client": "npm run build --prefix LMSPortal/Client"
+  },
+  "keywords": [
+    "lms",
+    "learning-management-system",
+    "react",
+    "node",
+    "express",
+    "mongodb",
+    "socketio",
+    "redux-toolkit",
+    "tailwind"
+  ],
+  "author": "",
+  "license": "ISC"
+}

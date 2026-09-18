@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NOVA LMS — Cyber-Academic Engineering & Tech Learning Platform</title>
+    <meta name="description" content="Next-Gen Cyber-Academic Learning Platform by StudyPilot. Master Neural Networks, Quantum Computing, Cloud Architecture, and Cryptographic Security with GPU sandboxes." />
+    <!-- Tailwind CSS v3 with Forms and Container Plugins -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <!-- Tailwind Configuration -->
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace'],
+            },
+            colors: {
+              brand: {
+                dark: '#070A11',
+                card: '#0B0F19',
+                surface: '#111726',
+                elevated: '#182032',
+                cyan: '#38BDF8',
+                indigo: '#6366F1',
+                violet: '#8B5CF6',
+                neon: '#22D3EE',
+              }
+            },
+            boxShadow: {
+              'glow-cyan': '0 0 25px -4px rgba(56, 189, 248, 0.35)',
+              'glow-indigo': '0 0 30px -4px rgba(99, 102, 241, 0.4)',
+              'glow-violet': '0 0 30px -4px rgba(139, 92, 246, 0.45)',
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body class="bg-[#070A11] text-slate-100 font-sans antialiased selection:bg-indigo-600 selection:text-white min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

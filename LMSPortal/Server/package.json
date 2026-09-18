@@ -1,0 +1,34 @@
+{
+  "name": "lms-server",
+  "version": "1.0.0",
+  "description": "LMS Portal Backend REST API and Socket.IO Server",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "seed": "node src/seed.js",
+    "test:models": "node src/test-models.js",
+    "test:auth": "node src/test-auth.js",
+    "test:api": "node src/test-api.js",
+    "test:instructor": "node src/test-instructor.js",
+    "test:admin": "node src/test-admin.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.5.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb-memory-server": "^10.1.4",
+    "mongoose": "^8.9.5",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

@@ -49,20 +49,28 @@ const Progress = () => {
     );
   }
 
-  const completedCourses = enrollments.filter((e) => e.isCompleted);
-  const inProgressCourses = enrollments.filter((e) => !e.isCompleted);
+  const validEnrollments = enrollments.filter((e) => Boolean(e.course));
+
+  const completedCourses = validEnrollments.filter(
+    (e) => e.completed || e.isCompleted || (e.completionPercentage ?? e.progressPercentage ?? 0) === 100
+  );
+  const inProgressCourses = validEnrollments.filter(
+    (e) => !e.completed && !e.isCompleted && (e.completionPercentage ?? e.progressPercentage ?? 0) < 100
+  );
 
   // Calculate total completed lessons and overall average progress
-  const totalCompletedLessons = enrollments.reduce(
+  const totalCompletedLessons = validEnrollments.reduce(
     (sum, e) => sum + (e.completedLessons?.length || 0),
     0
   );
 
   const averageProgress =
-    enrollments.length > 0
+    validEnrollments.length > 0
       ? Math.round(
-          enrollments.reduce((sum, e) => sum + (e.progressPercentage || 0), 0) /
-            enrollments.length
+          validEnrollments.reduce(
+            (sum, e) => sum + (e.completionPercentage ?? e.progressPercentage ?? 0),
+            0
+          ) / validEnrollments.length
         )
       : 0;
 
@@ -163,10 +171,11 @@ const Progress = () => {
           </h2>
 
           <div className="space-y-4">
-            {enrollments.map((item) => {
+            {validEnrollments.map((item) => {
               const course = item.course;
               const completedLessonsCount = item.completedLessons?.length || 0;
-              const isDone = item.isCompleted || item.progressPercentage === 100;
+              const progress = item.completionPercentage ?? item.progressPercentage ?? 0;
+              const isDone = item.completed || item.isCompleted || progress === 100;
               const certId = item.certificate?._id || item.certificate;
 
               return (
@@ -217,7 +226,7 @@ const Progress = () => {
                           {completedLessonsCount} lessons done
                         </span>
                         <span className="font-bold text-slate-800 dark:text-slate-200">
-                          {item.progressPercentage}%
+                          {progress}%
                         </span>
                       </div>
                       <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
@@ -225,7 +234,7 @@ const Progress = () => {
                           className={`h-2 rounded-full transition-all duration-500 ${
                             isDone ? 'bg-emerald-500' : 'bg-indigo-600'
                           }`}
-                          style={{ width: `${item.progressPercentage}%` }}
+                          style={{ width: `${progress}%` }}
                         ></div>
                       </div>
                     </div>

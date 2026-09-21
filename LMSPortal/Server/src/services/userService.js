@@ -64,21 +64,24 @@ export const changeUserPassword = async (userId, currentPassword, newPassword) =
 export const getAllUsers = async ({ keyword, role, status, page = 1, limit = 20 }) => {
   const query = {};
 
-  if (keyword) {
+  if (typeof keyword === 'string' && keyword.trim()) {
+    const cleanKw = keyword.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     query.$or = [
-      { name: { $regex: keyword, $options: 'i' } },
-      { email: { $regex: keyword, $options: 'i' } },
+      { name: { $regex: cleanKw, $options: 'i' } },
+      { email: { $regex: cleanKw, $options: 'i' } },
     ];
   }
 
-  if (role && role !== 'All') {
-    query.role = role;
+  if (typeof role === 'string' && role && role !== 'All') {
+    query.role = role.trim();
   }
 
-  if (status === 'active') {
-    query.isActive = true;
-  } else if (status === 'suspended' || status === 'inactive') {
-    query.isActive = false;
+  if (typeof status === 'string') {
+    if (status === 'active') {
+      query.isActive = true;
+    } else if (status === 'suspended' || status === 'inactive') {
+      query.isActive = false;
+    }
   }
 
   const pageNum = Math.max(1, Number(page) || 1);
@@ -104,17 +107,20 @@ export const getAllUsers = async ({ keyword, role, status, page = 1, limit = 20 
 export const getInstructorsOverview = async ({ keyword, status, page = 1, limit = 20 }) => {
   const query = { role: 'instructor' };
 
-  if (keyword) {
+  if (typeof keyword === 'string' && keyword.trim()) {
+    const cleanKw = keyword.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     query.$or = [
-      { name: { $regex: keyword, $options: 'i' } },
-      { email: { $regex: keyword, $options: 'i' } },
+      { name: { $regex: cleanKw, $options: 'i' } },
+      { email: { $regex: cleanKw, $options: 'i' } },
     ];
   }
 
-  if (status === 'active') {
-    query.isActive = true;
-  } else if (status === 'suspended' || status === 'inactive') {
-    query.isActive = false;
+  if (typeof status === 'string') {
+    if (status === 'active') {
+      query.isActive = true;
+    } else if (status === 'suspended' || status === 'inactive') {
+      query.isActive = false;
+    }
   }
 
   const pageNum = Math.max(1, Number(page) || 1);
@@ -157,17 +163,20 @@ export const getInstructorsOverview = async ({ keyword, status, page = 1, limit 
 export const getStudentsOverview = async ({ keyword, status, page = 1, limit = 20 }) => {
   const query = { role: 'student' };
 
-  if (keyword) {
+  if (typeof keyword === 'string' && keyword.trim()) {
+    const cleanKw = keyword.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     query.$or = [
-      { name: { $regex: keyword, $options: 'i' } },
-      { email: { $regex: keyword, $options: 'i' } },
+      { name: { $regex: cleanKw, $options: 'i' } },
+      { email: { $regex: cleanKw, $options: 'i' } },
     ];
   }
 
-  if (status === 'active') {
-    query.isActive = true;
-  } else if (status === 'suspended' || status === 'inactive') {
-    query.isActive = false;
+  if (typeof status === 'string') {
+    if (status === 'active') {
+      query.isActive = true;
+    } else if (status === 'suspended' || status === 'inactive') {
+      query.isActive = false;
+    }
   }
 
   const pageNum = Math.max(1, Number(page) || 1);

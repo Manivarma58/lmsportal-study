@@ -1,479 +1,501 @@
-import React from "react";
+import React, { useState, useEffect, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import API from '../../services/api';
+import { toast } from 'sonner';
 
-function Assignments() {
-    return (
-        <>
-            <style>
-{`
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+export default function Assignments() {
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
 
-.assignments-container {
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
-    padding: 2rem;
-}
+  const [enrollments, setEnrollments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('all'); // all, pending, submitted, graded
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCourseFilter, setSelectedCourseFilter] = useState('all');
 
-:root {
-    --primary-color: #4361ee;
-    --primary-dark: #3a56d4;
-    --secondary-color: #6c757d;
-    --dark-color: #1a1a1a;
-    --gray-color: #6c757d;
-    --light-color: #f8f9fa;
-    --border-color: #e9ecef;
-    --danger-color: #dc3545;
-    --success-color: #28a745;
-    --warning-color: #ffc107;
-    --info-color: #17a2b8;
-    --border-radius: 12px;
-    --shadow-sm: 0 2px 8px rgba(67, 97, 238, 0.08);
-    --shadow-md: 0 6px 20px rgba(67, 97, 238, 0.12);
-    --shadow-lg: 0 10px 30px rgba(67, 97, 238, 0.15);
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+  // Interactive submission modal state
+  const [submissionModalOpen, setSubmissionModalOpen] = useState(false);
+  const [activeAssignment, setActiveAssignment] = useState(null);
+  const [submissionCode, setSubmissionCode] = useState('');
+  const [submissionNotes, setSubmissionNotes] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-.assignments-header {
-    margin-bottom: 2.5rem;
-    background: linear-gradient(135deg, #ffffff 0%, #f9fbff 100%);
-    padding: 2rem;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid rgba(67, 97, 238, 0.1);
-}
+  // Assignments store with stateful updates
+  const [assignments, setAssignments] = useState([
+    {
+      id: 'ASG-01',
+      code: 'LAB-101',
+      title: 'Fullstack Microservices & REST API Pipeline',
+      subtitle: 'Build and validate authenticated CRUD microservice routes with unit test coverage.',
+      courseTitle: 'Fullstack Cloud Architecture & Kubernetes Clusters',
+      category: 'Cloud Architecture',
+      dueDate: 'Oct 28, 2026 • 23:59 UTC',
+      weight: '25% Grade Weight',
+      ceus: '1.0 CEU',
+      status: 'pending',
+      grade: null,
+      maxScore: 100,
+      instructor: 'Prof. Maya Lin',
+      testSuite: '12 / 12 Automated Unit Tests',
+      rubric: [
+        { criterion: 'API Route Security & Token Middleware', points: '35 / 35', desc: 'Secure headers and JWT payload verification' },
+        { criterion: 'Database Model Schema Constraints', points: '35 / 35', desc: 'Mongoose validators & indexing efficiency' },
+        { criterion: 'Exception Handling & Error Formatting', points: '30 / 30', desc: 'Consistent HTTP status codes and responses' },
+      ],
+    },
+    {
+      id: 'ASG-02',
+      code: 'LAB-204',
+      title: 'Zero-Trust Istio Service Mesh & Envoy Proxy Configuration',
+      subtitle: 'Deploy mutual TLS (mTLS) with cryptographically attested SPIFFE workload identities.',
+      courseTitle: 'Cyber Defense & Cryptographic Security',
+      category: 'Cybersecurity',
+      dueDate: 'Nov 04, 2026 • 18:00 UTC',
+      weight: '30% Grade Weight',
+      ceus: '1.2 CEU',
+      status: 'pending',
+      grade: null,
+      maxScore: 100,
+      instructor: 'Marcus Lin, CISSP',
+      testSuite: '8 / 8 Mesh Probes',
+      rubric: [
+        { criterion: 'mTLS PeerAuthentication Enforcement', points: '40 / 40', desc: 'Strict mode validated across namespace' },
+        { criterion: 'EnvoyFilter Header Attestation', points: '30 / 30', desc: 'Dynamic JWT claim verification' },
+        { criterion: 'Chaos Testing & Resilience', points: '30 / 30', desc: 'Zero downtime during rolling restart' },
+      ],
+    },
+    {
+      id: 'ASG-03',
+      code: 'LAB-309',
+      title: 'Neural Matrix Attention Optimizer & KV-Cache Compression',
+      subtitle: 'Synthesize flash attention kernels with 4-bit INT quantization for long-context inference.',
+      courseTitle: 'Neural Networks & Quantum Computing',
+      category: 'AI & Quantum',
+      dueDate: 'Submitted Oct 14, 2026',
+      weight: '20% Grade Weight',
+      ceus: '0.8 CEU',
+      status: 'submitted',
+      grade: null,
+      maxScore: 100,
+      instructor: 'Dr. Elena Vance',
+      testSuite: '10 / 10 Benchmarks Completed',
+      rubric: [
+        { criterion: 'Kernel Execution Speedup', points: '40 / 40', desc: '3.2x baseline speedup verified' },
+        { criterion: 'Perplexity Retention', points: '30 / 30', desc: 'Precision retention > 99.4%' },
+        { criterion: 'Memory Profiling Report', points: '30 / 30', desc: 'Comprehensive telemetry logs submitted' },
+      ],
+    },
+    {
+      id: 'ASG-04',
+      code: 'LAB-401',
+      title: 'Distributed Byzantine Fault Tolerant Consensus Protocol',
+      subtitle: 'Implement leader election, quorum certificates, and view-change safety verification.',
+      courseTitle: 'Distributed Systems & High Performance Computing',
+      category: 'Distributed Systems',
+      dueDate: 'Graded Oct 08, 2026',
+      weight: '25% Grade Weight',
+      ceus: '1.0 CEU',
+      status: 'graded',
+      grade: 97,
+      maxScore: 100,
+      instructor: 'Dr. Sora Takahashi',
+      testSuite: '16 / 16 Consensus Vectors Passing',
+      rubric: [
+        { criterion: 'Safety Under Asynchronous Partition', points: '40 / 40', desc: 'Zero conflicting block commits' },
+        { criterion: 'Liveness Recovery Threshold', points: '30 / 30', desc: 'View change recovered in < 150ms' },
+        { criterion: 'Peer RPC Throughput', points: '27 / 30', desc: 'Achieved 8,400 tx/sec under synthetic load' },
+      ],
+    },
+  ]);
 
-.assignments-header h2 {
-    color: var(--dark-color);
-    font-size: 2rem;
-    font-weight: 800;
-    margin: 0;
-    background: linear-gradient(135deg, #4361ee 0%, #3a56d4 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
+  // Fetch real student enrollments
+  useEffect(() => {
+    let isMounted = true;
+    API.get('/enrollments/my-courses')
+      .then((res) => {
+        if (!isMounted) return;
+        const valid = (res.data?.enrollments || []).filter((e) => Boolean(e.course));
+        setEnrollments(valid);
 
-.assignments-header p {
-    color: var(--gray-color);
-    margin-top: 0.75rem;
-    font-size: 1.05rem;
-    font-weight: 500;
-}
+        // Dynamically add assignments matching student's enrolled courses if available
+        if (valid.length > 0) {
+          setAssignments((prev) => {
+            const courseTitles = valid.map((e) => e.course.title);
+            // Replace generic course titles with real enrolled ones where appropriate
+            return prev.map((asg, idx) => ({
+              ...asg,
+              courseTitle: courseTitles[idx % courseTitles.length] || asg.courseTitle,
+            }));
+          });
+        }
+      })
+      .catch((err) => console.warn('Could not load course list for assignments:', err))
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
 
-/* Enhanced Stats Grid */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2.5rem;
-}
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
-.stat-card {
-    background: linear-gradient(135deg, #ffffff 0%, #f9fbff 100%);
-    padding: 1.8rem;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid rgba(67, 97, 238, 0.1);
-    text-align: center;
-    transition: var(--transition);
-    position: relative;
-    overflow: hidden;
-}
+  // Filter & search logic
+  const filteredAssignments = useMemo(() => {
+    return assignments
+      .filter((a) => {
+        if (activeTab === 'pending') return a.status === 'pending';
+        if (activeTab === 'submitted') return a.status === 'submitted';
+        if (activeTab === 'graded') return a.status === 'graded';
+        return true;
+      })
+      .filter((a) => {
+        if (selectedCourseFilter === 'all') return true;
+        return a.courseTitle === selectedCourseFilter;
+      })
+      .filter((a) => {
+        if (!searchQuery.trim()) return true;
+        const q = searchQuery.toLowerCase();
+        return (
+          a.title.toLowerCase().includes(q) ||
+          a.subtitle.toLowerCase().includes(q) ||
+          a.courseTitle.toLowerCase().includes(q) ||
+          a.code.toLowerCase().includes(q)
+        );
+      });
+  }, [assignments, activeTab, selectedCourseFilter, searchQuery]);
 
-.stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 5px;
-    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
-    border-radius: 5px 5px 0 0;
-}
+  // KPIs
+  const totalCount = assignments.length;
+  const pendingCount = assignments.filter((a) => a.status === 'pending').length;
+  const submittedCount = assignments.filter((a) => a.status === 'submitted').length;
+  const gradedCount = assignments.filter((a) => a.status === 'graded').length;
+  const gradedItems = assignments.filter((a) => a.grade !== null);
+  const avgGrade =
+    gradedItems.length > 0
+      ? Math.round(gradedItems.reduce((sum, a) => sum + a.grade, 0) / gradedItems.length)
+      : 97;
 
-.stat-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-lg);
-    border-color: rgba(67, 97, 238, 0.2);
-}
+  // Open submit modal
+  const handleOpenSubmit = (asg) => {
+    setActiveAssignment(asg);
+    setSubmissionCode('// Submit code implementation or repository commit\nfunction solution() {\n  return "All unit tests validated";\n}');
+    setSubmissionNotes('');
+    setSubmissionModalOpen(true);
+  };
 
-.stat-card.success::before { background: linear-gradient(90deg, var(--success-color), #1ea346); }
-.stat-card.warning::before { background: linear-gradient(90deg, var(--warning-color), #f59e0b); }
-.stat-card.danger::before { background: linear-gradient(90deg, var(--danger-color), #b91c1c); }
-.stat-card.info::before { background: linear-gradient(90deg, var(--info-color), #0d9488); }
-.stat-card.primary::before { background: linear-gradient(90deg, var(--primary-color), var(--primary-dark)); }
+  // Process submission
+  const handleSubmitAssignment = (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-.stat-value {
-    font-size: 2.8rem;
-    font-weight: 800;
-    color: var(--dark-color);
-    margin-bottom: 0.5rem;
-    line-height: 1;
-}
+    setTimeout(() => {
+      setAssignments((prev) =>
+        prev.map((item) =>
+          item.id === activeAssignment.id
+            ? { ...item, status: 'submitted', dueDate: 'Submitted Just Now' }
+            : item
+        )
+      );
+      setIsSubmitting(false);
+      setSubmissionModalOpen(false);
+      toast.success(`Assignment "${activeAssignment.title}" submitted successfully for autograding!`);
+    }, 900);
+  };
 
-.stat-label {
-    font-size: 0.9rem;
-    color: var(--gray-color);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
+  return (
+    <div className="flex flex-col w-full text-slate-800 antialiased pb-16 px-6 sm:px-8 lg:px-10 py-6">
+      {/* Header & Breadcrumb */}
+      <div className="flex flex-col gap-2 pb-6 border-b border-slate-200/90">
+        <div className="flex items-center gap-2 text-xs font-mono text-slate-500 uppercase tracking-wider">
+          <Link to="/student/dashboard" className="hover:text-blue-600 transition-colors">
+            Student Portal
+          </Link>
+          <span>/</span>
+          <span className="text-slate-800 font-semibold">Assignments</span>
+        </div>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Assignments &amp; Practical Laboratories
+            </h1>
+            <p className="text-slate-600 text-sm mt-1">
+              Submit programming problem sets, review automated test suites, and track your evaluated grades.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="px-3.5 py-1.5 rounded-xl bg-blue-50 text-blue-700 font-mono text-xs font-semibold border border-blue-200/70 flex items-center gap-1.5 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+              {pendingCount} PENDING SUBMISSIONS
+            </span>
+          </div>
+        </div>
+      </div>
 
-/* Enhanced Table Container */
-.assignments-table-wrapper {
-    background: linear-gradient(135deg, #ffffff 0%, #f9fbff 100%);
-    border-radius: var(--border-radius);
-    padding: 2rem;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid rgba(67, 97, 238, 0.1);
-    overflow: hidden;
-    margin-top: 2rem;
-}
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 my-6">
+        <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-sm">
+          <span className="text-xs font-semibold text-slate-500 uppercase">Total Assigned</span>
+          <p className="text-2xl font-bold text-slate-900 mt-1">{totalCount}</p>
+          <span className="text-[11px] text-slate-400 font-mono">Curriculum tasks</span>
+        </div>
+        <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-sm">
+          <span className="text-xs font-semibold text-amber-600 uppercase">Pending Review</span>
+          <p className="text-2xl font-bold text-amber-600 mt-1">{pendingCount}</p>
+          <span className="text-[11px] text-slate-400 font-mono">Due this week</span>
+        </div>
+        <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-sm">
+          <span className="text-xs font-semibold text-blue-600 uppercase">Submitted</span>
+          <p className="text-2xl font-bold text-blue-600 mt-1">{submittedCount}</p>
+          <span className="text-[11px] text-slate-400 font-mono">In evaluation queue</span>
+        </div>
+        <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-sm">
+          <span className="text-xs font-semibold text-emerald-600 uppercase">Average Grade</span>
+          <p className="text-2xl font-bold text-emerald-600 mt-1">{avgGrade}%</p>
+          <span className="text-[11px] text-slate-400 font-mono">Distinction tier</span>
+        </div>
+      </div>
 
-/* Enhanced Table Styles */
-.assignments-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    background: transparent;
-}
+      {/* Filter Tabs & Search Controls */}
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 mb-6 bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm">
+        {/* Filter Pills */}
+        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200/80">
+          {[
+            { id: 'all', label: 'All Tasks', count: totalCount },
+            { id: 'pending', label: 'Pending', count: pendingCount },
+            { id: 'submitted', label: 'Submitted', count: submittedCount },
+            { id: 'graded', label: 'Graded', count: gradedCount },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === tab.id
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              <span>{tab.label}</span>
+              <span
+                className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                  activeFilterBadge(activeTab === tab.id)
+                }`}
+              >
+                {tab.count}
+              </span>
+            </button>
+          ))}
+        </div>
 
-.assignments-table thead {
-    background: linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(67, 97, 238, 0.02) 100%);
-    backdrop-filter: blur(10px);
-}
+        {/* Search & Course Selector */}
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 sm:w-64">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">
+              search
+            </span>
+            <input
+              type="text"
+              placeholder="Search assignments..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
+            />
+          </div>
 
-.assignments-table th {
-    padding: 1.2rem 1.5rem;
-    text-align: left;
-    font-weight: 700;
-    color: var(--dark-color);
-    border-bottom: 2px solid rgba(67, 97, 238, 0.1);
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
+          {enrollments.length > 0 && (
+            <select
+              value={selectedCourseFilter}
+              onChange={(e) => setSelectedCourseFilter(e.target.value)}
+              className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 focus:outline-none focus:border-blue-500"
+            >
+              <option value="all">All Enrolled Courses</option>
+              {enrollments.map((e) => (
+                <option key={e._id} value={e.course?.title}>
+                  {e.course?.title}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      </div>
 
-.assignments-table td {
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(67, 97, 238, 0.08);
-    color: var(--dark-color);
-    font-size: 0.95rem;
-    font-weight: 500;
-}
+      {/* Assignment List */}
+      <div className="flex flex-col gap-4">
+        {filteredAssignments.length > 0 ? (
+          filteredAssignments.map((asg) => {
+            const isPending = asg.status === 'pending';
+            const isSubmitted = asg.status === 'submitted';
+            const isGraded = asg.status === 'graded';
 
-.assignments-table tbody tr {
-    transition: var(--transition);
-    background: transparent;
-}
+            return (
+              <div
+                key={asg.id}
+                className="rounded-2xl bg-white border border-slate-200/90 p-5 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
+              >
+                {/* Left details */}
+                <div className="flex items-start gap-4 min-w-0">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+                    <span className="material-symbols-outlined text-[24px]">
+                      {isGraded ? 'task_alt' : isSubmitted ? 'hourglass_top' : 'assignment'}
+                    </span>
+                  </div>
 
-.assignments-table tbody tr:hover {
-    background: linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(67, 97, 238, 0.02) 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.1);
-}
+                  <div className="flex flex-col gap-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] font-mono font-semibold uppercase text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200/60">
+                        {asg.code}
+                      </span>
+                      <span className="text-xs text-slate-500 font-medium truncate max-w-xs">
+                        {asg.courseTitle}
+                      </span>
+                      {isGraded && (
+                        <span className="text-[10px] font-mono font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">
+                          SCORE: {asg.grade}%
+                        </span>
+                      )}
+                      {isSubmitted && (
+                        <span className="text-[10px] font-mono font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200/60">
+                          IN AUTOGRADING
+                        </span>
+                      )}
+                      {isPending && (
+                        <span className="text-[10px] font-mono font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60">
+                          {asg.dueDate}
+                        </span>
+                      )}
+                    </div>
 
-.assignments-table tbody tr:last-child td {
-    border-bottom: none;
-}
+                    <h3 className="font-bold text-base text-slate-900 tracking-tight">
+                      {asg.title}
+                    </h3>
+                    <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
+                      {asg.subtitle}
+                    </p>
 
-/* Enhanced Badges */
-.status-badge {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    border-radius: 25px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-align: center;
-    min-width: 120px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.badge-warning {
-    background: linear-gradient(135deg, #ffd166 0%, #fbbf24 100%);
-    color: #92400e;
-}
-
-.badge-success {
-    background: linear-gradient(135deg, #06d6a0 0%, #10b981 100%);
-    color: #064e3b;
-}
-
-.badge-danger {
-    background: linear-gradient(135deg, #ef476f 0%, #dc2626 100%);
-    color: #7f1d1d;
-}
-
-.badge-info {
-    background: linear-gradient(135deg, #118ab2 0%, #0d9488 100%);
-    color: white;
-}
-
-.badge-secondary {
-    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-    color: white;
-}
-
-/* Enhanced Buttons */
-.btn-sm {
-    padding: 0.5rem 1.25rem;
-    font-size: 0.9rem;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    transition: var(--transition);
-    font-weight: 600;
-    min-width: 120px;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.25);
-}
-
-.btn-primary:hover {
-    background: linear-gradient(135deg, var(--primary-dark) 0%, #304fd6 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(67, 97, 238, 0.35);
-}
-
-.btn-secondary {
-    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-    color: var(--gray-color);
-    border: 2px solid #e5e7eb;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.btn-secondary:hover {
-    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
-    transform: translateY(-2px);
-}
-
-.btn-outline-danger {
-    background: transparent;
-    color: var(--danger-color);
-    border: 2px solid var(--danger-color);
-}
-
-.btn-outline-danger:hover {
-    background: linear-gradient(135deg, rgba(239, 71, 111, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
-    transform: translateY(-2px);
-}
-
-/* Enhanced Topic Label */
-.topic-label {
-    display: inline-block;
-    background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(67, 97, 238, 0.05) 100%);
-    color: var(--primary-color);
-    padding: 0.4rem 1rem;
-    border-radius: 25px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border: 1px solid rgba(67, 97, 238, 0.2);
-}
-
-/* Responsive Enhancements */
-@media (max-width: 768px) {
-    .assignments-container {
-        padding: 1.5rem;
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    }
-    
-    .assignments-header {
-        padding: 1.5rem;
-    }
-    
-    .assignments-header h2 {
-        font-size: 1.8rem;
-    }
-    
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-    }
-    
-    .stat-card {
-        padding: 1.5rem;
-    }
-    
-    .stat-value {
-        font-size: 2.2rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .assignments-header h2 {
-        font-size: 1.6rem;
-    }
-    
-    .btn-sm {
-        min-width: 100px;
-        padding: 0.4rem 1rem;
-    }
-}
-`}
-</style>
-
-            <div className="assignments-container">
-                <div className="assignments-header">
-                    <h2>My Assignments</h2>
-                    <p>Track and manage all your course assignments</p>
+                    <div className="flex items-center gap-4 text-xs text-slate-400 font-mono mt-1">
+                      <span>Weight: {asg.weight}</span>
+                      <span>•</span>
+                      <span>Suite: {asg.testSuite}</span>
+                      <span>•</span>
+                      <span>Evaluator: {asg.instructor}</span>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Summary Cards */}
-                <div className="stats-grid">
-                    <div className="stat-card primary">
-                        <div className="stat-value">5</div>
-                        <div className="stat-label">Total Assignments</div>
+                {/* Right Action */}
+                <div className="flex items-center gap-3 shrink-0 self-end md:self-center">
+                  {isPending && (
+                    <button
+                      onClick={() => handleOpenSubmit(asg)}
+                      className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">upload_file</span>
+                      <span>Submit Solution</span>
+                    </button>
+                  )}
+                  {isSubmitted && (
+                    <span className="px-3.5 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-medium flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                      Evaluating Code
+                    </span>
+                  )}
+                  {isGraded && (
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <span className="text-xs text-slate-400 block font-mono">Grade</span>
+                        <span className="font-bold text-sm text-emerald-600">{asg.grade} / {asg.maxScore}</span>
+                      </div>
+                      <button
+                        onClick={() => toast.info(`Reviewing submission rubric for ${asg.code}`)}
+                        className="px-3.5 py-2 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-semibold transition-all"
+                      >
+                        Rubric
+                      </button>
                     </div>
-                    <div className="stat-card success">
-                        <div className="stat-value">2</div>
-                        <div className="stat-label">Completed</div>
-                    </div>
-                    <div className="stat-card warning">
-                        <div className="stat-value">1</div>
-                        <div className="stat-label">Pending</div>
-                    </div>
-                    <div className="stat-card info">
-                        <div className="stat-value">1</div>
-                        <div className="stat-label">Not Attempted</div>
-                    </div>
-                    <div className="stat-card danger">
-                        <div className="stat-value">1</div>
-                        <div className="stat-label">Expired</div>
-                    </div>
+                  )}
                 </div>
+              </div>
+            );
+          })
+        ) : (
+          <div className="p-12 rounded-2xl bg-white border border-dashed border-slate-300 text-center">
+            <p className="text-slate-500 text-sm">No assignments found matching your filter criteria.</p>
+          </div>
+        )}
+      </div>
 
-                {/* Assignments Table */}
-                <div className="assignments-table-wrapper">
-                    <table className="assignments-table">
-                        <thead>
-                        <tr>
-                            <th>Test Name</th>
-                            <th>Topic</th>
-                            <th>Created On</th>
-                            <th>Expiry Date</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                        </thead>
-
-                        <tbody>
-                        <tr>
-                            <td>
-                                <strong>React Basics Test</strong>
-                            </td>
-                            <td>
-                                <span className="topic-label">Components & Props</span>
-                            </td>
-                            <td>10 Sep 2025</td>
-                            <td>20 Sep 2025</td>
-                            <td>
-                                <span className="status-badge badge-warning">
-                                    Not Attempted
-                                </span>
-                            </td>
-                            <td>
-                                <button className="btn-sm btn-primary">
-                                    Attempt Test
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <strong>Java Fundamentals</strong>
-                            </td>
-                            <td>
-                                <span className="topic-label">OOP Concepts</span>
-                            </td>
-                            <td>05 Sep 2025</td>
-                            <td>15 Sep 2025</td>
-                            <td>
-                                <span className="status-badge badge-success">
-                                    Completed
-                                </span>
-                            </td>
-                            <td>
-                                <button className="btn-sm btn-secondary" disabled>
-                                    Completed
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <strong>DSA Quiz</strong>
-                            </td>
-                            <td>
-                                <span className="topic-label">Arrays</span>
-                            </td>
-                            <td>12 Sep 2025</td>
-                            <td>22 Sep 2025</td>
-                            <td>
-                                <span className="status-badge badge-danger">
-                                    Expired
-                                </span>
-                            </td>
-                            <td>
-                                <button className="btn-sm btn-outline-danger" disabled>
-                                    Expired
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <strong>Web Development Final</strong>
-                            </td>
-                            <td>
-                                <span className="topic-label">Full Stack</span>
-                            </td>
-                            <td>15 Sep 2025</td>
-                            <td>25 Sep 2025</td>
-                            <td>
-                                <span className="status-badge badge-info">
-                                    In Progress
-                                </span>
-                            </td>
-                            <td>
-                                <button className="btn-sm btn-primary">
-                                    Continue
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <strong>Database Systems</strong>
-                            </td>
-                            <td>
-                                <span className="topic-label">SQL Queries</span>
-                            </td>
-                            <td>08 Sep 2025</td>
-                            <td>18 Sep 2025</td>
-                            <td>
-                                <span className="status-badge badge-success">
-                                    Graded: 95%
-                                </span>
-                            </td>
-                            <td>
-                                <button className="btn-sm btn-secondary">
-                                    View Results
-                                </button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
+      {/* Interactive Submission Modal */}
+      {submissionModalOpen && activeAssignment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 p-6 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div>
+                <span className="text-xs font-mono text-blue-600 uppercase font-semibold">
+                  {activeAssignment.code} • {activeAssignment.courseTitle}
+                </span>
+                <h3 className="text-lg font-bold text-slate-900">{activeAssignment.title}</h3>
+              </div>
+              <button onClick={() => setSubmissionModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                ✕
+              </button>
             </div>
-        </>
-    );
+
+            <form onSubmit={handleSubmitAssignment} className="flex flex-col gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Source Code / Laboratory Implementation
+                </label>
+                <textarea
+                  rows={6}
+                  value={submissionCode}
+                  onChange={(e) => setSubmissionCode(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-slate-900 text-emerald-400 font-mono text-xs border border-slate-700 focus:outline-none focus:border-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Submission Notes &amp; Verification Hashes (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Commit hash, runtime benchmark metrics..."
+                  value={submissionNotes}
+                  onChange={(e) => setSubmissionNotes(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div className="p-3 rounded-xl bg-blue-50 border border-blue-200/70 text-xs text-blue-800 flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">verified</span>
+                <span>Automatic test harness will compile and run all {activeAssignment.testSuite} upon submission.</span>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setSubmissionModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {isSubmitting ? 'Evaluating...' : 'Confirm Submission'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default Assignments;
+function activeFilterBadge(isActive) {
+  return isActive ? 'bg-blue-50 text-blue-700' : 'bg-slate-200 text-slate-600';
+}

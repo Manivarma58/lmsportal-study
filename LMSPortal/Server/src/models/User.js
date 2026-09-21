@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { getJwtSecret } from '../config/env.js';
 
 const userSchema = new mongoose.Schema(
   {
@@ -27,6 +28,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please provide a password'],
       minlength: [6, 'Password must be at least 6 characters'],
+      maxlength: [128, 'Password cannot exceed 128 characters'],
       select: false,
     },
     role: {
@@ -77,6 +79,10 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+// Compound indexes for optimal admin filtering and student querying
+userSchema.index({ role: 1, createdAt: -1 });
+userSchema.index({ role: 1, isActive: 1 });
+
 // Fallback virtual/getter for avatar if accessed via JSON or object
 userSchema.virtual('avatarUrl').get(function () {
   return this.profileImage;
@@ -101,7 +107,7 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 userSchema.methods.getSignedJwtToken = function () {
   return jwt.sign(
     { id: this._id, role: this.role },
-    process.env.JWT_SECRET || 'lms_super_secret_jwt_key_2026_xyz!@#',
+    getJwtSecret(),
     { expiresIn: process.env.JWT_EXPIRE || '30d' }
   );
 };

@@ -1,5 +1,8 @@
 import asyncHandler from '../middleware/asyncHandler.js';
 import quizService from '../services/quizService.js';
+import Quiz from '../models/Quiz.js';
+import Course from '../models/Course.js';
+import Enrollment from '../models/Enrollment.js';
 
 /**
  * @desc    Create a new quiz
@@ -21,6 +24,28 @@ export const createQuiz = asyncHandler(async (req, res) => {
  * @access  Private
  */
 export const getQuizById = asyncHandler(async (req, res) => {
+  const quizDoc = await Quiz.findById(req.params.id);
+  if (!quizDoc) {
+    return res.status(404).json({ success: false, message: 'Quiz not found.' });
+  }
+
+  // If requester is a student, verify they are enrolled in the course or course is free
+  if (req.user && req.user.role === 'student') {
+    const course = await Course.findById(quizDoc.course);
+    if (course && !course.isFree && (course.price || 0) > 0) {
+      const isEnrolled = await Enrollment.exists({
+        student: req.user.id || req.user._id,
+        course: quizDoc.course,
+      });
+      if (!isEnrolled) {
+        return res.status(403).json({
+          success: false,
+          message: 'You must enroll in this course to access its quizzes.',
+        });
+      }
+    }
+  }
+
   const quiz = await quizService.getQuizById(req.params.id, req.user);
   res.status(200).json({
     success: true,
@@ -75,6 +100,28 @@ export const getCourseQuizzes = asyncHandler(async (req, res) => {
  * @access  Private/Student
  */
 export const submitQuiz = asyncHandler(async (req, res) => {
+  const quizDoc = await Quiz.findById(req.params.id);
+  if (!quizDoc) {
+    return res.status(404).json({ success: false, message: 'Quiz not found.' });
+  }
+
+  // Verify student enrollment for paid course quizzes
+  if (req.user && req.user.role === 'student') {
+    const course = await Course.findById(quizDoc.course);
+    if (course && !course.isFree && (course.price || 0) > 0) {
+      const isEnrolled = await Enrollment.exists({
+        student: req.user.id || req.user._id,
+        course: quizDoc.course,
+      });
+      if (!isEnrolled) {
+        return res.status(403).json({
+          success: false,
+          message: 'You must enroll in this course to submit quiz attempts.',
+        });
+      }
+    }
+  }
+
   const result = await quizService.submitQuiz(req.params.id, req.user.id, req.body);
   res.status(200).json({
     success: true,
@@ -98,6 +145,53 @@ export const getMyQuizSubmissions = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * @desc    Add a question to quiz
+ * @route   POST /api/quizzes/:id/questions
+ * @access  Private/Instructor or Admin
+ */
+export const addQuestion = asyncHandler(async (req, res) => {
+  const result = await quizService.addQuestionToQuiz(req.params.id, req.body, req.user);
+  res.status(201).json({
+    success: true,
+    message: 'Question added successfully!',
+    ...result,
+  });
+});
+
+/**
+ * @desc    Update a question in quiz
+ * @route   PUT /api/quizzes/:id/questions/:questionId
+ * @access  Private/Instructor or Admin
+ */
+export const updateQuestion = asyncHandler(async (req, res) => {
+  const result = await quizService.updateQuestionInQuiz(
+    req.params.id,
+    req.params.questionId,
+    req.body,
+    req.user
+  );
+  res.status(200).json({
+    success: true,
+    message: 'Question updated successfully!',
+    ...result,
+  });
+});
+
+/**
+ * @desc    Delete a question from quiz
+ * @route   DELETE /api/quizzes/:id/questions/:questionId
+ * @access  Private/Instructor or Admin
+ */
+export const deleteQuestion = asyncHandler(async (req, res) => {
+  const result = await quizService.deleteQuestionFromQuiz(
+    req.params.id,
+    req.params.questionId,
+    req.user
+  );
+  res.status(200).json(result);
+});
+
 export default {
   createQuiz,
   getQuizById,
@@ -106,4 +200,7 @@ export default {
   getCourseQuizzes,
   submitQuiz,
   getMyQuizSubmissions,
+  addQuestion,
+  updateQuestion,
+  deleteQuestion,
 };

@@ -2,10 +2,18 @@ import React from 'react';
 import Navbar from '../../components/Navbar';
 import { GraduationCap, ShieldCheck, Users, Globe, Award, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import NeuralBackground from '../../components/NeuralBackground';
 
 export default function About() {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans antialiased blueprint-grid relative overflow-x-hidden">
+      {/* Live 3D Kinetic Neural Knowledge Cloud Background */}
+      <NeuralBackground
+        className="fixed inset-0 w-full h-full pointer-events-none z-0"
+        opacity={0.6}
+        nodeCount={50}
+        maxLines={140}
+      />
       <Navbar />
 
       <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">

@@ -71,7 +71,10 @@ const enrollmentSchema = new mongoose.Schema(
 // Unique compound index: a student can only enroll once in any specific course
 enrollmentSchema.index({ student: 1, course: 1 }, { unique: true });
 
-// Query optimization index for student dashboard queries
+// Query optimization indexes for dashboard queries and analytics aggregations
 enrollmentSchema.index({ student: 1, completed: 1 });
+enrollmentSchema.index({ student: 1, createdAt: -1 });
+enrollmentSchema.index({ course: 1, completed: 1 });
+enrollmentSchema.index({ course: 1, createdAt: -1 });
 
 export default mongoose.model('Enrollment', enrollmentSchema);

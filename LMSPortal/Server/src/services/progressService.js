@@ -4,6 +4,7 @@ import Lesson from '../models/Lesson.js';
 import Course from '../models/Course.js';
 import Certificate from '../models/Certificate.js';
 import Notification from '../models/Notification.js';
+import { createNotification } from './notificationService.js';
 import ErrorResponse from '../utils/errorResponse.js';
 
 export const markLessonComplete = async (studentId, courseId, lessonId) => {
@@ -70,11 +71,21 @@ export const markLessonComplete = async (studentId, courseId, lessonId) => {
       });
       enrollment.certificate = newCertificate._id;
 
-      await Notification.create({
+      // Course completion notification
+      await createNotification({
         recipient: studentId,
-        title: '🎓 Course Completed & Certificate Issued!',
-        message: `Congratulations! You have completed all lessons in "${course?.title}". Your certificate is now ready to view.`,
-        type: 'certificate',
+        title: '🎉 Course Completed!',
+        message: `Congratulations! You have successfully completed all lessons in "${course?.title}".`,
+        type: 'course_completion',
+        link: `/student/course/${courseId}/learn`,
+      });
+
+      // Certificate generation notification
+      await createNotification({
+        recipient: studentId,
+        title: '🎓 Certificate Issued!',
+        message: `Your verified certificate for "${course?.title}" is now ready to view.`,
+        type: 'certificate_generation',
         link: `/student/certificates/${newCertificate._id}`,
       });
     } else {
@@ -132,6 +143,11 @@ export const getCourseProgress = async (studentId, courseId) => {
   return {
     isEnrolled: true,
     progressPercentage: enrollment.completionPercentage,
+    progress: {
+      percentage: enrollment.completionPercentage,
+      completed: enrollment.completed,
+      completedLessons: completedLessonIds,
+    },
     completed: enrollment.completed,
     completedLessonIds,
     certificate: enrollment.certificate,
@@ -139,8 +155,33 @@ export const getCourseProgress = async (studentId, courseId) => {
   };
 };
 
+export const recordLessonAccess = async (studentId, courseId, lessonId) => {
+  const enrollment = await Enrollment.findOne({
+    student: studentId,
+    course: courseId,
+  });
+
+  if (!enrollment) {
+    throw new ErrorResponse('Enrollment record not found for this course.', 404);
+  }
+
+  enrollment.lastAccessedLesson = lessonId;
+  await enrollment.save();
+
+  await Progress.findOneAndUpdate(
+    { student: studentId, course: courseId },
+    { lastAccessedLesson: lessonId },
+    { upsert: true }
+  );
+
+  return {
+    lastAccessedLesson: lessonId,
+  };
+};
+
 export default {
   markLessonComplete,
   updateLessonProgress,
   getCourseProgress,
+  recordLessonAccess,
 };

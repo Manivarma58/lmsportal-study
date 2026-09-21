@@ -57,9 +57,9 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
+    <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] transition-colors">
+      <div className="w-full px-6 sm:px-10 lg:px-16">
+        <div className="flex items-center justify-between h-20 gap-4">
           {/* Brand Logo */}
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-3 group">
@@ -67,7 +67,7 @@ const Navbar = () => {
                 <img
                   alt="NOVA LMS Logo"
                   className="w-full h-full object-cover"
-                  src="https://lh3.googleusercontent.com/aida/AEtjO1VX6glAMDScckxdKvqNz-7dYuwBY8E1qNHKiqF8f9XsnXa2KyPDDte-ReFj61F05cry7ULTsTTCECOGge9SfpX02PUqVF_tUdcpiBfYMLiHwNzQceC78AYMy1QK4W4pkALbNHNU6YVsPzh_5AfQdeJ22UIKok4NPRMO4HT9NbJ4CflT_mgfcaccLXCiaxgyp-5T0_OSu3CZO-gmnd8VBuBrDKYuyjZVL73Eaj8CGHw104BeAA77RHiLWw"
+                  src="/assets/nova-logo.png"
                 />
               </div>
               <div className="flex flex-col">
@@ -191,6 +191,20 @@ const Navbar = () => {
                         )}
 
                         <Link
+                          to="/notifications"
+                          onClick={() => setIsProfileOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-colors"
+                        >
+                          <Bell className="w-4 h-4 text-indigo-500" />
+                          <span>Notifications</span>
+                          {unreadCount > 0 && (
+                            <span className="ml-auto bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                              {unreadCount}
+                            </span>
+                          )}
+                        </Link>
+
+                        <Link
                           to={`/${user.role}/profile`}
                           onClick={() => setIsProfileOpen(false)}
                           className="flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-colors"
@@ -234,9 +248,11 @@ const Navbar = () => {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 text-slate-600 dark:text-slate-300 md:hidden rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={isMobileMenuOpen}
+              className="p-2 text-slate-600 dark:text-slate-300 md:hidden rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
             >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
@@ -244,35 +260,96 @@ const Navbar = () => {
 
       {/* Mobile Drawer */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 space-y-3">
+        <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 space-y-3 animate-in slide-in-from-top-2 duration-150 shadow-lg">
           <form onSubmit={handleSearchSubmit} className="relative">
             <input
               type="text"
-              placeholder="Search courses..."
+              placeholder="Search courses, topics..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm bg-slate-100 dark:bg-slate-800 rounded-lg outline-none"
+              className="w-full pl-10 pr-4 py-2 text-sm bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"
             />
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
           </form>
 
-          <Link
-            to="/courses"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            Explore Courses
-          </Link>
-
-          {isAuthenticated && user && (
+          <div className="space-y-1 pt-1">
             <Link
-              to={getDashboardPath()}
+              to="/courses"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="block px-3 py-2 rounded-lg text-sm font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
-              Go to Dashboard ({user.role})
+              <BookOpen className="w-4 h-4 text-indigo-500" />
+              <span>Explore Courses</span>
             </Link>
-          )}
+
+            {isAuthenticated && user ? (
+              <>
+                <Link
+                  to={getDashboardPath()}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 transition-colors"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span className="capitalize">{user.role} Dashboard</span>
+                </Link>
+
+                <Link
+                  to="/notifications"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-amber-500" />
+                    <span>Notifications</span>
+                  </div>
+                  {unreadCount > 0 && (
+                    <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full">
+                      {unreadCount}
+                    </span>
+                  )}
+                </Link>
+
+                <Link
+                  to={`/${user.role}/profile`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <User className="w-4 h-4 text-blue-500" />
+                  <span>Profile Settings</span>
+                </Link>
+
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="pt-2 grid grid-cols-2 gap-2">
+                <Link
+                  to="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full py-2 text-center text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 rounded-xl"
+                >
+                  Log in
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full py-2 text-center text-xs font-bold text-white bg-indigo-600 rounded-xl"
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </nav>

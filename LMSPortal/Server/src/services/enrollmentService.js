@@ -2,6 +2,7 @@ import Enrollment from '../models/Enrollment.js';
 import Course from '../models/Course.js';
 import Progress from '../models/Progress.js';
 import Notification from '../models/Notification.js';
+import { createNotification } from './notificationService.js';
 import ErrorResponse from '../utils/errorResponse.js';
 
 export const enrollInCourse = async (studentId, courseId, studentName = 'Student') => {
@@ -41,21 +42,21 @@ export const enrollInCourse = async (studentId, courseId, studentName = 'Student
   course.enrollmentCount = (course.enrollmentCount || 0) + 1;
   await course.save();
 
-  // Create notifications
-  await Notification.create({
+  // Create notifications with real-time Socket.IO dispatch
+  await createNotification({
     recipient: studentId,
     title: 'Course Enrollment Successful',
     message: `You have successfully enrolled in "${course.title}". Start learning today!`,
-    type: 'enrollment',
+    type: 'course_enrollment',
     link: `/student/course/${courseId}/learn`,
   });
 
   if (course.instructor) {
-    await Notification.create({
+    await createNotification({
       recipient: course.instructor,
       title: 'New Student Enrolled',
       message: `${studentName} enrolled in your course "${course.title}".`,
-      type: 'enrollment',
+      type: 'course_enrollment',
       link: `/instructor/dashboard`,
     });
   }

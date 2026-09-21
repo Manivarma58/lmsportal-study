@@ -1,6 +1,7 @@
 import Lesson from '../models/Lesson.js';
 import Course from '../models/Course.js';
 import Enrollment from '../models/Enrollment.js';
+import { createNotification } from './notificationService.js';
 import ErrorResponse from '../utils/errorResponse.js';
 
 export const createLesson = async (lessonData, requesterUser) => {
@@ -31,7 +32,8 @@ export const createLesson = async (lessonData, requesterUser) => {
     throw new ErrorResponse('Course not found.', 404);
   }
 
-  if (courseDoc.instructor.toString() !== requesterUser.id && requesterUser.role !== 'admin') {
+  const courseDocInstructorId = (courseDoc.instructor?._id || courseDoc.instructor)?.toString();
+  if (courseDocInstructorId !== requesterUser.id && requesterUser.role !== 'admin') {
     throw new ErrorResponse('Not authorized to add lessons to this course.', 403);
   }
 
@@ -50,6 +52,22 @@ export const createLesson = async (lessonData, requesterUser) => {
     isFreePreview: Boolean(isFreePreview),
   });
 
+  // Notify enrolled students of new lesson
+  try {
+    const enrollments = await Enrollment.find({ course: targetCourseId }).select('student');
+    for (const enr of enrollments) {
+      await createNotification({
+        recipient: enr.student,
+        title: 'New Lesson Available',
+        message: `A new lesson "${title.trim()}" has been added to "${courseDoc.title}".`,
+        type: 'new_lesson',
+        link: `/student/course/${targetCourseId}/learn`,
+      });
+    }
+  } catch (notifErr) {
+    console.error('[LessonService] Failed to notify enrolled students:', notifErr);
+  }
+
   return lesson;
 };
 
@@ -65,7 +83,8 @@ export const getLessonsByCourse = async (courseId, requesterUser = null) => {
 
   let hasFullAccess = false;
   if (requesterUser) {
-    if (requesterUser.role === 'admin' || course.instructor.toString() === requesterUser.id) {
+    const instructorId = (course.instructor?._id || course.instructor)?.toString();
+    if (requesterUser.role === 'admin' || instructorId === requesterUser.id) {
       hasFullAccess = true;
     } else {
       const enrollment = await Enrollment.findOne({
@@ -102,7 +121,8 @@ export const getLessonById = async (lessonId, requesterUser = null) => {
   let hasFullAccess = Boolean(lesson.isFreePreview);
 
   if (requesterUser && course) {
-    if (requesterUser.role === 'admin' || course.instructor.toString() === requesterUser.id) {
+    const instructorId = (course.instructor?._id || course.instructor)?.toString();
+    if (requesterUser.role === 'admin' || instructorId === requesterUser.id) {
       hasFullAccess = true;
     } else {
       const enrollment = await Enrollment.findOne({
@@ -127,7 +147,8 @@ export const updateLesson = async (lessonId, updateData, requesterUser) => {
   }
 
   const course = await Course.findById(lesson.course);
-  if (course.instructor.toString() !== requesterUser.id && requesterUser.role !== 'admin') {
+  const instructorId = (course?.instructor?._id || course?.instructor)?.toString();
+  if (!course || (instructorId !== requesterUser.id && requesterUser.role !== 'admin')) {
     throw new ErrorResponse('Not authorized to modify this lesson.', 403);
   }
 
@@ -146,7 +167,8 @@ export const deleteLesson = async (lessonId, requesterUser) => {
   }
 
   const course = await Course.findById(lesson.course);
-  if (course.instructor.toString() !== requesterUser.id && requesterUser.role !== 'admin') {
+  const instructorId = (course?.instructor?._id || course?.instructor)?.toString();
+  if (!course || (instructorId !== requesterUser.id && requesterUser.role !== 'admin')) {
     throw new ErrorResponse('Not authorized to delete this lesson.', 403);
   }
 
@@ -160,7 +182,8 @@ export const reorderLessons = async (courseId, lessonOrders, requesterUser) => {
     throw new ErrorResponse('Course not found.', 404);
   }
 
-  if (course.instructor.toString() !== requesterUser.id && requesterUser.role !== 'admin') {
+  const instructorId = (course.instructor?._id || course.instructor)?.toString();
+  if (instructorId !== requesterUser.id && requesterUser.role !== 'admin') {
     throw new ErrorResponse('Not authorized to reorder lessons for this course.', 403);
   }
 

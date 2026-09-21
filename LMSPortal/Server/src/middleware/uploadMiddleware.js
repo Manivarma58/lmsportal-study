@@ -18,15 +18,32 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|webp|gif|svg|pdf|doc|docx|mp4|webm/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.pdf', '.doc', '.docx', '.mp4', '.webm'];
 
-  if (extname || mimetype) {
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'video/mp4',
+  'video/webm',
+];
+
+const fileFilter = (req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  const mimetype = (file.mimetype || '').toLowerCase();
+
+  const isExtAllowed = ALLOWED_EXTENSIONS.includes(ext);
+  const isMimeAllowed = ALLOWED_MIME_TYPES.includes(mimetype);
+
+  // Require BOTH extension and MIME type to match allowed whitelist
+  if (isExtAllowed && isMimeAllowed) {
     return cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only images, videos, and documents are allowed.'));
+    cb(new Error('Invalid or unsafe file type. Only standard images, documents, and videos are permitted. SVG, executable, and script files are strictly rejected.'));
   }
 };
 

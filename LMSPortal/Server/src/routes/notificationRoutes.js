@@ -6,6 +6,7 @@ import {
   deleteNotification,
   broadcastNotification,
   getBroadcastHistory,
+  sendCourseAnnouncement,
 } from '../controllers/notificationController.js';
 import { authMiddleware, roleMiddleware } from '../middleware/authMiddleware.js';
 
@@ -20,6 +21,9 @@ router.put('/read-all', markAllAsRead);
 router.patch('/:id/read', markAsRead);
 router.put('/:id/read', markAsRead);
 router.delete('/:id', deleteNotification);
+
+// Course Announcement (Instructor or Admin)
+router.post('/announcement', roleMiddleware('instructor', 'admin'), sendCourseAnnouncement);
 
 // Admin-only broadcast notification routes
 router.post('/broadcast', roleMiddleware('admin'), broadcastNotification);

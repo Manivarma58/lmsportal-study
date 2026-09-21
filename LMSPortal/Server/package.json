@@ -12,11 +12,17 @@
     "test:auth": "node src/test-auth.js",
     "test:api": "node src/test-api.js",
     "test:instructor": "node src/test-instructor.js",
-    "test:admin": "node src/test-admin.js"
+    "test:admin": "node src/test-admin.js",
+    "test:learning": "node src/test-learning.js",
+    "test:quiz": "node src/test-quiz.js",
+    "test:chat": "node src/test-chat.js",
+    "test:notifications": "node src/test-notifications.js",
+    "test:security": "node src/test-security.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",
+    "compression": "^1.8.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
@@ -26,6 +32,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.3",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

@@ -1,6 +1,8 @@
 import Course from '../models/Course.js';
 import Lesson from '../models/Lesson.js';
 import Enrollment from '../models/Enrollment.js';
+import User from '../models/User.js';
+import { createNotification } from './notificationService.js';
 import ErrorResponse from '../utils/errorResponse.js';
 
 export const createCourse = async (courseData, instructorId) => {
@@ -34,7 +36,7 @@ export const createCourse = async (courseData, instructorId) => {
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
-  const numericPrice = isFree ? 0 : Number(price) || 0;
+  const numericPrice = isFree ? 0 : Math.max(0, Number(price) || 0);
 
   const course = await Course.create({
     title: title.trim(),
@@ -52,6 +54,23 @@ export const createCourse = async (courseData, instructorId) => {
     tags: Array.isArray(tags) ? tags : [],
     published: Boolean(published !== undefined ? published : isPublished),
   });
+
+  if (course.published) {
+    try {
+      const students = await User.find({ role: 'student', isActive: true }).select('_id').limit(50);
+      for (const s of students) {
+        await createNotification({
+          recipient: s._id,
+          title: `🚀 New Course: ${course.title}`,
+          message: `A new course "${course.title}" in ${course.category} is now available.`,
+          type: 'new_course',
+          link: `/course/${course._id}`,
+        });
+      }
+    } catch (err) {
+      console.error('[CourseService] Failed to dispatch new course notifications:', err);
+    }
+  }
 
   return course;
 };
@@ -78,20 +97,21 @@ export const getAllCourses = async ({
     query.$or = [{ published: true }, { isPublished: true }];
   }
 
-  if (keyword) {
+  if (typeof keyword === 'string' && keyword.trim()) {
+    const cleanKw = keyword.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     query.$or = [
-      { title: { $regex: keyword, $options: 'i' } },
-      { description: { $regex: keyword, $options: 'i' } },
-      { tags: { $in: [new RegExp(keyword, 'i')] } },
+      { title: { $regex: cleanKw, $options: 'i' } },
+      { description: { $regex: cleanKw, $options: 'i' } },
+      { tags: { $in: [new RegExp(cleanKw, 'i')] } },
     ];
   }
 
-  if (category && category !== 'All') {
-    query.category = category;
+  if (typeof category === 'string' && category.trim() && category !== 'All') {
+    query.category = category.trim();
   }
 
-  if (level && level !== 'All') {
-    query.level = level;
+  if (typeof level === 'string' && level.trim() && level !== 'All') {
+    query.level = level.trim();
   }
 
   if (price === 'free') {
@@ -112,13 +132,19 @@ export const getAllCourses = async ({
   const limitNum = Math.max(1, Number(limit) || 12);
   const skip = (pageNum - 1) * limitNum;
 
-  const courses = await Course.find(query)
-    .populate('instructor', 'name email avatar profileImage headline')
-    .sort(sortOption)
-    .skip(skip)
-    .limit(limitNum);
-
-  const total = await Course.countDocuments(query);
+  // Run list query with field projection and count in parallel
+  const [courses, total] = await Promise.all([
+    Course.find(query)
+      .select(
+        'title slug shortDescription category level price isFree thumbnail rating numReviews enrollmentCount published isPublished instructor createdAt tags'
+      )
+      .populate('instructor', 'name email avatar profileImage headline')
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limitNum)
+      .lean(),
+    Course.countDocuments(query),
+  ]);
 
   return {
     total,
@@ -130,7 +156,7 @@ export const getAllCourses = async ({
 
 export const getCourseById = async (courseId, requesterUser = null) => {
   const course = await Course.findById(courseId)
-    .populate('instructor', 'name email avatar profileImage headline bio')
+    .populate('instructor', 'name avatar profileImage headline bio')
     .populate({ path: 'lessons', options: { sort: { order: 1 } } });
 
   if (!course) {
@@ -139,10 +165,11 @@ export const getCourseById = async (courseId, requesterUser = null) => {
 
   // If unpublished, ensure only the instructor or admin can view
   if (!course.published) {
+    const instructorId = (course.instructor?._id || course.instructor)?.toString();
     const isOwnerOrAdmin =
       requesterUser &&
       (requesterUser.role === 'admin' ||
-        requesterUser.id.toString() === course.instructor._id.toString());
+        (instructorId && requesterUser.id.toString() === instructorId));
 
     if (!isOwnerOrAdmin) {
       throw new ErrorResponse('This course is not published.', 403);
@@ -158,27 +185,44 @@ export const updateCourse = async (courseId, updateData, requesterUser) => {
     throw new ErrorResponse('Course not found.', 404);
   }
 
-  if (course.instructor.toString() !== requesterUser.id && requesterUser.role !== 'admin') {
+  const instructorId = (course.instructor?._id || course.instructor)?.toString();
+  if (instructorId !== requesterUser.id && requesterUser.role !== 'admin') {
     throw new ErrorResponse('Not authorized to modify this course.', 403);
   }
 
-  if (updateData.title) {
-    updateData.slug = updateData.title
+  // Security: Whitelist allowed fields to prevent IDOR ownership changes or metric tampering
+  const safeUpdate = {};
+  if (updateData.title !== undefined) {
+    safeUpdate.title = updateData.title.trim();
+    safeUpdate.slug = updateData.title
       .toLowerCase()
       .trim()
       .replace(/[^\w\s-]/g, '')
       .replace(/[\s_-]+/g, '-')
       .replace(/^-+|-+$/g, '');
   }
+  if (updateData.description !== undefined) safeUpdate.description = updateData.description.trim();
+  if (updateData.shortDescription !== undefined) safeUpdate.shortDescription = updateData.shortDescription;
+  if (updateData.category !== undefined) safeUpdate.category = updateData.category;
+  if (updateData.level !== undefined) safeUpdate.level = updateData.level;
+  if (updateData.price !== undefined) safeUpdate.price = Math.max(0, Number(updateData.price) || 0);
+  if (updateData.isFree !== undefined) safeUpdate.isFree = Boolean(updateData.isFree);
+  if (updateData.thumbnail !== undefined) safeUpdate.thumbnail = updateData.thumbnail;
+  if (updateData.requirements !== undefined) safeUpdate.requirements = updateData.requirements;
+  if (updateData.willLearn !== undefined) safeUpdate.willLearn = updateData.willLearn;
+  if (updateData.tags !== undefined) safeUpdate.tags = updateData.tags;
+  if (updateData.published !== undefined) safeUpdate.published = Boolean(updateData.published);
+  else if (updateData.isPublished !== undefined) safeUpdate.published = Boolean(updateData.isPublished);
 
-  if (updateData.isPublished !== undefined && updateData.published === undefined) {
-    updateData.published = updateData.isPublished;
+  // Admin can reassign instructor if explicitly requested, but regular instructors cannot change course.instructor
+  if (requesterUser.role === 'admin' && updateData.instructor) {
+    safeUpdate.instructor = updateData.instructor;
   }
 
-  const updatedCourse = await Course.findByIdAndUpdate(courseId, updateData, {
+  const updatedCourse = await Course.findByIdAndUpdate(courseId, safeUpdate, {
     new: true,
     runValidators: true,
-  }).populate('instructor', 'name email avatar profileImage headline');
+  }).populate('instructor', 'name avatar profileImage headline');
 
   return updatedCourse;
 };
@@ -189,7 +233,8 @@ export const deleteCourse = async (courseId, requesterUser) => {
     throw new ErrorResponse('Course not found.', 404);
   }
 
-  if (course.instructor.toString() !== requesterUser.id && requesterUser.role !== 'admin') {
+  const instructorId = (course.instructor?._id || course.instructor)?.toString();
+  if (instructorId !== requesterUser.id && requesterUser.role !== 'admin') {
     throw new ErrorResponse('Not authorized to delete this course.', 403);
   }
 
@@ -207,7 +252,8 @@ export const togglePublishCourse = async (courseId, requesterUser) => {
     throw new ErrorResponse('Course not found.', 404);
   }
 
-  if (course.instructor.toString() !== requesterUser.id && requesterUser.role !== 'admin') {
+  const instructorId = (course.instructor?._id || course.instructor)?.toString();
+  if (instructorId !== requesterUser.id && requesterUser.role !== 'admin') {
     throw new ErrorResponse('Not authorized to publish/unpublish this course.', 403);
   }
 
@@ -220,16 +266,21 @@ export const togglePublishCourse = async (courseId, requesterUser) => {
 export const getInstructorCourses = async (instructorId) => {
   const courses = await Course.find({ instructor: instructorId })
     .populate({ path: 'lessons', select: 'title duration order' })
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .lean();
 
   return courses;
 };
 
 export const getFeaturedCourses = async () => {
   const courses = await Course.find({ published: true, isFeatured: true })
+    .select(
+      'title slug shortDescription category level price isFree thumbnail rating numReviews enrollmentCount published isPublished instructor createdAt tags'
+    )
     .populate('instructor', 'name email avatar profileImage headline')
     .sort({ rating: -1 })
-    .limit(6);
+    .limit(6)
+    .lean();
 
   return courses;
 };

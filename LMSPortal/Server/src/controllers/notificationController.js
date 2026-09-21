@@ -82,7 +82,28 @@ export const broadcastNotification = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    Get broadcast announcements history (Admin only)
+ * @desc    Send announcement to students enrolled in an instructor's course
+ * @route   POST /api/notifications/announcement
+ * @access  Private/Instructor or Admin
+ */
+export const sendCourseAnnouncement = asyncHandler(async (req, res) => {
+  const { courseId, title, message } = req.body;
+  const result = await notificationService.createCourseAnnouncement({
+    courseId,
+    title,
+    message,
+    instructorUser: req.user,
+  });
+
+  res.status(201).json({
+    success: true,
+    message: `Announcement dispatched to ${result.recipientsCount} enrolled student(s).`,
+    ...result,
+  });
+});
+
+/**
+ * @desc    Get broadcast notification history (Admin only)
  * @route   GET /api/notifications/broadcasts
  * @access  Private/Admin
  */
@@ -102,4 +123,5 @@ export default {
   deleteNotification,
   broadcastNotification,
   getBroadcastHistory,
+  sendCourseAnnouncement,
 };

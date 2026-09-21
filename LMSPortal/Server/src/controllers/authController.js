@@ -93,10 +93,12 @@ export const changePassword = asyncHandler(async (req, res) => {
  */
 export const forgotPassword = asyncHandler(async (req, res) => {
   const result = await authService.forgotPassword(req.body.email);
+  const isProd = process.env.NODE_ENV === 'production';
+
   res.status(200).json({
     success: true,
-    message: 'Password reset link sent to email (simulated for dev).',
-    resetToken: result.resetToken,
+    message: 'If an account exists with this email, password reset instructions have been sent.',
+    ...(isProd ? {} : { resetToken: result.resetToken }),
   });
 });
 

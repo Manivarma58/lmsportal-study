@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { getJwtSecret } from '../config/env.js';
 
 /**
  * Authentication Middleware
@@ -27,7 +28,7 @@ export const protect = async (req, res, next) => {
   }
 
   try {
-    const secret = process.env.JWT_SECRET || 'lms_super_secret_jwt_key_2026_xyz!@#';
+    const secret = getJwtSecret();
     const decoded = jwt.verify(token, secret);
 
     const user = await User.findById(decoded.id).select('-password');
@@ -103,7 +104,7 @@ export const optionalProtect = async (req, res, next) => {
 
   if (token) {
     try {
-      const secret = process.env.JWT_SECRET || 'lms_super_secret_jwt_key_2026_xyz!@#';
+      const secret = getJwtSecret();
       const decoded = jwt.verify(token, secret);
       const user = await User.findById(decoded.id).select('-password');
       if (user && user.isActive) {

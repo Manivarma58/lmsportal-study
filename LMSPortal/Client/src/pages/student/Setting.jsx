@@ -1,891 +1,367 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { updateProfile } from '../../store/slices/authSlice';
+import authService from '../../services/authService';
+import { toast } from 'sonner';
 
-function Setting() {
-    const [activeTab, setActiveTab] = useState('general');
-    const [settings, setSettings] = useState({
-        general: {
-            language: 'english',
-            theme: 'light',
-            timezone: 'UTC+5:30'
-        },
-        notifications: {
-            emailPromotions: true,
-            promotionalEmails: false,
-            instructorAnnouncements: true,
-            examNotices: true,
-            courseRecommendations: true,
-            assignmentReminders: true,
-            deadlineAlerts: true
-        },
-        privacy: {
-            profileVisibility: 'public',
-            showEmail: false,
-            showCourses: true,
-            showProgress: true,
-            dataSharing: false
-        },
-        subscription: {
-            plan: 'free',
-            nextBillingDate: '2024-12-01',
-            autoRenew: true
-        }
-    });
+export default function Setting() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
 
-    const languages = [
-        { value: 'english', label: 'English' },
-        { value: 'spanish', label: 'Spanish' },
-        { value: 'french', label: 'French' },
-        { value: 'german', label: 'German' },
-        { value: 'chinese', label: 'Chinese' }
-    ];
+  const [activeTab, setActiveTab] = useState('account');
+  const [isSaving, setIsSaving] = useState(false);
 
-    const themes = [
-        { value: 'light', label: 'Light' },
-        { value: 'dark', label: 'Dark' },
-        { value: 'auto', label: 'Auto' }
-    ];
+  // Settings state initialized with real user data
+  const [profileData, setProfileData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    headline: user?.headline || 'Engineering Scholar',
+    bio: user?.bio || '',
+    avatar: user?.avatar || user?.profileImage || '',
+    timezone: 'UTC+05:30 (IST)',
+    language: 'en_US',
+  });
 
-    const timezones = [
-        { value: 'UTC+5:30', label: 'UTC+5:30 (India)' },
-        { value: 'UTC-5', label: 'UTC-5 (EST)' },
-        { value: 'UTC-8', label: 'UTC-8 (PST)' },
-        { value: 'UTC+0', label: 'UTC+0 (GMT)' },
-        { value: 'UTC+1', label: 'UTC+1 (CET)' }
-    ];
+  // Password state
+  const [passwords, setPasswords] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
 
-    const handleSettingChange = (category, key, value) => {
-        setSettings(prev => ({
-            ...prev,
-            [category]: {
-                ...prev[category],
-                [key]: value
-            }
-        }));
-    };
+  // Notifications preferences
+  const [notificationPrefs, setNotificationPrefs] = useState({
+    courseAnnouncements: true,
+    assignmentDeadlines: true,
+    quizScorecards: true,
+    weeklyDigest: false,
+    soundAlerts: true,
+  });
 
-    const handleSaveSettings = () => {
-        // In a real app, you would save settings to backend
-        alert('Settings saved successfully!');
-    };
+  // Editor/Sandbox preferences
+  const [sandboxPrefs, setSandboxPrefs] = useState({
+    theme: 'light',
+    fontSize: '14',
+    tabSize: '2',
+    lineNumbers: true,
+    autoSave: true,
+  });
 
-    const handleResetSettings = () => {
-        if (window.confirm('Are you sure you want to reset all settings to default?')) {
-            setSettings({
-                general: {
-                    language: 'english',
-                    theme: 'light',
-                    timezone: 'UTC+5:30'
-                },
-                notifications: {
-                    emailPromotions: true,
-                    promotionalEmails: false,
-                    instructorAnnouncements: true,
-                    examNotices: true,
-                    courseRecommendations: true,
-                    assignmentReminders: true,
-                    deadlineAlerts: true
-                },
-                privacy: {
-                    profileVisibility: 'public',
-                    showEmail: false,
-                    showCourses: true,
-                    showProgress: true,
-                    dataSharing: false
-                },
-                subscription: {
-                    plan: 'free',
-                    nextBillingDate: '2024-12-01',
-                    autoRenew: true
-                }
-            });
-        }
-    };
+  useEffect(() => {
+    if (user) {
+      setProfileData((prev) => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+        headline: user.headline || prev.headline,
+        bio: user.bio || prev.bio,
+        avatar: user.avatar || user.profileImage || prev.avatar,
+      }));
+    }
+  }, [user]);
 
-    return (
-        <div className="settings-container">
-            <style>
-                {`
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-                
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
-                
-                .settings-container {
-                    font-family: 'Inter', sans-serif;
-                    min-height: 100vh;
-                    background: #f5f7fa;
-                    padding: 2rem;
-                }
-                
-                /* Header */
-                .header {
-                    margin-bottom: 2rem;
-                }
-                
-                .header h1 {
-                    font-size: 2rem;
-                    color: #1a1a1a;
-                    margin-bottom: 0.5rem;
-                }
-                
-                .header p {
-                    color: #6c757d;
-                    font-size: 1rem;
-                }
-                
-                /* Settings Tabs */
-                .settings-tabs {
-                    display: flex;
-                    gap: 1rem;
-                    margin-bottom: 2rem;
-                    border-bottom: 1px solid #eef2f7;
-                    padding-bottom: 1rem;
-                    flex-wrap: wrap;
-                }
-                
-                .tab {
-                    padding: 0.75rem 1.5rem;
-                    background: transparent;
-                    border: none;
-                    border-radius: 8px;
-                    color: #6c757d;
-                    font-weight: 500;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                }
-                
-                .tab:hover {
-                    background: #f8f9fa;
-                    color: #4361ee;
-                }
-                
-                .tab.active {
-                    background: #4361ee;
-                    color: white;
-                }
-                
-                /* Settings Content */
-                .settings-content {
-                    background: white;
-                    border-radius: 15px;
-                    padding: 2rem;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-                    border: 1px solid #eef2f7;
-                    min-height: 500px;
-                }
-                
-                /* General Settings */
-                .section {
-                    margin-bottom: 2rem;
-                }
-                
-                .section-title {
-                    font-size: 1.25rem;
-                    font-weight: 600;
-                    color: #1a1a1a;
-                    margin-bottom: 1.5rem;
-                    padding-bottom: 0.75rem;
-                    border-bottom: 1px solid #eef2f7;
-                }
-                
-                .form-group {
-                    margin-bottom: 1.5rem;
-                }
-                
-                .form-label {
-                    display: block;
-                    font-size: 0.95rem;
-                    font-weight: 600;
-                    color: #1a1a1a;
-                    margin-bottom: 0.5rem;
-                }
-                
-                .form-help {
-                    font-size: 0.85rem;
-                    color: #6c757d;
-                    margin-top: 0.25rem;
-                }
-                
-                .form-select {
-                    width: 100%;
-                    max-width: 300px;
-                    padding: 0.75rem 1rem;
-                    border: 1px solid #eef2f7;
-                    border-radius: 8px;
-                    font-size: 0.95rem;
-                    background: white;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                }
-                
-                .form-select:focus {
-                    outline: none;
-                    border-color: #4361ee;
-                    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
-                }
-                
-                /* Notification Settings */
-                .notification-item {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 1rem;
-                    background: #f8f9fa;
-                    border-radius: 8px;
-                    margin-bottom: 1rem;
-                    border: 1px solid #eef2f7;
-                }
-                
-                .notification-info h4 {
-                    font-size: 1rem;
-                    color: #1a1a1a;
-                    margin-bottom: 0.25rem;
-                }
-                
-                .notification-info p {
-                    font-size: 0.85rem;
-                    color: #6c757d;
-                }
-                
-                /* Toggle Switch */
-                .toggle-switch {
-                    position: relative;
-                    display: inline-block;
-                    width: 50px;
-                    height: 24px;
-                }
-                
-                .toggle-switch input {
-                    opacity: 0;
-                    width: 0;
-                    height: 0;
-                }
-                
-                .toggle-slider {
-                    position: absolute;
-                    cursor: pointer;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background-color: #ccc;
-                    transition: .4s;
-                    border-radius: 24px;
-                }
-                
-                .toggle-slider:before {
-                    position: absolute;
-                    content: "";
-                    height: 16px;
-                    width: 16px;
-                    left: 4px;
-                    bottom: 4px;
-                    background-color: white;
-                    transition: .4s;
-                    border-radius: 50%;
-                }
-                
-                input:checked + .toggle-slider {
-                    background-color: #4361ee;
-                }
-                
-                input:checked + .toggle-slider:before {
-                    transform: translateX(26px);
-                }
-                
-                /* Privacy Settings */
-                .privacy-option {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 1rem;
-                    background: #f8f9fa;
-                    border-radius: 8px;
-                    margin-bottom: 1rem;
-                    border: 1px solid #eef2f7;
-                }
-                
-                .radio-group {
-                    display: flex;
-                    gap: 1rem;
-                }
-                
-                .radio-label {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    cursor: pointer;
-                }
-                
-                .radio-input {
-                    accent-color: #4361ee;
-                }
-                
-                /* Subscription Section */
-                .subscription-card {
-                    background: linear-gradient(135deg, #4361ee, #3a56d4);
-                    color: white;
-                    padding: 1.5rem;
-                    border-radius: 12px;
-                    margin-bottom: 2rem;
-                }
-                
-                .subscription-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 1rem;
-                }
-                
-                .subscription-title {
-                    font-size: 1.2rem;
-                    font-weight: 600;
-                }
-                
-                .subscription-badge {
-                    background: rgba(255, 255, 255, 0.2);
-                    padding: 0.25rem 0.75rem;
-                    border-radius: 20px;
-                    font-size: 0.85rem;
-                    font-weight: 500;
-                }
-                
-                .subscription-details {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                    gap: 1rem;
-                    margin-top: 1rem;
-                }
-                
-                .subscription-detail {
-                    background: rgba(255, 255, 255, 0.1);
-                    padding: 1rem;
-                    border-radius: 8px;
-                }
-                
-                .detail-label {
-                    font-size: 0.85rem;
-                    opacity: 0.8;
-                    margin-bottom: 0.25rem;
-                }
-                
-                .detail-value {
-                    font-weight: 600;
-                }
-                
-                /* Action Buttons */
-                .action-buttons {
-                    display: flex;
-                    gap: 1rem;
-                    margin-top: 2rem;
-                    padding-top: 1.5rem;
-                    border-top: 1px solid #eef2f7;
-                }
-                
-                .btn-primary {
-                    background: #4361ee;
-                    color: white;
-                    border: none;
-                    padding: 0.75rem 1.5rem;
-                    border-radius: 8px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                }
-                
-                .btn-primary:hover {
-                    background: #3a56d4;
-                    transform: translateY(-2px);
-                }
-                
-                .btn-secondary {
-                    background: #f8f9fa;
-                    color: #1a1a1a;
-                    border: 1px solid #ddd;
-                    padding: 0.75rem 1.5rem;
-                    border-radius: 8px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                }
-                
-                .btn-secondary:hover {
-                    background: #e9ecef;
-                }
-                
-                /* Upgrade Section */
-                .upgrade-section {
-                    background: linear-gradient(135deg, #4361ee, #3a56d4);
-                    color: white;
-                    padding: 1.5rem;
-                    border-radius: 15px;
-                    margin-top: 2rem;
-                    text-align: center;
-                }
-                
-                .upgrade-title {
-                    font-size: 1.2rem;
-                    margin-bottom: 0.5rem;
-                    font-weight: 600;
-                }
-                
-                .upgrade-btn {
-                    background: white;
-                    color: #4361ee;
-                    border: none;
-                    padding: 0.75rem 1.5rem;
-                    border-radius: 8px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    margin-top: 1rem;
-                    transition: all 0.3s ease;
-                }
-                
-                .upgrade-btn:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-                }
-                
-                /* Danger Zone */
-                .danger-zone {
-                    margin-top: 3rem;
-                    padding-top: 1.5rem;
-                    border-top: 1px solid #ff6b6b;
-                }
-                
-                .danger-title {
-                    color: #dc3545;
-                    margin-bottom: 1rem;
-                    font-weight: 600;
-                }
-                
-                .btn-danger {
-                    background: #dc3545;
-                    color: white;
-                    border: none;
-                    padding: 0.75rem 1.5rem;
-                    border-radius: 8px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                }
-                
-                .btn-danger:hover {
-                    background: #c82333;
-                }
-                
-                /* Responsive */
-                @media (max-width: 768px) {
-                    .settings-container {
-                        padding: 1rem;
-                    }
-                    
-                    .settings-tabs {
-                        flex-direction: column;
-                    }
-                    
-                    .tab {
-                        width: 100%;
-                        text-align: left;
-                    }
-                    
-                    .action-buttons {
-                        flex-direction: column;
-                    }
-                    
-                    .btn-primary, .btn-secondary, .btn-danger {
-                        width: 100%;
-                    }
-                }
-                
-                @media (max-width: 480px) {
-                    .subscription-details {
-                        grid-template-columns: 1fr;
-                    }
-                    
-                    .form-select {
-                        max-width: 100%;
-                    }
-                    
-                    .radio-group {
-                        flex-direction: column;
-                        gap: 0.5rem;
-                    }
-                }
-                `}
-            </style>
+  const handleProfileSave = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      await dispatch(
+        updateProfile({
+          name: profileData.name,
+          headline: profileData.headline,
+          bio: profileData.bio,
+          avatar: profileData.avatar,
+        })
+      ).unwrap();
+      toast.success('Account profile settings saved successfully!');
+    } catch (err) {
+      toast.error(err.message || 'Failed to update account settings');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
-            <div className="header">
-                <h1>Settings</h1>
-                <p>Manage your account preferences and settings</p>
-            </div>
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      toast.error('New passwords do not match');
+      return;
+    }
+    if (passwords.newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
 
-            {/* Tabs */}
-            <div className="settings-tabs">
-                <button 
-                    className={`tab ${activeTab === 'general' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('general')}
-                >
-                    General
-                </button>
-                <button 
-                    className={`tab ${activeTab === 'notifications' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('notifications')}
-                >
-                    Email Notification
-                </button>
-                <button 
-                    className={`tab ${activeTab === 'privacy' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('privacy')}
-                >
-                    Privacy
-                </button>
-                <button 
-                    className={`tab ${activeTab === 'subscription' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('subscription')}
-                >
-                    Subscription
-                </button>
-            </div>
+    try {
+      await authService.changePassword({
+        currentPassword: passwords.currentPassword,
+        newPassword: passwords.newPassword,
+      });
+      toast.success('Password changed successfully!');
+      setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to change password');
+    }
+  };
 
-            {/* Settings Content */}
-            <div className="settings-content">
-                {activeTab === 'general' && (
-                    <>
-                        <h3 className="section-title">General Settings</h3>
-                        
-                        <div className="form-group">
-                            <label className="form-label">Language</label>
-                            <select 
-                                className="form-select"
-                                value={settings.general.language}
-                                onChange={(e) => handleSettingChange('general', 'language', e.target.value)}
-                            >
-                                {languages.map(lang => (
-                                    <option key={lang.value} value={lang.value}>{lang.label}</option>
-                                ))}
-                            </select>
-                            <p className="form-help">Choose your preferred language for the interface</p>
-                        </div>
-                        
-                        <div className="form-group">
-                            <label className="form-label">Theme</label>
-                            <select 
-                                className="form-select"
-                                value={settings.general.theme}
-                                onChange={(e) => handleSettingChange('general', 'theme', e.target.value)}
-                            >
-                                {themes.map(theme => (
-                                    <option key={theme.value} value={theme.value}>{theme.label}</option>
-                                ))}
-                            </select>
-                            <p className="form-help">Choose light, dark, or auto theme</p>
-                        </div>
-                        
-                        <div className="form-group">
-                            <label className="form-label">Timezone</label>
-                            <select 
-                                className="form-select"
-                                value={settings.general.timezone}
-                                onChange={(e) => handleSettingChange('general', 'timezone', e.target.value)}
-                            >
-                                {timezones.map(tz => (
-                                    <option key={tz.value} value={tz.value}>{tz.label}</option>
-                                ))}
-                            </select>
-                            <p className="form-help">Set your local timezone for accurate timing</p>
-                        </div>
-                    </>
-                )}
-                
-                {activeTab === 'notifications' && (
-                    <>
-                        <h3 className="section-title">Email Notification</h3>
-                        <p style={{color: '#6c757d', marginBottom: '1.5rem'}}>When email me:</p>
-                        
-                        <div className="notification-item">
-                            <div className="notification-info">
-                                <h4>Promotion, course recommendations</h4>
-                            </div>
-                            <label className="toggle-switch">
-                                <input 
-                                    type="checkbox" 
-                                    checked={settings.notifications.emailPromotions}
-                                    onChange={(e) => handleSettingChange('notifications', 'emailPromotions', e.target.checked)}
-                                />
-                                <span className="toggle-slider"></span>
-                            </label>
-                        </div>
-                        
-                        <div className="notification-item">
-                            <div className="notification-info">
-                                <h4>Don't send any promotional emails</h4>
-                            </div>
-                            <label className="toggle-switch">
-                                <input 
-                                    type="checkbox" 
-                                    checked={settings.notifications.promotionalEmails}
-                                    onChange={(e) => handleSettingChange('notifications', 'promotionalEmails', e.target.checked)}
-                                />
-                                <span className="toggle-slider"></span>
-                            </label>
-                        </div>
-                        
-                        <div className="notification-item">
-                            <div className="notification-info">
-                                <h4>Announcement from instructors whose course</h4>
-                            </div>
-                            <label className="toggle-switch">
-                                <input 
-                                    type="checkbox" 
-                                    checked={settings.notifications.instructorAnnouncements}
-                                    onChange={(e) => handleSettingChange('notifications', 'instructorAnnouncements', e.target.checked)}
-                                />
-                                <span className="toggle-slider"></span>
-                            </label>
-                        </div>
-                        
-                        <div className="notification-item">
-                            <div className="notification-info">
-                                <h4>Examination notice</h4>
-                            </div>
-                            <label className="toggle-switch">
-                                <input 
-                                    type="checkbox" 
-                                    checked={settings.notifications.examNotices}
-                                    onChange={(e) => handleSettingChange('notifications', 'examNotices', e.target.checked)}
-                                />
-                                <span className="toggle-slider"></span>
-                            </label>
-                        </div>
-
-                        <div className="notification-item">
-                            <div className="notification-info">
-                                <h4>Course Recommendations</h4>
-                                <p>Receive personalized course suggestions</p>
-                            </div>
-                            <label className="toggle-switch">
-                                <input 
-                                    type="checkbox" 
-                                    checked={settings.notifications.courseRecommendations}
-                                    onChange={(e) => handleSettingChange('notifications', 'courseRecommendations', e.target.checked)}
-                                />
-                                <span className="toggle-slider"></span>
-                            </label>
-                        </div>
-
-                        <div className="notification-item">
-                            <div className="notification-info">
-                                <h4>Assignment Reminders</h4>
-                                <p>Get reminders for upcoming assignments</p>
-                            </div>
-                            <label className="toggle-switch">
-                                <input 
-                                    type="checkbox" 
-                                    checked={settings.notifications.assignmentReminders}
-                                    onChange={(e) => handleSettingChange('notifications', 'assignmentReminders', e.target.checked)}
-                                />
-                                <span className="toggle-slider"></span>
-                            </label>
-                        </div>
-
-                        <div className="notification-item">
-                            <div className="notification-info">
-                                <h4>Deadline Alerts</h4>
-                                <p>Receive alerts for approaching deadlines</p>
-                            </div>
-                            <label className="toggle-switch">
-                                <input 
-                                    type="checkbox" 
-                                    checked={settings.notifications.deadlineAlerts}
-                                    onChange={(e) => handleSettingChange('notifications', 'deadlineAlerts', e.target.checked)}
-                                />
-                                <span className="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </>
-                )}
-                
-                {activeTab === 'privacy' && (
-                    <>
-                        <h3 className="section-title">Privacy Settings</h3>
-                        
-                        <div className="privacy-option">
-                            <div className="notification-info">
-                                <h4>Profile Visibility</h4>
-                                <p>Who can see your profile</p>
-                            </div>
-                            <div className="radio-group">
-                                <label className="radio-label">
-                                    <input 
-                                        type="radio" 
-                                        className="radio-input"
-                                        name="profileVisibility"
-                                        value="public"
-                                        checked={settings.privacy.profileVisibility === 'public'}
-                                        onChange={(e) => handleSettingChange('privacy', 'profileVisibility', e.target.value)}
-                                    />
-                                    <span>Public</span>
-                                </label>
-                                <label className="radio-label">
-                                    <input 
-                                        type="radio" 
-                                        className="radio-input"
-                                        name="profileVisibility"
-                                        value="private"
-                                        checked={settings.privacy.profileVisibility === 'private'}
-                                        onChange={(e) => handleSettingChange('privacy', 'profileVisibility', e.target.value)}
-                                    />
-                                    <span>Private</span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div className="privacy-option">
-                            <div className="notification-info">
-                                <h4>Show Email Address</h4>
-                                <p>Allow others to see your email</p>
-                            </div>
-                            <label className="toggle-switch">
-                                <input 
-                                    type="checkbox" 
-                                    checked={settings.privacy.showEmail}
-                                    onChange={(e) => handleSettingChange('privacy', 'showEmail', e.target.checked)}
-                                />
-                                <span className="toggle-slider"></span>
-                            </label>
-                        </div>
-                        
-                        <div className="privacy-option">
-                            <div className="notification-info">
-                                <h4>Show Enrolled Courses</h4>
-                                <p>Display your course list publicly</p>
-                            </div>
-                            <label className="toggle-switch">
-                                <input 
-                                    type="checkbox" 
-                                    checked={settings.privacy.showCourses}
-                                    onChange={(e) => handleSettingChange('privacy', 'showCourses', e.target.checked)}
-                                />
-                                <span className="toggle-slider"></span>
-                            </label>
-                        </div>
-
-                        <div className="privacy-option">
-                            <div className="notification-info">
-                                <h4>Show Learning Progress</h4>
-                                <p>Allow others to see your course progress</p>
-                            </div>
-                            <label className="toggle-switch">
-                                <input 
-                                    type="checkbox" 
-                                    checked={settings.privacy.showProgress}
-                                    onChange={(e) => handleSettingChange('privacy', 'showProgress', e.target.checked)}
-                                />
-                                <span className="toggle-slider"></span>
-                            </label>
-                        </div>
-
-                        <div className="privacy-option">
-                            <div className="notification-info">
-                                <h4>Data Sharing</h4>
-                                <p>Allow anonymous data for improvement</p>
-                            </div>
-                            <label className="toggle-switch">
-                                <input 
-                                    type="checkbox" 
-                                    checked={settings.privacy.dataSharing}
-                                    onChange={(e) => handleSettingChange('privacy', 'dataSharing', e.target.checked)}
-                                />
-                                <span className="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </>
-                )}
-                
-                {activeTab === 'subscription' && (
-                    <>
-                        <h3 className="section-title">Subscription</h3>
-                        
-                        <div className="subscription-card">
-                            <div className="subscription-header">
-                                <div className="subscription-title">Current Plan</div>
-                                <div className="subscription-badge">{settings.subscription.plan.toUpperCase()}</div>
-                            </div>
-                            <p>Access all basic features and limited resources</p>
-                            
-                            <div className="subscription-details">
-                                <div className="subscription-detail">
-                                    <div className="detail-label">Next Billing Date</div>
-                                    <div className="detail-value">{settings.subscription.nextBillingDate}</div>
-                                </div>
-                                <div className="subscription-detail">
-                                    <div className="detail-label">Auto Renew</div>
-                                    <div className="detail-value">
-                                        <label className="toggle-switch" style={{transform: 'scale(0.8)'}}>
-                                            <input 
-                                                type="checkbox" 
-                                                checked={settings.subscription.autoRenew}
-                                                onChange={(e) => handleSettingChange('subscription', 'autoRenew', e.target.checked)}
-                                            />
-                                            <span className="toggle-slider"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="notification-item">
-                            <div className="notification-info">
-                                <h4>Payment Methods</h4>
-                                <p>Manage your payment methods</p>
-                            </div>
-                            <button className="btn-primary" style={{padding: '0.5rem 1rem', fontSize: '0.9rem'}}>
-                                Manage
-                            </button>
-                        </div>
-
-                        <div className="notification-item">
-                            <div className="notification-info">
-                                <h4>Learning Reminder</h4>
-                                <p>Get reminders for your learning schedule</p>
-                            </div>
-                            <label className="toggle-switch">
-                                <input type="checkbox" defaultChecked />
-                                <span className="toggle-slider"></span>
-                            </label>
-                        </div>
-
-                        <div className="upgrade-section" style={{marginTop: '2rem', marginBottom: '2rem'}}>
-                            <div className="upgrade-title">Upgrade to PRO for more resources</div>
-                            <p style={{fontSize: "0.9rem", opacity: 0.9}}>Get access to premium courses and features</p>
-                            <button className="upgrade-btn">Upgrade Now</button>
-                        </div>
-                    </>
-                )}
-                
-                {/* Action Buttons */}
-                <div className="action-buttons">
-                    <button className="btn-primary" onClick={handleSaveSettings}>
-                        Save Settings
-                    </button>
-                    <button className="btn-secondary" onClick={handleResetSettings}>
-                        Reset to Default
-                    </button>
-                </div>
-
-                {/* Danger Zone */}
-                <div className="danger-zone">
-                    <h4 className="danger-title">Danger Zone</h4>
-                    <p style={{color: '#6c757d', marginBottom: '1rem'}}>Permanent actions that cannot be undone</p>
-                    <button className="btn-danger">Delete Account</button>
-                </div>
-            </div>
+  return (
+    <div className="flex flex-col w-full text-slate-800 antialiased pb-16 px-6 sm:px-8 lg:px-10 py-6">
+      {/* Header & Breadcrumb */}
+      <div className="flex flex-col gap-2 pb-6 border-b border-slate-200/90">
+        <div className="flex items-center gap-2 text-xs font-mono text-slate-500 uppercase tracking-wider">
+          <Link to="/student/dashboard" className="hover:text-blue-600 transition-colors">
+            Student Portal
+          </Link>
+          <span>/</span>
+          <span className="text-slate-800 font-semibold">Settings</span>
         </div>
-    );
-}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Student System &amp; Account Settings
+            </h1>
+            <p className="text-slate-600 text-sm mt-1">
+              Manage your personal scholar credentials, notifications, and interactive sandbox preferences.
+            </p>
+          </div>
+          <span className="px-3.5 py-1.5 rounded-xl bg-blue-50 text-blue-700 font-mono text-xs font-semibold border border-blue-200/70 flex items-center gap-1.5 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            ACCOUNT SYNCED
+          </span>
+        </div>
+      </div>
 
-export default Setting;
+      {/* Tabs Navigation */}
+      <div className="flex items-center gap-2 border-b border-slate-200/90 py-4 mb-6 overflow-x-auto">
+        {[
+          { id: 'account', label: 'Account & Identity', icon: 'person' },
+          { id: 'security', label: 'Security & Password', icon: 'lock' },
+          { id: 'notifications', label: 'Notification Alerts', icon: 'notifications' },
+          { id: 'sandbox', label: 'Sandbox Environment', icon: 'code' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
+              activeTab === tab.id
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200/80 hover:bg-slate-50'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Tab 1: Account & Identity */}
+      {activeTab === 'account' && (
+        <form onSubmit={handleProfileSave} className="flex flex-col gap-6 max-w-3xl">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex flex-col gap-5">
+            <h3 className="text-base font-bold text-slate-900 pb-3 border-b border-slate-100">
+              Scholar Profile Information
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  value={profileData.name}
+                  onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                  required
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
+                <input
+                  type="email"
+                  value={profileData.email}
+                  disabled
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-xs sm:text-sm text-slate-500 cursor-not-allowed font-mono"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Academic Headline</label>
+              <input
+                type="text"
+                value={profileData.headline}
+                onChange={(e) => setProfileData({ ...profileData, headline: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Bio / Statement of Intent</label>
+              <textarea
+                rows={4}
+                value={profileData.bio}
+                onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+                className="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Avatar Image URL</label>
+              <input
+                type="url"
+                value={profileData.avatar}
+                onChange={(e) => setProfileData({ ...profileData, avatar: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white"
+              />
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 flex justify-end">
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all disabled:opacity-50"
+              >
+                {isSaving ? 'Saving Changes...' : 'Save Profile Changes'}
+              </button>
+            </div>
+          </div>
+        </form>
+      )}
+
+      {/* Tab 2: Security & Password */}
+      {activeTab === 'security' && (
+        <form onSubmit={handlePasswordChange} className="flex flex-col gap-6 max-w-3xl">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex flex-col gap-4">
+            <h3 className="text-base font-bold text-slate-900 pb-3 border-b border-slate-100">
+              Update System Password
+            </h3>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Current Password</label>
+              <input
+                type="password"
+                value={passwords.currentPassword}
+                onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })}
+                required
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">New Password</label>
+                <input
+                  type="password"
+                  value={passwords.newPassword}
+                  onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
+                  required
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Confirm New Password</label>
+                <input
+                  type="password"
+                  value={passwords.confirmPassword}
+                  onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
+                  required
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white"
+                />
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 flex justify-end">
+              <button
+                type="submit"
+                className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all"
+              >
+                Update Password
+              </button>
+            </div>
+          </div>
+        </form>
+      )}
+
+      {/* Tab 3: Notifications */}
+      {activeTab === 'notifications' && (
+        <div className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex flex-col gap-4 max-w-3xl">
+          <h3 className="text-base font-bold text-slate-900 pb-3 border-b border-slate-100">
+            Notification &amp; Alert Telemetry
+          </h3>
+
+          {[
+            { key: 'courseAnnouncements', label: 'Faculty & Course Announcements', desc: 'Alerts when instructors post updates or new syllabus units.' },
+            { key: 'assignmentDeadlines', label: 'Assignment & Laboratory Deadlines', desc: 'Reminders 24 hours and 2 hours prior to assignment deadlines.' },
+            { key: 'quizScorecards', label: 'Automated Evaluation Scorecards', desc: 'Instant dispatch when quizzes and code tests finish grading.' },
+            { key: 'weeklyDigest', label: 'Weekly Academic Progress Digest', desc: 'Consolidated summary of weekly hours, velocity, and certificates.' },
+          ].map((item) => (
+            <div key={item.key} className="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+              <div>
+                <h4 className="font-bold text-xs sm:text-sm text-slate-900">{item.label}</h4>
+                <p className="text-xs text-slate-500">{item.desc}</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={notificationPrefs[item.key]}
+                onChange={(e) => {
+                  setNotificationPrefs({ ...notificationPrefs, [item.key]: e.target.checked });
+                  toast.success('Notification preferences updated.');
+                }}
+                className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Tab 4: Sandbox Environment */}
+      {activeTab === 'sandbox' && (
+        <div className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex flex-col gap-4 max-w-3xl">
+          <h3 className="text-base font-bold text-slate-900 pb-3 border-b border-slate-100">
+            Interactive Code Sandbox Configuration
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Editor Theme</label>
+              <select
+                value={sandboxPrefs.theme}
+                onChange={(e) => setSandboxPrefs({ ...sandboxPrefs, theme: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-blue-500"
+              >
+                <option value="light">Technical Blueprint Light</option>
+                <option value="dark">Cyber Terminal Dark</option>
+                <option value="high_contrast">High Contrast Monochrome</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Font Size (px)</label>
+              <select
+                value={sandboxPrefs.fontSize}
+                onChange={(e) => setSandboxPrefs({ ...sandboxPrefs, fontSize: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-blue-500"
+              >
+                <option value="12">12px - Compact</option>
+                <option value="14">14px - Recommended</option>
+                <option value="16">16px - Large</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <span className="text-xs font-mono text-slate-400">DEFAULT RUNTIME: NODE 20 + PYTHON 3.11</span>
+            <button
+              onClick={() => toast.success('Sandbox preferences saved!')}
+              className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-sm"
+            >
+              Save Preferences
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

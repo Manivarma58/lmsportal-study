@@ -14,6 +14,11 @@ export const markLessonComplete = asyncHandler(async (req, res) => {
     success: true,
     message: result.isMarkedComplete ? 'Lesson marked complete!' : 'Lesson marked incomplete.',
     progressPercentage: result.progressPercentage,
+    progress: {
+      percentage: result.progressPercentage,
+      completed: result.completed,
+      completedLessons: result.completedLessons,
+    },
     completed: result.completed,
     completedLessons: result.completedLessons,
     certificate: result.certificate,
@@ -52,8 +57,25 @@ export const getCourseProgress = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * @desc    Record student accessing a lesson (remembers lastAccessedLesson)
+ * @route   POST /api/progress/:courseId/access/:lessonId
+ * @access  Private/Student
+ */
+export const recordLessonAccess = asyncHandler(async (req, res) => {
+  const { courseId, lessonId } = req.params;
+  const result = await progressService.recordLessonAccess(req.user.id, courseId, lessonId);
+
+  res.status(200).json({
+    success: true,
+    message: 'Lesson access recorded.',
+    ...result,
+  });
+});
+
 export default {
   markLessonComplete,
   updateLessonProgress,
   getCourseProgress,
+  recordLessonAccess,
 };

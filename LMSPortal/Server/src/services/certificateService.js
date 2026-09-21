@@ -1,7 +1,10 @@
+import crypto from 'crypto';
+import mongoose from 'mongoose';
 import Certificate from '../models/Certificate.js';
 import Enrollment from '../models/Enrollment.js';
 import Course from '../models/Course.js';
 import Notification from '../models/Notification.js';
+import { createNotification } from './notificationService.js';
 import ErrorResponse from '../utils/errorResponse.js';
 
 export const generateCertificate = async (studentId, courseId) => {
@@ -33,9 +36,9 @@ export const generateCertificate = async (studentId, courseId) => {
   }
 
   const course = await Course.findById(courseId).populate('instructor', 'name');
-  const certificateCode = `CERT-${Date.now().toString(36).toUpperCase()}-${Math.random()
-    .toString(36)
-    .substring(2, 6)
+  const certificateCode = `CERT-${Date.now().toString(36).toUpperCase()}-${crypto
+    .randomBytes(3)
+    .toString('hex')
     .toUpperCase()}`;
 
   const certificate = await Certificate.create({
@@ -51,11 +54,11 @@ export const generateCertificate = async (studentId, courseId) => {
   enrollment.completed = true;
   await enrollment.save();
 
-  await Notification.create({
+  await createNotification({
     recipient: studentId,
     title: '🎓 Official Certificate Issued!',
     message: `Your Certificate of Completion for "${course?.title}" is ready to view and share.`,
-    type: 'certificate',
+    type: 'certificate_generation',
     link: `/student/certificates/${certificate._id}`,
   });
 
@@ -71,8 +74,13 @@ export const getStudentCertificates = async (studentId) => {
 };
 
 export const getCertificateById = async (certificateId) => {
-  const certificate = await Certificate.findById(certificateId)
-    .populate('student', 'name email avatar profileImage')
+  const isObjectId = mongoose.Types.ObjectId.isValid(certificateId);
+  const query = isObjectId
+    ? { _id: certificateId }
+    : { $or: [{ certificateId: certificateId }, { certificateCode: certificateId }] };
+
+  const certificate = await Certificate.findOne(query)
+    .populate('student', 'name avatar profileImage')
     .populate({
       path: 'course',
       select: 'title category level thumbnail instructor',

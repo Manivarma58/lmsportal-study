@@ -1,514 +1,264 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 
-function Resources() {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [activeCategory, setActiveCategory] = useState('all');
-    
-    const categories = [
-        { id: 'all', name: 'All Resources', count: 24 },
-        { id: 'blog', name: 'Blog Sites', count: 8 },
-        { id: 'illustration', name: 'Illustration', count: 5 },
-        { id: 'typography', name: 'Typography', count: 4 },
-        { id: 'icon', name: 'Icon Sites', count: 4 },
-        { id: 'image', name: 'Image Sites', count: 3 },
-    ];
-    
-    const resources = [
-        {
-            id: 1,
-            title: 'Medium',
-            url: 'medium.com',
-            category: 'blog',
-            description: 'Platform for reading, writing, and interacting with articles',
-            icon: '📝'
-        },
-        {
-            id: 2,
-            title: 'NN/g Nielsen Norman Group',
-            url: 'nngroup.com',
-            category: 'blog',
-            description: 'World leaders in research-based user experience',
-            icon: '🎯'
-        },
-        {
-            id: 3,
-            title: 'UX Design Collective',
-            url: 'uxdesign.cc',
-            category: 'blog',
-            description: 'Curated stories on user experience, usability, and product design',
-            icon: '🎨'
-        },
-        {
-            id: 4,
-            title: 'UXPin',
-            url: 'uxpin.com',
-            category: 'blog',
-            description: 'Design, prototype, and collaborate with your team',
-            icon: '🛠️'
-        },
-        {
-            id: 5,
-            title: 'Toptal Design Blog',
-            url: 'toptal.com/designers/blog',
-            category: 'blog',
-            description: 'Insights from top designers around the world',
-            icon: '🌟'
-        },
-        {
-            id: 6,
-            title: 'UX Magazine',
-            url: 'uxmag.com',
-            category: 'blog',
-            description: 'Online publication for user experience professionals',
-            icon: '📰'
-        },
-        {
-            id: 7,
-            title: 'UIBootstrap',
-            url: 'uibootstrap.com',
-            category: 'blog',
-            description: 'Bootstrap tutorials and components',
-            icon: '💻'
-        },
-        {
-            id: 8,
-            title: 'Prototype.io',
-            url: 'prototype.io',
-            category: 'blog',
-            description: 'Prototyping tools and resources',
-            icon: '🎮'
-        },
-        {
-            id: 9,
-            title: 'Undraw',
-            url: 'undraw.co',
-            category: 'illustration',
-            description: 'Open-source illustrations for every project',
-            icon: '🖼️'
-        },
-        {
-            id: 10,
-            title: 'Freepik',
-            url: 'freepik.com',
-            category: 'illustration',
-            description: 'Free vectors, stock photos, and PSD',
-            icon: '📷'
-        },
-        {
-            id: 11,
-            title: 'Google Fonts',
-            url: 'fonts.google.com',
-            category: 'typography',
-            description: 'Free licensed font families',
-            icon: '🔤'
-        },
-        {
-            id: 12,
-            title: 'Font Awesome',
-            url: 'fontawesome.com',
-            category: 'icon',
-            description: 'Icon library and toolkit',
-            icon: '✨'
-        },
-        {
-            id: 13,
-            title: 'Unsplash',
-            url: 'unsplash.com',
-            category: 'image',
-            description: 'Beautiful free images & photos',
-            icon: '📸'
-        },
-    ];
+export default function Resources() {
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
-    const filteredResources = resources.filter(resource => {
-        const matchesSearch = searchTerm === '' || 
-            resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            resource.description.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = activeCategory === 'all' || resource.category === activeCategory;
-        return matchesSearch && matchesCategory;
-    });
+  const categories = [
+    { id: 'all', name: 'All Resources', count: 18 },
+    { id: 'docs', name: 'Official Specs & Docs', count: 5 },
+    { id: 'code', name: 'SDKs & Repositories', count: 4 },
+    { id: 'sandboxes', name: 'Cloud Sandboxes & Tooling', count: 5 },
+    { id: 'papers', name: 'Research Papers & Datasets', count: 4 },
+  ];
 
-    return (
-        <div className="resources-container">
-            <style>
-                {`
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-                
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
-                
-                .resources-container {
-                    font-family: 'Inter', sans-serif;
-                    min-height: 100vh;
-                    background: #f5f7fa;
-                    padding: 2rem;
-                }
-                
-                /* Header */
-                .header {
-                    margin-bottom: 2rem;
-                }
-                
-                .header h1 {
-                    font-size: 2rem;
-                    color: #1a1a1a;
-                    margin-bottom: 0.5rem;
-                }
-                
-                .header p {
-                    color: #6c757d;
-                    font-size: 1rem;
-                }
-                
-                /* Search Bar */
-                .search-container {
-                    margin-bottom: 2rem;
-                    position: relative;
-                }
-                
-                .search-box {
-                    width: 100%;
-                    max-width: 400px;
-                    padding: 0.75rem 1rem 0.75rem 2.5rem;
-                    border: 1px solid #eef2f7;
-                    border-radius: 10px;
-                    font-size: 0.95rem;
-                    background: white;
-                    color: #1a1a1a;
-                    transition: all 0.3s ease;
-                }
-                
-                .search-box:focus {
-                    outline: none;
-                    border-color: #4361ee;
-                    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
-                }
-                
-                .search-icon {
-                    position: absolute;
-                    left: 12px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    color: #6c757d;
-                }
-                
-                /* Categories */
-                .categories-container {
-                    margin-bottom: 2rem;
-                }
-                
-                .categories-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 1rem;
-                }
-                
-                .categories-title {
-                    font-size: 1.25rem;
-                    font-weight: 600;
-                    color: #1a1a1a;
-                }
-                
-                .categories-grid {
-                    display: flex;
-                    gap: 1rem;
-                    flex-wrap: wrap;
-                }
-                
-                .category-card {
-                    background: white;
-                    border: 2px solid transparent;
-                    border-radius: 12px;
-                    padding: 1rem 1.5rem;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    min-width: 160px;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-                }
-                
-                .category-card:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-                }
-                
-                .category-card.active {
-                    background: #4361ee;
-                    color: white;
-                    border-color: #4361ee;
-                }
-                
-                .category-card.active .category-count {
-                    background: rgba(255, 255, 255, 0.2);
-                }
-                
-                .category-name {
-                    font-weight: 600;
-                    margin-bottom: 0.5rem;
-                }
-                
-                .category-count {
-                    display: inline-block;
-                    background: #f8f9fa;
-                    padding: 0.25rem 0.75rem;
-                    border-radius: 20px;
-                    font-size: 0.85rem;
-                    font-weight: 500;
-                }
-                
-                .category-card.active .category-count {
-                    background: rgba(255, 255, 255, 0.2);
-                    color: white;
-                }
-                
-                /* Resources Grid */
-                .resources-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                    gap: 1.5rem;
-                    margin-bottom: 2rem;
-                }
-                
-                .resource-card {
-                    background: white;
-                    border-radius: 15px;
-                    padding: 1.5rem;
-                    border: 1px solid #eef2f7;
-                    transition: all 0.3s ease;
-                    position: relative;
-                    overflow: hidden;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-                }
-                
-                .resource-card:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-                    border-color: #4361ee;
-                }
-                
-                .resource-icon {
-                    font-size: 2rem;
-                    margin-bottom: 1rem;
-                }
-                
-                .resource-title {
-                    font-size: 1.1rem;
-                    font-weight: 600;
-                    color: #1a1a1a;
-                    margin-bottom: 0.5rem;
-                }
-                
-                .resource-url {
-                    color: #4361ee;
-                    font-size: 0.85rem;
-                    margin-bottom: 0.75rem;
-                    display: block;
-                    text-decoration: none;
-                }
-                
-                .resource-url:hover {
-                    text-decoration: underline;
-                }
-                
-                .resource-description {
-                    color: #6c757d;
-                    font-size: 0.9rem;
-                    line-height: 1.5;
-                }
-                
-                /* Upgrade Section */
-                .upgrade-section {
-                    background: linear-gradient(135deg, #4361ee, #3a56d4);
-                    color: white;
-                    padding: 1.5rem;
-                    border-radius: 15px;
-                    margin-top: 2rem;
-                    text-align: center;
-                }
-                
-                .upgrade-title {
-                    font-size: 1.2rem;
-                    margin-bottom: 0.5rem;
-                    font-weight: 600;
-                }
-                
-                .upgrade-btn {
-                    background: white;
-                    color: #4361ee;
-                    border: none;
-                    padding: 0.75rem 1.5rem;
-                    border-radius: 8px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    margin-top: 1rem;
-                    transition: all 0.3s ease;
-                }
-                
-                .upgrade-btn:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-                }
-                
-                /* Stats */
-                .stats-section {
-                    display: flex;
-                    gap: 1rem;
-                    margin-bottom: 2rem;
-                    flex-wrap: wrap;
-                }
-                
-                .stat-box {
-                    background: white;
-                    border-radius: 12px;
-                    padding: 1rem;
-                    border: 1px solid #eef2f7;
-                    text-align: center;
-                    min-width: 120px;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-                }
-                
-                .stat-number {
-                    font-size: 1.5rem;
-                    font-weight: 700;
-                    color: #4361ee;
-                    margin-bottom: 0.25rem;
-                }
-                
-                .stat-label {
-                    font-size: 0.85rem;
-                    color: #6c757d;
-                }
-                
-                /* Responsive */
-                @media (max-width: 768px) {
-                    .resources-container {
-                        padding: 1rem;
-                    }
-                    
-                    .resources-grid {
-                        grid-template-columns: 1fr;
-                    }
-                    
-                    .categories-grid {
-                        flex-direction: column;
-                    }
-                    
-                    .category-card {
-                        min-width: auto;
-                    }
-                    
-                    .stats-section {
-                        justify-content: center;
-                    }
-                }
-                
-                @media (max-width: 480px) {
-                    .header h1 {
-                        font-size: 1.5rem;
-                    }
-                    
-                    .search-box {
-                        max-width: 100%;
-                    }
-                    
-                    .stat-box {
-                        flex: 1;
-                        min-width: 100px;
-                    }
-                }
-                `}
-            </style>
+  const resources = [
+    {
+      id: 1,
+      title: 'Kubernetes Official Architecture & API Reference',
+      category: 'docs',
+      description: 'Complete production reference for pods, controllers, ingress controllers, and CRD specifications.',
+      url: 'https://kubernetes.io/docs/home/',
+      icon: 'cloud_circle',
+      tag: 'INFRA & K8S',
+      format: 'Documentation',
+    },
+    {
+      id: 2,
+      title: 'PyTorch 2.3 Deep Learning & Tensor Internals',
+      category: 'docs',
+      description: 'Official guide to dynamic computational graphs, TorchScript, custom C++ extensions, and distributed training.',
+      url: 'https://pytorch.org/docs/stable/index.html',
+      icon: 'neurology',
+      tag: 'AI & ML',
+      format: 'API Reference',
+    },
+    {
+      id: 3,
+      title: 'Istio Service Mesh Architecture & EnvoyFilter Spec',
+      category: 'docs',
+      description: 'Mutual TLS security enforcement, traffic splitting, rate limiting, and observability mesh manifests.',
+      url: 'https://istio.io/latest/docs/',
+      icon: 'hub',
+      tag: 'DEVOPS',
+      format: 'Official Docs',
+    },
+    {
+      id: 4,
+      title: 'Qiskit Quantum SDK & Hardware Execution Guide',
+      category: 'code',
+      description: 'Open-source quantum computing framework for working with quantum circuits, algorithms, and IBM Quantum processors.',
+      url: 'https://qiskit.org/documentation/',
+      icon: 'memory',
+      tag: 'QUANTUM',
+      format: 'Python SDK',
+    },
+    {
+      id: 5,
+      title: 'Circom & SnarkJS Cryptographic Circuit Library',
+      category: 'code',
+      description: 'Domain-specific language and toolchain for zero-knowledge arithmetic circuit synthesis and proof verification.',
+      url: 'https://iden3.io/circom',
+      icon: 'shield',
+      tag: 'CRYPTOGRAPHY',
+      format: 'Compiler & Toolchain',
+    },
+    {
+      id: 6,
+      title: 'JupyterLab Interactive Cloud Sandbox',
+      category: 'sandboxes',
+      description: 'High-performance interactive computing environment with pre-installed PyTorch, CUDA, and data science kernels.',
+      url: 'https://jupyter.org/try',
+      icon: 'terminal',
+      tag: 'SANDBOX',
+      format: 'Web IDE',
+    },
+    {
+      id: 7,
+      title: 'Linux Kernel eBPF Documentation & Cilium Guide',
+      category: 'docs',
+      description: 'Sandboxed in-kernel programs for networking, security observability, and system profiling.',
+      url: 'https://ebpf.io/',
+      icon: 'settings_ethernet',
+      tag: 'KERNEL & SYSTEMS',
+      format: 'Documentation',
+    },
+    {
+      id: 8,
+      title: 'HuggingFace Transformers & Pretrained Model Hub',
+      category: 'code',
+      description: 'State-of-the-art pretrained transformer weights, tokenizers, quantization scripts, and inference pipelines.',
+      url: 'https://huggingface.co/docs',
+      icon: 'smart_toy',
+      tag: 'AI & NLP',
+      format: 'Model Hub',
+    },
+    {
+      id: 9,
+      title: 'Google Colab GPU Compute Pods',
+      category: 'sandboxes',
+      description: 'Free and pro cloud notebook execution with integrated NVIDIA GPU acceleration.',
+      url: 'https://colab.research.google.com/',
+      icon: 'developer_board',
+      tag: 'GPU CLUSTER',
+      format: 'Cloud Notebook',
+    },
+    {
+      id: 10,
+      title: 'Attention Is All You Need (Vaswani et al.)',
+      category: 'papers',
+      description: 'The foundational research paper introducing the transformer architecture and self-attention mechanism.',
+      url: 'https://arxiv.org/abs/1706.03762',
+      icon: 'article',
+      tag: 'RESEARCH PAPER',
+      format: 'arXiv Preprint',
+    },
+    {
+      id: 11,
+      title: 'Raft: In Search of an Understandable Consensus Algorithm',
+      category: 'papers',
+      description: 'Seminal paper on replicated state machine consensus, leader election, and log replication.',
+      url: 'https://raft.github.io/raft.pdf',
+      icon: 'menu_book',
+      tag: 'DISTRIBUTED SYSTEMS',
+      format: 'Research PDF',
+    },
+    {
+      id: 12,
+      title: 'Rust Programming Language Book & Standard Library',
+      category: 'docs',
+      description: 'Comprehensive guide to memory safety without garbage collection, concurrency, and ownership semantics.',
+      url: 'https://doc.rust-lang.org/book/',
+      icon: 'integration_instructions',
+      tag: 'SYSTEMS PROGRAMMING',
+      format: 'Handbook',
+    },
+  ];
 
-            <div className="header">
-                <h1>My Resources</h1>
-                <p>Access learning materials, tools, and external resources</p>
-            </div>
+  // Filter logic
+  const filteredResources = useMemo(() => {
+    return resources
+      .filter((r) => {
+        if (activeCategory === 'all') return true;
+        return r.category === activeCategory;
+      })
+      .filter((r) => {
+        if (!searchQuery.trim()) return true;
+        const q = searchQuery.toLowerCase();
+        return (
+          r.title.toLowerCase().includes(q) ||
+          r.description.toLowerCase().includes(q) ||
+          r.tag.toLowerCase().includes(q)
+        );
+      });
+  }, [resources, activeCategory, searchQuery]);
 
-            {/* Stats */}
-            <div className="stats-section">
-                <div className="stat-box">
-                    <div className="stat-number">24</div>
-                    <div className="stat-label">Total Resources</div>
-                </div>
-                <div className="stat-box">
-                    <div className="stat-number">8</div>
-                    <div className="stat-label">Blog Sites</div>
-                </div>
-                <div className="stat-box">
-                    <div className="stat-number">5</div>
-                    <div className="stat-label">Illustration</div>
-                </div>
-                <div className="stat-box">
-                    <div className="stat-number">4</div>
-                    <div className="stat-label">Typography</div>
-                </div>
-            </div>
-
-            {/* Search */}
-            <div className="search-container">
-                <div className="search-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                    </svg>
-                </div>
-                <input
-                    type="text"
-                    className="search-box"
-                    placeholder="Search resources..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
-
-            {/* Categories */}
-            <div className="categories-container">
-                <div className="categories-header">
-                    <h2 className="categories-title">Categories</h2>
-                </div>
-                <div className="categories-grid">
-                    {categories.map(category => (
-                        <div
-                            key={category.id}
-                            className={`category-card ${activeCategory === category.id ? 'active' : ''}`}
-                            onClick={() => setActiveCategory(category.id)}
-                        >
-                            <div className="category-name">{category.name}</div>
-                            <span className="category-count">{category.count}</span>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Resources Grid */}
-            <div className="resources-grid">
-                {filteredResources.map(resource => (
-                    <div key={resource.id} className="resource-card">
-                        <div className="resource-icon">{resource.icon}</div>
-                        <h3 className="resource-title">{resource.title}</h3>
-                        <a 
-                            href={`https://${resource.url}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="resource-url"
-                        >
-                            {resource.url}
-                        </a>
-                        <p className="resource-description">{resource.description}</p>
-                    </div>
-                ))}
-            </div>
-
-            {/* Upgrade Section */}
-            <div className="upgrade-section">
-                <div className="upgrade-title">Upgrade to PRO for more resources</div>
-                <p style={{fontSize: "0.9rem", opacity: 0.9}}>Get access to premium resources and tools</p>
-                <button className="upgrade-btn">Upgrade Now</button>
-            </div>
+  return (
+    <div className="flex flex-col w-full text-slate-800 antialiased pb-16 px-6 sm:px-8 lg:px-10 py-6">
+      {/* Header & Breadcrumb */}
+      <div className="flex flex-col gap-2 pb-6 border-b border-slate-200/90">
+        <div className="flex items-center gap-2 text-xs font-mono text-slate-500 uppercase tracking-wider">
+          <Link to="/student/dashboard" className="hover:text-blue-600 transition-colors">
+            Student Portal
+          </Link>
+          <span>/</span>
+          <span className="text-slate-800 font-semibold">Resources</span>
         </div>
-    );
-}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Academic &amp; Engineering Resources
+            </h1>
+            <p className="text-slate-600 text-sm mt-1">
+              Curated official technical specifications, cloud sandboxes, research papers, and software toolchains.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="px-3.5 py-1.5 rounded-xl bg-blue-50 text-blue-700 font-mono text-xs font-semibold border border-blue-200/70 flex items-center gap-1.5 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+              {resources.length} VERIFIED REPOSITORIES
+            </span>
+          </div>
+        </div>
+      </div>
 
-export default Resources;
+      {/* Filter Tabs & Search Controls */}
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 my-6 bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm">
+        {/* Category Pills */}
+        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200/80">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeCategory === cat.id
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              <span>{cat.name}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Search */}
+        <div className="relative flex-1 sm:max-w-xs">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">
+            search
+          </span>
+          <input
+            type="text"
+            placeholder="Search resources, tags, docs..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
+          />
+        </div>
+      </div>
+
+      {/* Resources Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {filteredResources.map((res) => (
+          <div
+            key={res.id}
+            className="rounded-2xl bg-white border border-slate-200/90 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group"
+          >
+            <div className="flex flex-col gap-3">
+              <div className="flex items-start justify-between">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shadow-sm">
+                  <span className="material-symbols-outlined text-[22px]">{res.icon}</span>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-mono text-[10px] font-semibold">
+                  {res.tag}
+                </span>
+              </div>
+
+              <div>
+                <h3 className="font-bold text-base text-slate-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                  {res.title}
+                </h3>
+                <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                  {res.description}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs text-slate-400 font-mono">{res.format}</span>
+              <a
+                href={res.url}
+                target="_blank"
+                rel="noreferrer"
+                className="px-3.5 py-1.5 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white text-xs font-semibold transition-all flex items-center gap-1 shadow-sm"
+              >
+                <span>Access</span>
+                <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

@@ -24,9 +24,25 @@ const CertificateVerify = () => {
   };
 
   useEffect(() => {
+    let isCancelled = false;
     if (paramCode) {
-      verifyCode(paramCode);
+      API.get(`/certificates/verify/${paramCode}`)
+        .then((res) => {
+          if (!isCancelled) {
+            setCert(res.data.certificate);
+            setStatus('valid');
+          }
+        })
+        .catch(() => {
+          if (!isCancelled) {
+            setCert(null);
+            setStatus('invalid');
+          }
+        });
     }
+    return () => {
+      isCancelled = true;
+    };
   }, [paramCode]);
 
   const handleSubmit = (e) => {

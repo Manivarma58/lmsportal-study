@@ -115,9 +115,14 @@ courseSchema.virtual('lessons', {
 // Text index for search functionality across title, description, and tags
 courseSchema.index({ title: 'text', description: 'text', tags: 'text' });
 
-// Compound indexes for optimal catalog filtering and instructor queries
+// Compound indexes for optimal catalog filtering, sorting, and instructor queries
 courseSchema.index({ category: 1, published: 1 });
 courseSchema.index({ instructor: 1, published: 1 });
-courseSchema.index({ price: 1, published: 1 });
+courseSchema.index({ published: 1, createdAt: -1 });
+courseSchema.index({ published: 1, rating: -1 });
+courseSchema.index({ published: 1, enrollmentCount: -1 });
+courseSchema.index({ published: 1, price: 1 });
+courseSchema.index({ published: 1, price: -1 });
+courseSchema.index({ published: 1, isFeatured: 1 });
 
 export default mongoose.model('Course', courseSchema);

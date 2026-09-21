@@ -144,15 +144,15 @@ app.use(
 initSocket(io);
 
 // Apply General API Rate Limiting (300 req / 15 min per IP)
-app.use('/api', apiLimiter);
+app.use(['/api', '/auth', '/courses'], apiLimiter);
 
 // Strict Rate Limiting on Authentication Endpoints (15 req / 15 min per IP)
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter);
-app.use('/api/auth/forgot-password', authLimiter);
+app.use(['/api/auth/login', '/auth/login'], authLimiter);
+app.use(['/api/auth/register', '/auth/register'], authLimiter);
+app.use(['/api/auth/forgot-password', '/auth/forgot-password'], authLimiter);
 
-// Health check route
-app.get('/api/health', (req, res) => {
+// Health check route (supports both /api/health and /health)
+app.get(['/api/health', '/health'], (req, res) => {
   res.status(200).json({
     status: 'healthy',
     message: 'LMS Portal REST API & Socket.IO Server is online.',
@@ -160,19 +160,25 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Mount API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/courses', courseRoutes);
-app.use('/api/lessons', lessonRoutes);
-app.use('/api/enrollments', enrollmentRoutes);
-app.use('/api/progress', progressRoutes);
-app.use('/api/quizzes', quizRoutes);
-app.use('/api/certificates', certificateRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/chat', chatRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/upload', uploadRoutes);
+// Helper to mount routes on both /api and root paths
+const mountAllRoutes = (prefix = '/api') => {
+  app.use(`${prefix}/auth`, authRoutes);
+  app.use(`${prefix}/courses`, courseRoutes);
+  app.use(`${prefix}/lessons`, lessonRoutes);
+  app.use(`${prefix}/enrollments`, enrollmentRoutes);
+  app.use(`${prefix}/progress`, progressRoutes);
+  app.use(`${prefix}/quizzes`, quizRoutes);
+  app.use(`${prefix}/certificates`, certificateRoutes);
+  app.use(`${prefix}/notifications`, notificationRoutes);
+  app.use(`${prefix}/chat`, chatRoutes);
+  app.use(`${prefix}/analytics`, analyticsRoutes);
+  app.use(`${prefix}/users`, userRoutes);
+  app.use(`${prefix}/upload`, uploadRoutes);
+};
+
+// Mount primary /api/* routes and root fallback routes
+mountAllRoutes('/api');
+mountAllRoutes('');
 
 // Error Handling Middlewares
 app.use(notFound);

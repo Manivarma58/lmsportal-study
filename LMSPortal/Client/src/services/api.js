@@ -1,5 +1,11 @@
 import axios from 'axios';
 
+const ensureApiSuffix = (url) => {
+  if (!url) return 'https://lmsportal-study.onrender.com/api';
+  const clean = url.trim().replace(/\/$/, '');
+  return clean.endsWith('/api') ? clean : `${clean}/api`;
+};
+
 const getApiBaseUrl = () => {
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
@@ -7,7 +13,7 @@ const getApiBaseUrl = () => {
     if (isLocal) {
       const envUrl = import.meta.env.VITE_API_BASE_URL;
       if (envUrl && (envUrl.includes('localhost') || envUrl.includes('127.0.0.1'))) {
-        return envUrl;
+        return ensureApiSuffix(envUrl);
       }
       return 'http://localhost:5000/api';
     }
@@ -16,17 +22,19 @@ const getApiBaseUrl = () => {
     // Never use a localhost URL even if baked in by .env
     const envUrl = import.meta.env.VITE_API_BASE_URL;
     if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
-      return envUrl;
+      return ensureApiSuffix(envUrl);
     }
     return 'https://lmsportal-study.onrender.com/api';
   }
 
-  return (
-    import.meta.env.VITE_API_BASE_URL ||
-    (import.meta.env.PROD
-      ? 'https://lmsportal-study.onrender.com/api'
-      : 'http://localhost:5000/api')
-  );
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+    return ensureApiSuffix(envUrl);
+  }
+
+  return import.meta.env.PROD
+    ? 'https://lmsportal-study.onrender.com/api'
+    : 'http://localhost:5000/api';
 };
 
 const API = axios.create({

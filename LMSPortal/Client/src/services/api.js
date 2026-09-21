@@ -2,7 +2,8 @@ import axios from 'axios';
 
 const getApiBaseUrl = () => {
   if (typeof window !== 'undefined') {
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const hostname = window.location.hostname;
+    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0';
     if (isLocal) {
       const envUrl = import.meta.env.VITE_API_BASE_URL;
       if (envUrl && (envUrl.includes('localhost') || envUrl.includes('127.0.0.1'))) {
@@ -10,6 +11,14 @@ const getApiBaseUrl = () => {
       }
       return 'http://localhost:5000/api';
     }
+
+    // When running on a deployed domain (Vercel, Render, etc.):
+    // Never use a localhost URL even if baked in by .env
+    const envUrl = import.meta.env.VITE_API_BASE_URL;
+    if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+      return envUrl;
+    }
+    return 'https://lmsportal-study.onrender.com/api';
   }
 
   return (

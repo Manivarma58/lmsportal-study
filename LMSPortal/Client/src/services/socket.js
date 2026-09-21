@@ -2,7 +2,8 @@ import { io } from 'socket.io-client';
 
 const getSocketUrl = () => {
   if (typeof window !== 'undefined') {
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const hostname = window.location.hostname;
+    const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0';
     if (isLocal) {
       const envUrl = import.meta.env.VITE_SOCKET_URL;
       if (envUrl && (envUrl.includes('localhost') || envUrl.includes('127.0.0.1'))) {
@@ -10,6 +11,14 @@ const getSocketUrl = () => {
       }
       return 'http://localhost:5000';
     }
+
+    // When running on a deployed domain (Vercel, Render, etc.):
+    // Never use a localhost URL even if baked in by .env
+    const envUrl = import.meta.env.VITE_SOCKET_URL;
+    if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+      return envUrl;
+    }
+    return 'https://lmsportal-study.onrender.com';
   }
 
   return (

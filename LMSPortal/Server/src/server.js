@@ -50,7 +50,6 @@ connectDB().then(async () => {
 const app = express();
 const server = http.createServer(app);
 
-// Allowed origins for CORS (Vercel production, preview URLs, local dev)
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
@@ -60,23 +59,26 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5000',
   'https://lmsportal-study.vercel.app',
-  ...(process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',').map((s) => s.trim()) : []),
+  ...(process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',').map((s) => s.trim().replace(/\/$/, '')) : []),
 ];
 
 const corsOriginHandler = (origin, callback) => {
   // Allow requests with no origin (such as mobile apps, curl, Postman, test scripts)
   if (!origin) return callback(null, true);
 
-  if (
-    allowedOrigins.includes(origin) ||
-    origin === 'https://lmsportal-study.vercel.app' ||
-    process.env.NODE_ENV !== 'production'
-  ) {
+  const cleanOrigin = origin.replace(/\/$/, '');
+  const isAllowed =
+    allowedOrigins.some((allowed) => allowed.replace(/\/$/, '') === cleanOrigin) ||
+    cleanOrigin.endsWith('.vercel.app') ||
+    cleanOrigin.endsWith('.onrender.com') ||
+    process.env.NODE_ENV !== 'production';
+
+  if (isAllowed) {
     return callback(null, true);
   }
 
-  // Reject unauthorized origins in production
-  return callback(new Error('Blocked by CORS policy: Origin not allowed.'));
+  // Reject unauthorized origins cleanly without crashing preflight requests
+  return callback(null, false);
 };
 
 // Initialize Socket.IO with CORS

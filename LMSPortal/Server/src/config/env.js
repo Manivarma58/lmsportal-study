@@ -27,7 +27,7 @@ export const getJwtSecret = () => {
 
 // Centralized MongoDB URI retrieval
 export const getMongoUri = () => {
-  const uri = process.env.MONGO_URI;
+  const uri = process.env.MONGO_URI || process.env.MONGODB_URI;
   if (!uri && isProduction) {
     throw new Error('[FATAL SECURITY ERROR] MONGO_URI must be specified in production environment!');
   }

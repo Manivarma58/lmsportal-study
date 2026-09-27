@@ -223,6 +223,29 @@ export const submitQuizAttempt = async (quizId, arg2, arg3) => {
     link: `/student/course/${quiz.course}/learn`,
   });
 
+  // Reusable Skill Engine integration: feed demonstrated knowledge evidence to mapped course skills
+  try {
+    const CourseSkill = (await import('../models/CourseSkill.js')).default;
+    const { recordSkillEvidence } = await import('./skillService.js');
+    const courseSkills = await CourseSkill.find({ course: quiz.course });
+    for (const cs of courseSkills) {
+      await recordSkillEvidence({
+        userId: studentId,
+        skillId: cs.skill,
+        type: 'quiz',
+        title: `Quiz: ${quiz.title}`,
+        score: earnedPoints,
+        maxScore: totalPoints,
+        weight: cs.weight || 1.0,
+        referenceId: attempt._id.toString(),
+        courseId: quiz.course,
+        trigger: 'quiz_attempt_submitted',
+      }).catch((e) => console.warn('[Skill Engine] Error recording quiz evidence:', e.message));
+    }
+  } catch (skillErr) {
+    console.warn('[Skill Engine] Notice propagating quiz evidence:', skillErr.message);
+  }
+
   return {
     attemptId: attempt._id,
     score: earnedPoints,

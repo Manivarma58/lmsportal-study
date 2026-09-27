@@ -29,7 +29,7 @@ const InstructorLayout = () => {
     <div className="bg-slate-50 text-slate-900 font-sans min-h-screen blueprint-grid selection:bg-blue-100 selection:text-blue-700">
       {/* ================= DESKTOP SIDEBAR ================= */}
       <aside
-        className={`fixed left-0 top-0 h-full w-72 bg-white z-50 flex flex-col justify-between shadow-sm border-r border-slate-200/80 transition-transform duration-200 md:translate-x-0 ${
+        className={`fixed left-0 top-0 h-full w-64 xl:w-72 bg-white z-50 flex flex-col justify-between shadow-sm border-r border-slate-200/80 transition-transform duration-200 md:translate-x-0 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
@@ -37,14 +37,14 @@ const InstructorLayout = () => {
           {/* Logo Header */}
           <div className="h-16 px-5 flex items-center justify-between bg-white border-b border-slate-200/80">
             <Link to="/instructor/dashboard" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-sm">
-                <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
-                  school
-                </span>
-              </div>
+              <img
+                src="/nova-icon.png"
+                alt="Nova LMS Logo"
+                className="h-9 w-9 object-contain"
+              />
               <div className="flex flex-col">
                 <span className="font-bold text-base tracking-tight text-slate-900 leading-none">
-                  StudyPilot
+                  Nova LMS
                 </span>
                 <span className="font-mono text-[10px] text-blue-600 font-bold uppercase tracking-wider mt-0.5">
                   FACULTY PORTAL
@@ -122,6 +122,25 @@ const InstructorLayout = () => {
                 </div>
                 <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">
                   New
+                </span>
+              </NavLink>
+
+              <NavLink
+                to="/instructor/assignments"
+                className={({ isActive }) =>
+                  `flex items-center justify-between px-3.5 py-2 rounded-xl text-xs transition-all ${
+                    isActive
+                      ? 'bg-blue-50 text-blue-600 font-semibold border border-blue-200/80 shadow-sm'
+                      : 'text-slate-600 font-medium hover:bg-slate-100 hover:text-slate-900'
+                  }`
+                }
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="material-symbols-outlined text-[20px]">assignment_turned_in</span>
+                  <span>Practical Grading</span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[10px] font-bold font-mono">
+                  Rubrics
                 </span>
               </NavLink>
 
@@ -216,29 +235,30 @@ const InstructorLayout = () => {
       </aside>
 
       {/* ================= CONTENT CONTAINER WITH HEADER ================= */}
-      <div className="pl-0 md:pl-72 flex flex-col min-h-screen">
+      <div className="pl-0 md:pl-64 xl:pl-72 flex flex-col min-h-screen w-full min-w-0 transition-all duration-200">
         {/* Fixed Top Header */}
-        <header className="fixed top-0 left-0 md:left-72 right-0 h-16 bg-white/95 backdrop-blur-xl shadow-sm border-b border-slate-200/80 z-40 flex items-center justify-between px-6">
+        <header className="fixed top-0 left-0 md:left-64 xl:left-72 right-0 h-16 bg-white/95 backdrop-blur-xl shadow-sm border-b border-slate-200/80 z-40 flex items-center justify-between px-3 sm:px-6 gap-2 sm:gap-4 transition-all duration-200">
           {/* Left: Mobile Menu & Search Input */}
-          <div className="flex items-center gap-4 flex-1 max-w-md">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 max-w-md min-w-0">
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-100"
+              className="md:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-100 shrink-0"
+              aria-label="Toggle navigation menu"
             >
               <span className="material-symbols-outlined text-xl">menu</span>
             </button>
 
-            <form onSubmit={handleSearchSubmit} className="w-full">
-              <div className="w-full bg-slate-50 rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all border border-slate-200 focus-within:border-blue-500 focus-within:bg-white shadow-sm">
-                <span className="material-symbols-outlined text-slate-400 text-[20px]">search</span>
+            <form onSubmit={handleSearchSubmit} className="w-full min-w-0">
+              <div className="w-full min-w-0 bg-slate-50 rounded-xl px-3 py-1.5 flex items-center gap-2 transition-all border border-slate-200 focus-within:border-blue-500 focus-within:bg-white shadow-sm">
+                <span className="material-symbols-outlined text-slate-400 text-[20px] shrink-0">search</span>
                 <input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-transparent text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none"
-                  placeholder="Search courses, scholars, grading queue, metrics..."
+                  className="w-full min-w-0 bg-transparent text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                  placeholder="Search courses, metrics..."
                   type="text"
                 />
-                <kbd className="px-1.5 py-0.5 rounded bg-slate-200/60 text-slate-500 font-mono text-[10px]">
+                <kbd className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-slate-200/60 text-slate-500 font-mono text-[10px] shrink-0">
                   ⌘K
                 </kbd>
               </div>
@@ -246,7 +266,7 @@ const InstructorLayout = () => {
           </div>
 
           {/* Right: Telemetry Badges & Profile */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <div className="hidden xl:flex items-center gap-2 font-mono text-xs">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 font-medium border border-blue-200/80">
                 <span className="material-symbols-outlined text-[16px]">verified</span>
@@ -269,7 +289,7 @@ const InstructorLayout = () => {
               to="/instructor/profile"
               className="flex items-center gap-2.5 pl-2 cursor-pointer group"
             >
-              <div className="hidden md:flex flex-col text-right">
+              <div className="hidden xl:flex flex-col text-right">
                 <span className="text-xs text-slate-900 font-bold leading-tight">
                   {user?.name || 'Faculty Instructor'}
                 </span>
@@ -302,7 +322,7 @@ const InstructorLayout = () => {
         </header>
 
         {/* Main Content Body */}
-        <main className="w-full pt-16 bg-transparent min-h-screen">
+        <main className="w-full pt-16 bg-transparent min-h-screen min-w-0 flex-1">
           <Outlet />
         </main>
       </div>

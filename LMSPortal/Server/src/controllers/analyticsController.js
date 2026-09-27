@@ -255,3 +255,28 @@ export const getInstructorStats = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getInstructorLearningIntelligenceHandler = async (req, res, next) => {
+  try {
+    const { getInstructorLearningIntelligence } = await import('../services/instructorIntelligenceService.js');
+    const { courseId, skillId, student, performance, date } = req.query;
+
+    const intelligence = await getInstructorLearningIntelligence({
+      instructorId: req.user.id || req.user._id,
+      role: req.user.role,
+      courseId,
+      skillId,
+      studentQuery: student,
+      performanceFilter: performance || 'all',
+      dateFilter: date || 'all',
+    });
+
+    res.status(200).json({
+      success: true,
+      ...intelligence,
+    });
+  } catch (err) {
+    console.error('Error fetching instructor learning intelligence:', err);
+    next(err);
+  }
+};

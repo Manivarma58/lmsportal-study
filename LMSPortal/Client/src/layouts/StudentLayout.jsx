@@ -3,6 +3,9 @@ import { Outlet, NavLink, Link, useNavigate, useLocation } from 'react-router-do
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../store/slices/authSlice';
 import NotificationDrawer from '../components/NotificationDrawer';
+import FloatingAIMentor from '../components/FloatingAIMentor';
+import ErrorBoundary from '../components/ErrorBoundary';
+import { toast } from 'sonner';
 
 const StudentLayout = () => {
   const dispatch = useDispatch();
@@ -30,9 +33,16 @@ const StudentLayout = () => {
 
   const coreNavItems = [
     { to: '/student/dashboard', label: 'Dashboard', icon: 'dashboard', dot: true },
-    { to: '/student/my-courses', label: 'My Learning', icon: 'menu_book' },
-    { to: '/student/courses', label: 'Explore Courses', icon: 'explore' },
+    { to: '/student/progress', label: 'Skills & Progress', icon: 'psychology' },
+    { to: '/student/skill-gap', label: 'Skill Gap Analyzer', icon: 'insights' },
+    { to: '/student/adaptive-learning', label: 'Adaptive Remediation', icon: 'auto_fix_high' },
+    { to: '/student/challenges', label: 'Coding Lab', icon: 'terminal' },
+    { to: '/student/projects', label: 'Projects', icon: 'rocket_launch' },
+    { to: '/student/simulations', label: 'Job Simulations', icon: 'work' },
     { to: '/student/assignments', label: 'Assignments', icon: 'assignment' },
+    { to: '/student/portfolio', label: 'Skill Portfolio', icon: 'badge' },
+    { to: '/student/my-courses', label: 'My Enrolled Courses', icon: 'menu_book' },
+    { to: '/student/courses', label: 'Course Discovery', icon: 'explore' },
     { to: '/student/quizzes', label: 'Quizzes', icon: 'quiz' },
     { to: '/student/certificates', label: 'Certificates', icon: 'workspace_premium' },
   ];
@@ -93,25 +103,33 @@ const StudentLayout = () => {
   return (
     <div className="bg-slate-50 text-slate-900 font-body-md antialiased min-h-screen blueprint-grid">
       {/* ================= DESKTOP SIDEBAR ================= */}
-      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-72 bg-white z-50 flex-col justify-between border-r border-slate-200/80 shadow-sm">
+      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 xl:w-72 bg-white z-50 flex-col justify-between border-r border-slate-200/80 shadow-sm transition-all duration-200">
         <div className="flex flex-col flex-1 min-h-0">
           {/* Logo Header */}
           <div className="h-16 px-space-md flex items-center justify-between bg-white/80 backdrop-blur-xl border-b border-slate-200/80 shrink-0">
-            <Link to="/student/dashboard" className="flex items-center gap-space-sm group">
+            <Link to="/student/dashboard" className="flex items-center gap-3 group min-w-0 overflow-hidden">
               <img
-                alt="Brand logo"
-                className="h-8 w-auto object-contain rounded-md group-hover:scale-105 transition-transform"
-                src="/assets/nova-logo.png"
+                alt="Nova LMS Logo"
+                className="h-10 w-10 shrink-0 object-contain group-hover:scale-105 transition-transform"
+                src="/nova-icon.png"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = '/assets/nova-logo.png';
+                  e.target.src = '/nova-icon.png';
                 }}
               />
-              <div className="flex flex-col">
-                <span className="font-headline-sm text-headline-sm text-on-surface tracking-tight leading-none">
-                  StudyPilot
+              <div className="flex flex-col min-w-0 flex-1 overflow-hidden">
+                <span className="font-extrabold text-slate-900 text-lg tracking-tight leading-none font-sans">
+                  Nova <span className="text-blue-600">LMS</span>
                 </span>
-                <span className="font-label-sm text-label-sm text-primary">NOVA LMS</span>
+                <div
+                  className="overflow-hidden w-full max-w-[190px] mt-1 relative [mask-image:linear-gradient(to_right,black_85%,transparent)]"
+                  title="Nova Next-Gen Outcome-based Virtual Academy"
+                >
+                  <div className="animate-marquee-roll text-[10.5px] text-blue-600 font-semibold tracking-wide whitespace-nowrap">
+                    <span>Nova Next-Gen Outcome-based Virtual Academy&nbsp;•&nbsp;</span>
+                    <span>Nova Next-Gen Outcome-based Virtual Academy&nbsp;•&nbsp;</span>
+                  </div>
+                </div>
               </div>
             </Link>
           </div>
@@ -167,9 +185,17 @@ const StudentLayout = () => {
           >
             <div className="flex-1 overflow-y-auto">
               <div className="h-16 flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
-                <div className="flex items-center gap-2">
-                  <img alt="Brand logo" className="h-7 w-auto object-contain rounded" src="/assets/nova-logo.png" />
-                  <span className="font-bold text-slate-900 text-base">StudyPilot</span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <img alt="Nova LMS Logo" className="h-8 w-8 object-contain shrink-0" src="/nova-icon.png" />
+                  <div className="flex flex-col min-w-0">
+                    <span className="font-extrabold text-slate-900 text-base leading-none">Nova <span className="text-blue-600">LMS</span></span>
+                    <div className="overflow-hidden w-40 whitespace-nowrap mt-0.5 [mask-image:linear-gradient(to_right,black_85%,transparent)]">
+                      <div className="animate-marquee-roll text-[9.5px] text-blue-600 font-semibold">
+                        <span>Nova Next-Gen Outcome-based Virtual Academy&nbsp;•&nbsp;</span>
+                        <span>Nova Next-Gen Outcome-based Virtual Academy&nbsp;•&nbsp;</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
@@ -217,28 +243,29 @@ const StudentLayout = () => {
       )}
 
       {/* ================= TOP HEADER ================= */}
-      <div className="pl-0 md:pl-72">
-        <header className="fixed top-0 left-0 md:left-72 right-0 h-16 bg-white/90 backdrop-blur-xl shadow-sm border-b border-slate-200/80 z-40 px-space-lg flex items-center justify-between">
+      <div className="pl-0 md:pl-64 xl:pl-72 flex flex-col min-h-screen w-full min-w-0 transition-all duration-200">
+        <header className="fixed top-0 left-0 md:left-64 xl:left-72 right-0 h-16 bg-white/90 backdrop-blur-xl shadow-sm border-b border-slate-200/80 z-40 px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4 transition-all duration-200">
           {/* Left: Mobile Toggle & Search */}
-          <div className="flex items-center gap-space-md flex-1 max-w-xl">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 max-w-xl">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"
+              className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 shrink-0"
+              aria-label="Toggle navigation menu"
             >
               <span className="material-symbols-outlined text-xl">menu</span>
             </button>
 
-            <form onSubmit={handleSearchSubmit} className="relative w-full flex items-center">
+            <form onSubmit={handleSearchSubmit} className="relative w-full min-w-0 flex items-center">
               <span className="material-symbols-outlined absolute left-3 text-slate-400 text-[18px]">search</span>
               <input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-9 pr-14 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 font-body-sm text-body-sm focus:outline-none focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 transition-all"
+                className="w-full min-w-0 h-10 pl-9 pr-12 rounded-xl bg-slate-50 text-slate-900 placeholder:text-slate-400 font-body-sm text-xs sm:text-sm focus:outline-none focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 transition-all"
                 placeholder="Search courses, assignments, labs..."
                 type="text"
               />
-              <div className="absolute right-2.5 flex items-center">
-                <kbd className="font-code-md text-label-sm text-slate-500 bg-slate-200/70 px-1.5 py-0.5 rounded">
+              <div className="absolute right-2.5 hidden sm:flex items-center">
+                <kbd className="font-code-md text-slate-500 bg-slate-200/70 px-1.5 py-0.5 rounded text-[10px]">
                   ⌘K
                 </kbd>
               </div>
@@ -246,7 +273,7 @@ const StudentLayout = () => {
           </div>
 
           {/* Right Header Controls */}
-          <div className="flex items-center gap-space-md">
+          <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
             {/* Notifications Button */}
             <button
               onClick={() => setNotificationsOpen(!notificationsOpen)}
@@ -293,11 +320,11 @@ const StudentLayout = () => {
                   )}
                   <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-surface"></span>
                 </div>
-                <div className="hidden sm:flex flex-col text-left">
-                  <span className="font-label-lg text-label-lg text-on-surface leading-tight">
+                <div className="hidden xl:flex flex-col text-left">
+                  <span className="font-label-lg text-xs font-bold text-on-surface leading-tight">
                     {user?.name || 'Student'}
                   </span>
-                  <span className="font-label-sm text-label-sm text-primary capitalize">
+                  <span className="font-label-sm text-[10px] text-primary capitalize font-medium">
                     {user?.role || 'Student'}
                   </span>
                 </div>
@@ -383,9 +410,14 @@ const StudentLayout = () => {
         />
 
         {/* Content Viewport */}
-        <main className="relative pt-16 w-full min-h-screen bg-background">
-          <Outlet />
+        <main className="relative pt-16 w-full min-h-screen bg-background min-w-0 flex-1">
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </main>
+
+        {/* Global Floating AI Mentor Widget */}
+        <FloatingAIMentor />
       </div>
     </div>
   );

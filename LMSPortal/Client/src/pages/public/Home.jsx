@@ -537,23 +537,25 @@ const Home = () => {
         <div className="h-20 w-full px-6 sm:px-10 lg:px-16 xl:px-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-md shadow-blue-500/25 transition-transform duration-200 group-hover:scale-105">
-                <span className="material-symbols-outlined text-white text-[22px]">deployed_code</span>
-              </div>
+              <img
+                alt="Nova LMS Logo"
+                className="h-10 w-10 object-contain transition-transform duration-200 group-hover:scale-105"
+                src="/nova-icon.png"
+              />
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xl font-bold tracking-tight text-slate-900">NOVA</span>
+                  <span className="text-xl font-bold tracking-tight text-slate-900">Nova</span>
                   <span className="text-xl font-bold tracking-tight text-blue-600">LMS</span>
                 </div>
-                <span className="text-[10px] font-mono uppercase tracking-wider text-blue-700 px-1.5 py-0.5 bg-blue-50 rounded border border-blue-200 font-semibold">
-                  EDUCATION_OS v4.8
+                <span className="text-[10px] font-sans tracking-wide text-slate-500 font-medium">
+                  Next-Gen Virtual Academy
                 </span>
               </div>
             </Link>
           </div>
 
           {/* Central Pill Navigation */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-2 bg-slate-100/90 p-1.5 rounded-full border border-slate-200/90 shadow-inner">
+          <nav className="hidden xl:flex items-center gap-1 lg:gap-2 bg-slate-100/90 p-1.5 rounded-full border border-slate-200/90 shadow-inner">
             <Link to="/courses" className="px-4 py-1.5 rounded-full text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-white hover:shadow-sm transition-all">
               Courses
             </Link>
@@ -572,7 +574,7 @@ const Home = () => {
           </nav>
 
           {/* Right User / CTA Controls */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             {isAuthenticated && user ? (
               <Link
                 to={getDashboardPath()}
@@ -600,7 +602,7 @@ const Home = () => {
           </div>
 
           {/* Mobile Menu Toggle */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="flex lg:hidden items-center gap-2">
             <Link
               to="/register"
               className="px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-sm"
@@ -620,7 +622,7 @@ const Home = () => {
 
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white/98 backdrop-blur-xl px-6 py-5 space-y-3 shadow-xl">
+          <div className="lg:hidden border-t border-slate-200 bg-white/98 backdrop-blur-xl px-6 py-5 space-y-3 shadow-xl">
             <Link to="/courses" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-slate-800 font-semibold">
               Courses
             </Link>
@@ -1437,13 +1439,15 @@ const Home = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl pb-space-xl border-b border-surface-container-highest/60">
             {/* Brand column */}
             <div className="lg:col-span-4 flex flex-col gap-space-md">
-              <div className="flex items-center gap-space-sm">
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-tertiary flex items-center justify-center shadow-[0_0_14px_-2px_rgba(37,99,235,0.3)]">
-                  <span className="material-symbols-outlined text-on-primary text-[20px]">deployed_code</span>
-                </div>
-                <div className="flex items-center gap-space-xs">
-                  <span className="font-headline-sm text-headline-sm tracking-tight text-on-surface">NOVA</span>
-                  <span className="font-headline-sm text-headline-sm tracking-tight text-primary font-bold">LMS</span>
+              <div className="flex items-center gap-3">
+                <img
+                  alt="Nova LMS Logo"
+                  className="h-9 w-9 object-contain"
+                  src="/nova-icon.png"
+                />
+                <div className="flex items-center gap-1">
+                  <span className="font-bold text-xl tracking-tight text-slate-900">Nova</span>
+                  <span className="font-bold text-xl tracking-tight text-blue-600">LMS</span>
                 </div>
               </div>
               <p className="font-body-md text-body-md text-on-surface-variant max-w-sm">

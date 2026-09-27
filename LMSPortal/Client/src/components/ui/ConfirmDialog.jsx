@@ -40,11 +40,11 @@ export const ConfirmDialog = ({
       aria-modal="true"
       aria-labelledby="dialog-title"
       aria-describedby="dialog-description"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-150 overflow-y-auto"
     >
       <div
         ref={dialogRef}
-        className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150 relative"
+        className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150 relative my-auto max-h-[calc(100vh-2rem)] overflow-y-auto"
       >
         {/* Close Button */}
         <button

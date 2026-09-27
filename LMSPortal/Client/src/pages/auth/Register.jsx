@@ -37,6 +37,24 @@ const Register = () => {
 
   const leftCanvasRef = useRef(null);
   const rightCanvasRef = useRef(null);
+  const leftSectionRef = useRef(null);
+  const rightSectionRef = useRef(null);
+
+  // Wheel forwarding from left panel to right scrollable form on desktop
+  useEffect(() => {
+    const leftEl = leftSectionRef.current;
+    const rightEl = rightSectionRef.current;
+    if (!leftEl || !rightEl) return;
+
+    const handleWheel = (e) => {
+      if (window.innerWidth >= 1024) {
+        rightEl.scrollTop += e.deltaY;
+      }
+    };
+
+    leftEl.addEventListener('wheel', handleWheel, { passive: true });
+    return () => leftEl.removeEventListener('wheel', handleWheel);
+  }, []);
 
   // -------------------------------------------------------------
   // LEFT PANEL: Interactive 3D Workstation (Three.js)
@@ -242,7 +260,7 @@ const Register = () => {
 
     laptopGroup.rotation.y = -0.36;
     laptopGroup.rotation.x = 0.1;
-    laptopGroup.position.y = -0.15;
+    laptopGroup.position.y = 0.05;
 
     let targetX = -0.36;
     let targetY = 0.1;
@@ -597,11 +615,14 @@ const Register = () => {
   return (
     <div className="h-full min-h-screen bg-slate-50 text-slate-900 font-sans antialiased overflow-x-hidden selection:bg-blue-100 selection:text-blue-700">
       {/* Full Desktop Split Container */}
-      <main className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2 relative bg-white">
+      <main className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2 relative bg-slate-50">
         {/* ======================================================== */}
         {/* LEFT PANEL: 3D INTERACTIVE WORKSTATION (LIGHT THEME)     */}
         {/* ======================================================== */}
-        <section className="relative min-h-[500px] lg:min-h-screen bg-gradient-to-br from-slate-100 via-blue-50/50 to-indigo-50/40 border-r border-slate-200/80 overflow-hidden flex flex-col justify-between p-6 lg:p-10">
+        <section
+          ref={leftSectionRef}
+          className="hidden lg:flex relative min-h-screen bg-gradient-to-br from-slate-100 via-blue-50/50 to-indigo-50/40 border-r border-slate-200/80 overflow-hidden flex-col justify-between p-6 lg:p-10"
+        >
           {/* Subtle Architectural Background Grid & Light Radial Glow */}
           <div className="absolute inset-0 blueprint-grid pointer-events-none opacity-70"></div>
           <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-300/25 rounded-full blur-3xl pointer-events-none"></div>
@@ -610,66 +631,34 @@ const Register = () => {
           {/* Top Bar / Terminal Header */}
           <header className="relative z-20 flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-xl">
-              <div className="w-10 h-10 rounded-xl bg-white shadow-sm border border-slate-200/80 flex items-center justify-center text-blue-600 transition-transform group-hover:scale-105">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" strokeLinecap="round" strokeLinejoin="round"></path>
-                </svg>
-              </div>
+              <img
+                src="/nova-icon.png"
+                alt="Nova LMS Logo"
+                className="h-10 w-10 object-contain transition-transform group-hover:scale-105"
+              />
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-extrabold tracking-wider text-sm text-slate-900">NOVA</span>
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 uppercase tracking-wider font-mono">
-                    LMS
-                  </span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-extrabold tracking-tight text-base text-slate-900">Nova</span>
+                  <span className="font-extrabold tracking-tight text-base text-blue-600">LMS</span>
                 </div>
-                <p className="text-[11px] font-mono tracking-widest text-slate-500 uppercase">Interactive Terminal</p>
+                <p className="text-[11px] font-sans text-slate-500">Virtual Academy</p>
               </div>
             </Link>
-
-            {/* Cloud Region Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 border border-slate-200 text-xs font-mono text-slate-700 shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>NODE // CLOUD-EU-WEST</span>
-            </div>
           </header>
 
           {/* Center 3D Workstation Scene Layer */}
           <div className="absolute inset-0 z-10 pointer-events-none">
             <div ref={leftCanvasRef} className="w-full h-full bg-transparent" style={{ display: 'block' }} />
           </div>
-
-          {/* Floating Terminal Code Snip */}
-          <div className="relative z-20 my-auto pointer-events-none">
-            <div className="w-fit max-w-sm rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-xl p-4.5 font-mono text-xs space-y-1 text-slate-700">
-              <div className="flex items-center justify-between text-[11px] pb-1 border-b border-slate-100 text-slate-500">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-                  KERNEL_INIT.WASM
-                </span>
-                <span className="text-emerald-600 font-bold">200 OK</span>
-              </div>
-              <p className="text-blue-700 font-bold pt-1">$ nova auth --provision-seat</p>
-              <p className="text-slate-500">&gt; TLS 1.3 KeyExchange verified</p>
-              <p className="text-slate-500">&gt; Provisioning research cluster seat_</p>
-            </div>
-          </div>
-
-          {/* Bottom Telemetry Bar */}
-          <footer className="relative z-20 flex items-center justify-between font-mono text-xs text-slate-500 border-t border-slate-200/80 pt-4">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span>SYS.STATUS: <strong className="text-slate-700">ONLINE</strong></span>
-              <span className="text-slate-300">//</span>
-              <span>LATENCY: <strong className="text-slate-700">12MS</strong></span>
-            </div>
-            <span>TERMINAL REV 4.8.1</span>
-          </footer>
         </section>
 
         {/* ======================================================== */}
         {/* RIGHT PANEL: REGISTRATION CARD WITH 3D BACKGROUND       */}
         {/* ======================================================== */}
-        <section className="relative min-h-screen bg-slate-50/70 flex items-center justify-center p-6 sm:p-10 lg:p-12 xl:p-16 overflow-hidden">
+        <section
+          ref={rightSectionRef}
+          className="relative min-h-screen w-full bg-slate-50/70 flex flex-col items-center justify-start lg:justify-center py-10 px-4 sm:px-8 lg:px-12 overflow-y-auto"
+        >
           {/* Dynamic Ambient Background Dots */}
           <div className="absolute inset-0 subtle-dots pointer-events-none opacity-50"></div>
 
@@ -684,13 +673,11 @@ const Register = () => {
           <div className="absolute top-1/2 left-1/3 w-96 h-96 bg-blue-100/50 rounded-full blur-2xl pointer-events-none animate-pulse-subtle"></div>
 
           {/* High-Impact Registration Form Card */}
-          <div className="relative z-10 w-full max-w-xl xl:max-w-2xl bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl shadow-2xl shadow-blue-500/10 p-8 sm:p-11 lg:p-12 transition-all my-8">
+          <div className="relative z-10 w-full max-w-xl xl:max-w-2xl bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl shadow-2xl shadow-blue-500/10 p-6 sm:p-10 lg:p-12 transition-all my-auto">
             {/* Badge */}
             <div className="mb-6 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs sm:text-sm font-semibold">
-              <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 10h2v4h-2zm0 6h2v2h-2z"></path>
-              </svg>
-              <span>StudyPilot</span>
+              <img src="/nova-icon.png" alt="Nova LMS Logo" className="w-5 h-5 object-contain" />
+              <span>Nova LMS</span>
             </div>
 
             {/* Heading */}

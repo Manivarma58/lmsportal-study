@@ -64,20 +64,20 @@ const Navbar = () => {
           {/* Brand Logo */}
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-9 h-9 rounded-xl overflow-hidden shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-300">
+              <div className="w-9 h-9 rounded-xl overflow-hidden shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform duration-300">
                 <img
-                  alt="NOVA LMS Logo"
-                  className="w-full h-full object-cover"
-                  src="/assets/nova-logo.png"
+                  alt="Nova LMS Logo"
+                  className="w-full h-full object-contain"
+                  src="/nova-icon.png"
                 />
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5">
                   <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white font-sans">
-                    NOVA<span className="text-sky-400">.LMS</span>
+                    Nova<span className="text-blue-600 dark:text-sky-400"> LMS</span>
                   </span>
-                  <span className="text-[9px] uppercase font-mono tracking-wider font-semibold px-1 py-0.5 rounded bg-indigo-950/60 text-sky-400 border border-indigo-500/40">
-                    StudyPilot
+                  <span className="text-[9px] uppercase font-mono tracking-wider font-semibold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-sky-300 border border-blue-200 dark:border-blue-500/40">
+                    Academy
                   </span>
                 </div>
               </div>

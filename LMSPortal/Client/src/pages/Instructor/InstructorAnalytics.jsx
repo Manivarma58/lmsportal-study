@@ -731,7 +731,7 @@ export default function InstructorAnalytics() {
 
             <div className="flex items-center justify-between pt-3 font-mono text-xs text-slate-500 border-t border-slate-100 mt-2">
               <span>Global Academia Attrition: 32.0%</span>
-              <span className="text-emerald-600 font-semibold">StudyPilot Attrition: 15.4%</span>
+              <span className="text-emerald-600 font-semibold">Nova LMS Attrition: 15.4%</span>
             </div>
           </div>
 
@@ -1545,7 +1545,7 @@ export default function InstructorAnalytics() {
                   <span className="material-symbols-outlined">psychology</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-base">StudyPilot Neural Intelligence Synthesis</h3>
+                  <h3 className="font-bold text-slate-900 text-base">Nova LMS Intelligence Synthesis</h3>
                   <p className="font-mono text-slate-400 text-xs">Dynamic pedagogical evaluation generated across 12,480 scholars</p>
                 </div>
               </div>

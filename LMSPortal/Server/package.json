@@ -17,7 +17,8 @@
     "test:quiz": "node src/test-quiz.js",
     "test:chat": "node src/test-chat.js",
     "test:notifications": "node src/test-notifications.js",
-    "test:security": "node src/test-security.js"
+    "test:security": "node src/test-security.js",
+    "test:regression": "node src/test-full-regression.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -31,7 +31,7 @@ const AdminLayout = () => {
     <div className="bg-slate-50 text-slate-900 font-sans min-h-screen blueprint-grid antialiased selection:bg-blue-100 selection:text-blue-700">
       {/* ================= DESKTOP & MOBILE SIDEBAR ================= */}
       <aside
-        className={`fixed left-0 top-0 bottom-0 w-72 bg-white z-50 flex flex-col justify-between shadow-sm border-r border-slate-200/80 transition-transform duration-200 md:translate-x-0 ${
+        className={`fixed left-0 top-0 bottom-0 w-64 xl:w-72 bg-white z-50 flex flex-col justify-between shadow-sm border-r border-slate-200/80 transition-transform duration-200 md:translate-x-0 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
@@ -41,17 +41,17 @@ const AdminLayout = () => {
             <div className="flex items-center justify-between">
               <Link to="/admin/dashboard" className="flex items-center gap-2.5 group">
                 <img
-                  alt="Brand logo"
-                  className="h-8 w-auto object-contain rounded-md group-hover:scale-105 transition-transform"
-                  src="/assets/nova-logo.png"
+                  alt="Nova LMS Logo"
+                  className="h-9 w-9 object-contain rounded-md group-hover:scale-105 transition-transform"
+                  src="/nova-icon.png"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = '/assets/nova-logo.png';
+                    e.target.src = '/nova-icon.png';
                   }}
                 />
                 <div className="flex flex-col">
                   <span className="font-bold text-base tracking-tight text-slate-900 leading-none">
-                    StudyPilot
+                    Nova LMS
                   </span>
                   <span className="font-mono text-[10px] text-blue-600 font-bold uppercase tracking-wider mt-1">
                     ADMIN CONSOLE
@@ -237,35 +237,36 @@ const AdminLayout = () => {
       </aside>
 
       {/* ================= CONTENT CONTAINER WITH FIXED HEADER ================= */}
-      <div className="pl-0 md:pl-72 flex flex-col min-h-screen">
+      <div className="pl-0 md:pl-64 xl:pl-72 flex flex-col min-h-screen w-full min-w-0 transition-all duration-200">
         {/* Fixed Top Header */}
-        <header className="fixed top-0 left-0 md:left-72 right-0 h-16 bg-white/80 backdrop-blur-xl z-40 px-6 flex items-center justify-between shadow-sm border-b border-slate-200/80">
+        <header className="fixed top-0 left-0 md:left-64 xl:left-72 right-0 h-16 bg-white/80 backdrop-blur-xl z-40 px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 shadow-sm border-b border-slate-200/80 transition-all duration-200">
           {/* Left: Mobile Menu & Search Input */}
-          <div className="flex items-center gap-4 flex-1 max-w-2xl">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 max-w-2xl min-w-0">
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden p-2 rounded-lg text-slate-500 hover:bg-slate-100"
+              className="md:hidden p-2 rounded-lg text-slate-500 hover:bg-slate-100 shrink-0"
+              aria-label="Toggle navigation menu"
             >
               <span className="material-symbols-outlined text-xl">menu</span>
             </button>
 
-            <form onSubmit={handleSearchSubmit} className="w-full relative flex items-center">
+            <form onSubmit={handleSearchSubmit} className="w-full min-w-0 relative flex items-center">
               <span className="material-symbols-outlined absolute left-3 text-slate-400 text-[20px]">search</span>
               <input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-10 pr-12 bg-slate-50 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                placeholder="Search users, courses, audit logs, node metrics... [⌘K]"
+                className="w-full min-w-0 h-10 pl-10 pr-12 bg-slate-50 rounded-xl text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white border border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                placeholder="Search users, courses, logs... [⌘K]"
                 type="text"
               />
-              <div className="absolute right-2.5 px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 font-mono text-[10px] border border-slate-300">
+              <div className="absolute right-2.5 hidden sm:flex px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 font-mono text-[10px] border border-slate-300">
                 ⌘K
               </div>
             </form>
           </div>
 
           {/* Right: Notifications & Profile */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <button
               onClick={() => navigate('/notifications')}
               className="relative p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
@@ -280,7 +281,7 @@ const AdminLayout = () => {
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
                 className="flex items-center gap-2 pl-2 cursor-pointer group"
               >
-                <div className="flex flex-col text-right hidden sm:flex">
+                <div className="flex flex-col text-right hidden xl:flex">
                   <span className="text-xs font-semibold text-slate-800">
                     {user?.name || 'Dr. Sarah Jenkins'}
                   </span>
@@ -349,7 +350,7 @@ const AdminLayout = () => {
         </header>
 
         {/* Main Content View */}
-        <main className="relative pt-20 bg-slate-50 min-h-screen w-full px-6 pb-12">
+        <main className="relative pt-20 bg-slate-50 min-h-screen w-full px-4 sm:px-6 pb-12 min-w-0 flex-1">
           <Outlet />
         </main>
       </div>

@@ -15,6 +15,12 @@ export default function CourseEditor() {
   const [saveButtonText, setSaveButtonText] = useState('Save Curriculum Changes');
   const [saveIcon, setSaveIcon] = useState('verified');
 
+  // Drag and drop reordering state
+  const [draggedSectionIdx, setDraggedSectionIdx] = useState(null);
+  const [draggedLesson, setDraggedLesson] = useState(null);
+  const [dragOverSectionIdx, setDragOverSectionIdx] = useState(null);
+  const [dragOverLessonId, setDragOverLessonId] = useState(null);
+
   // Preview Modal State
   const [playerModalOpen, setPlayerModalOpen] = useState(false);
 
@@ -228,6 +234,25 @@ export default function CourseEditor() {
     ],
   });
 
+  // Select lesson to edit
+  const selectLesson = (lesson) => {
+    setSelectedLessonId(lesson.id);
+    setEditorData({
+      title: lesson.title,
+      slug: lesson.slug,
+      durationMin: lesson.durationMin,
+      durationSec: lesson.durationSec,
+      description: lesson.description,
+      status: lesson.status,
+      freePreview: lesson.freePreview,
+      discussionForum: lesson.discussionForum,
+      videoFile: lesson.videoFile,
+      videoSize: lesson.videoSize,
+      transcodingPct: lesson.transcodingPct,
+      resources: lesson.resources || [],
+    });
+  };
+
   // Fetch real course if ID is present
   useEffect(() => {
     if (id && !id.startsWith('c-')) {
@@ -274,25 +299,6 @@ export default function CourseEditor() {
     }
   }, [id]);
 
-  // Select lesson to edit
-  const selectLesson = (lesson) => {
-    setSelectedLessonId(lesson.id);
-    setEditorData({
-      title: lesson.title,
-      slug: lesson.slug,
-      durationMin: lesson.durationMin,
-      durationSec: lesson.durationSec,
-      description: lesson.description,
-      status: lesson.status,
-      freePreview: lesson.freePreview,
-      discussionForum: lesson.discussionForum,
-      videoFile: lesson.videoFile,
-      videoSize: lesson.videoSize,
-      transcodingPct: lesson.transcodingPct,
-      resources: lesson.resources || [],
-    });
-  };
-
   // Toggle Collapse Section
   const toggleCollapse = (secId) => {
     setSections((prev) =>
@@ -300,14 +306,199 @@ export default function CourseEditor() {
     );
   };
 
+  // Normalize Curriculum Order: updates section indices and lesson codes
+  const normalizeCurriculumOrder = (secs) => {
+    return secs.map((sec, secIdx) => {
+      const secNum = secIdx + 1;
+      const cleanTitle = sec.title.replace(/^Section\s*\d+\s*:\s*/i, '');
+      const normalizedTitle = `Section ${secNum}: ${cleanTitle}`;
+      
+      const normalizedLessons = (sec.lessons || []).map((les, lesIdx) => {
+        const lessonCode = `${secNum}.${lesIdx + 1}`;
+        const cleanLessonTitle = les.title.replace(/^\d+\.\d+\s*/i, '');
+        return {
+          ...les,
+          code: lessonCode,
+          title: cleanLessonTitle,
+        };
+      });
+
+      const totalMinutes = normalizedLessons.reduce((acc, l) => acc + (Number(l.durationMin) || 0), 0);
+      const hours = Math.floor(totalMinutes / 60);
+      const mins = totalMinutes % 60;
+      const metaDuration = hours > 0 ? `${hours}h ${mins}m Total` : `${mins}m Total`;
+
+      return {
+        ...sec,
+        title: normalizedTitle,
+        meta: `${normalizedLessons.length} Lessons • ${metaDuration}`,
+        lessons: normalizedLessons,
+      };
+    });
+  };
+
+  // Move Section Up
+  const moveSectionUp = (index) => {
+    if (index <= 0) return;
+    setSections((prev) => {
+      const updated = [...prev];
+      const temp = updated[index];
+      updated[index] = updated[index - 1];
+      updated[index - 1] = temp;
+      const normalized = normalizeCurriculumOrder(updated);
+      toast.success(`Section moved to position ${index}.`);
+      return normalized;
+    });
+  };
+
+  // Move Section Down
+  const moveSectionDown = (index) => {
+    if (index >= sections.length - 1) return;
+    setSections((prev) => {
+      const updated = [...prev];
+      const temp = updated[index];
+      updated[index] = updated[index + 1];
+      updated[index + 1] = temp;
+      const normalized = normalizeCurriculumOrder(updated);
+      toast.success(`Section moved to position ${index + 2}.`);
+      return normalized;
+    });
+  };
+
+  // Move Lesson Up within Section
+  const moveLessonUp = (secId, lessonIdx) => {
+    if (lessonIdx <= 0) return;
+    setSections((prev) => {
+      const updated = prev.map((sec) => {
+        if (sec.id !== secId) return sec;
+        const newLessons = [...sec.lessons];
+        const temp = newLessons[lessonIdx];
+        newLessons[lessonIdx] = newLessons[lessonIdx - 1];
+        newLessons[lessonIdx - 1] = temp;
+        return { ...sec, lessons: newLessons };
+      });
+      const normalized = normalizeCurriculumOrder(updated);
+      toast.success(`Lesson moved to position ${lessonIdx}.`);
+      return normalized;
+    });
+  };
+
+  // Move Lesson Down within Section
+  const moveLessonDown = (secId, lessonIdx) => {
+    setSections((prev) => {
+      const updated = prev.map((sec) => {
+        if (sec.id !== secId || lessonIdx >= sec.lessons.length - 1) return sec;
+        const newLessons = [...sec.lessons];
+        const temp = newLessons[lessonIdx];
+        newLessons[lessonIdx] = newLessons[lessonIdx + 1];
+        newLessons[lessonIdx + 1] = temp;
+        return { ...sec, lessons: newLessons };
+      });
+      const normalized = normalizeCurriculumOrder(updated);
+      toast.success(`Lesson moved to position ${lessonIdx + 2}.`);
+      return normalized;
+    });
+  };
+
+  // Section Drag and Drop Handlers
+  const handleSectionDragStart = (e, index) => {
+    setDraggedSectionIdx(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', `section:${index}`);
+  };
+
+  const handleSectionDragOver = (e, index) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverSectionIdx !== index) {
+      setDragOverSectionIdx(index);
+    }
+  };
+
+  const handleSectionDrop = (e, targetIdx) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOverSectionIdx(null);
+    if (draggedSectionIdx === null || draggedSectionIdx === targetIdx) {
+      setDraggedSectionIdx(null);
+      return;
+    }
+    setSections((prev) => {
+      const updated = [...prev];
+      const [removed] = updated.splice(draggedSectionIdx, 1);
+      updated.splice(targetIdx, 0, removed);
+      const normalized = normalizeCurriculumOrder(updated);
+      toast.success(`Section reordered to position ${targetIdx + 1}.`);
+      return normalized;
+    });
+    setDraggedSectionIdx(null);
+  };
+
+  // Lesson Drag and Drop Handlers
+  const handleLessonDragStart = (e, secId, lessonIdx) => {
+    e.stopPropagation();
+    setDraggedLesson({ secId, lessonIdx });
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', `lesson:${secId}:${lessonIdx}`);
+  };
+
+  const handleLessonDragOver = (e, lessonId) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverLessonId !== lessonId) {
+      setDragOverLessonId(lessonId);
+    }
+  };
+
+  const handleLessonDrop = (e, targetSecId, targetLessonIdx) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOverLessonId(null);
+    if (!draggedLesson) return;
+
+    const { secId: sourceSecId, lessonIdx: sourceLessonIdx } = draggedLesson;
+
+    setSections((prev) => {
+      const updated = [...prev];
+      const sourceSec = updated.find((s) => s.id === sourceSecId);
+      const targetSec = updated.find((s) => s.id === targetSecId);
+
+      if (!sourceSec || !targetSec) return prev;
+
+      if (sourceSecId === targetSecId) {
+        if (sourceLessonIdx === targetLessonIdx) return prev;
+        const newLessons = [...sourceSec.lessons];
+        const [moved] = newLessons.splice(sourceLessonIdx, 1);
+        newLessons.splice(targetLessonIdx, 0, moved);
+        sourceSec.lessons = newLessons;
+      } else {
+        const sourceLessons = [...sourceSec.lessons];
+        const targetLessons = [...targetSec.lessons];
+        const [moved] = sourceLessons.splice(sourceLessonIdx, 1);
+        targetLessons.splice(targetLessonIdx, 0, moved);
+        sourceSec.lessons = sourceLessons;
+        targetSec.lessons = targetLessons;
+      }
+
+      const normalized = normalizeCurriculumOrder(updated);
+      toast.success('Curriculum lesson sequence updated.');
+      return normalized;
+    });
+
+    setDraggedLesson(null);
+  };
+
   // Reorder Mode Toggle
   const toggleReorderMode = () => {
-    setIsReordering((prev) => !prev);
-    if (!isReordering) {
-      toast.info('Reorder mode enabled: Drag handles to reorder sections and lessons.');
-    } else {
-      toast.success('Curriculum sequence committed.');
-    }
+    setIsReordering((prev) => {
+      const next = !prev;
+      if (next) {
+        toast.info('Reorder mode enabled: Use ↑ ↓ buttons or drag handles to set the correct order.');
+      } else {
+        toast.success('Curriculum sequence committed.');
+      }
+      return next;
+    });
   };
 
   // Add New Section
@@ -670,16 +861,50 @@ export default function CourseEditor() {
               </div>
             </div>
 
+            {/* Reorder Mode Interactive Banner */}
+            {isReordering && (
+              <div className="flex items-center justify-between p-4 bg-blue-50 border-2 border-blue-400/80 rounded-2xl text-blue-900 shadow-sm animate-pulse-subtle">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <span className="material-symbols-outlined text-[22px]">swap_vert</span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold">Curriculum Reordering Mode Active</h4>
+                    <p className="text-xs text-blue-700">Use the ↑ and ↓ buttons or drag any section or lesson handle to set the correct order. Numbers update automatically.</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsReordering(false)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer shrink-0 transition-colors"
+                >
+                  Done Reordering
+                </button>
+              </div>
+            )}
+
             {/* SECTIONS LIST */}
-            {sections.map((sec) => (
+            {sections.map((sec, secIdx) => {
+              const isSectionDragTarget = dragOverSectionIdx === secIdx;
+              return (
               <div
                 key={sec.id}
-                className="flex flex-col bg-white rounded-2xl p-6 shadow-sm border border-slate-200/90 transition-all"
+                onDragOver={(e) => handleSectionDragOver(e, secIdx)}
+                onDrop={(e) => handleSectionDrop(e, secIdx)}
+                className={`flex flex-col bg-white rounded-2xl p-6 shadow-sm border transition-all ${
+                  isSectionDragTarget
+                    ? 'border-blue-500 ring-2 ring-blue-300 bg-blue-50/20'
+                    : 'border-slate-200/90'
+                }`}
               >
                 {/* Section Header Card */}
                 <div className="flex items-center justify-between gap-3 pb-4 border-b border-slate-100">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-700 p-1 transition-colors">
+                    <div
+                      draggable={true}
+                      onDragStart={(e) => handleSectionDragStart(e, secIdx)}
+                      className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-blue-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+                      title="Drag to reorder section"
+                    >
                       <span className="material-symbols-outlined text-[20px]">drag_pan</span>
                     </div>
                     <button
@@ -702,6 +927,11 @@ export default function CourseEditor() {
                         <span className="bg-slate-100 text-slate-700 font-semibold text-xs px-2.5 py-0.5 rounded-md border border-slate-200">
                           {sec.lessons.length} Lessons • {sec.meta}
                         </span>
+                        {isReordering && (
+                          <span className="bg-blue-100 text-blue-700 font-mono font-bold text-[11px] px-2 py-0.5 rounded">
+                            Order: #{secIdx + 1}
+                          </span>
+                        )}
                       </div>
                       <span className="text-xs text-slate-500 truncate mt-0.5">{sec.subtitle}</span>
                     </div>
@@ -709,6 +939,28 @@ export default function CourseEditor() {
 
                   {/* Section Action Tools */}
                   <div className="flex items-center gap-1 shrink-0">
+                    {/* Move Section Up */}
+                    <button
+                      onClick={() => moveSectionUp(secIdx)}
+                      disabled={secIdx === 0}
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                      title={secIdx === 0 ? 'Top section' : 'Move Section Up (↑)'}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">arrow_upward</span>
+                    </button>
+
+                    {/* Move Section Down */}
+                    <button
+                      onClick={() => moveSectionDown(secIdx)}
+                      disabled={secIdx === sections.length - 1}
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                      title={secIdx === sections.length - 1 ? 'Bottom section' : 'Move Section Down (↓)'}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">arrow_downward</span>
+                    </button>
+
+                    <div className="w-[1px] h-4 bg-slate-200 mx-1" />
+
                     <button
                       onClick={() => toast.info(`Section settings for ${sec.title}`)}
                       className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
@@ -736,15 +988,20 @@ export default function CourseEditor() {
                 {/* Section Lessons Container */}
                 {!sec.collapsed && (
                   <div className="flex flex-col gap-3 pt-4 pl-1 sm:pl-3">
-                    {sec.lessons.map((les) => {
+                    {sec.lessons.map((les, lesIdx) => {
                       const isSelected = selectedLessonId === les.id;
+                      const isLessonDragTarget = dragOverLessonId === les.id;
                       return (
                         <div
                           key={les.id}
                           onClick={() => selectLesson(les)}
+                          onDragOver={(e) => handleLessonDragOver(e, les.id)}
+                          onDrop={(e) => handleLessonDrop(e, sec.id, lesIdx)}
                           className={`group relative flex flex-col p-4 rounded-xl transition-all duration-150 cursor-pointer ${
                             isSelected
                               ? 'bg-blue-50/80 shadow-sm border border-blue-200 ring-2 ring-blue-500/20'
+                              : isLessonDragTarget
+                              ? 'bg-blue-50/50 border border-blue-400 ring-2 ring-blue-300'
                               : 'bg-white hover:bg-slate-50 border border-slate-200/80 shadow-xs'
                           }`}
                         >
@@ -757,10 +1014,12 @@ export default function CourseEditor() {
                             <div className="flex items-start gap-3 min-w-0 pl-1">
                               {/* Reorder Grip Handle */}
                               <div
+                                draggable={true}
+                                onDragStart={(e) => handleLessonDragStart(e, sec.id, lesIdx)}
                                 className={`cursor-grab active:cursor-grabbing pt-1 hover:scale-110 transition-transform ${
-                                  isSelected ? 'text-blue-600' : 'text-slate-400 hover:text-slate-700'
+                                  isSelected ? 'text-blue-600' : 'text-slate-400 hover:text-blue-600'
                                 }`}
-                                title="Drag to reorder lesson"
+                                title="Drag to reorder lesson (or use ↑ ↓ buttons on right)"
                               >
                                 <span className="material-symbols-outlined text-[20px]">drag_indicator</span>
                               </div>
@@ -834,6 +1093,34 @@ export default function CourseEditor() {
                                 {les.status} {les.views && `• ${les.views}`}
                               </span>
                               <div className="flex items-center bg-white border border-slate-200 p-0.5 rounded-lg shadow-xs">
+                                {/* Move Lesson Up */}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    moveLessonUp(sec.id, lesIdx);
+                                  }}
+                                  disabled={lesIdx === 0}
+                                  className="p-1 rounded-md text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                  title={lesIdx === 0 ? 'Top lesson' : 'Move Lesson Up (↑)'}
+                                >
+                                  <span className="material-symbols-outlined text-[16px]">arrow_upward</span>
+                                </button>
+
+                                {/* Move Lesson Down */}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    moveLessonDown(sec.id, lesIdx);
+                                  }}
+                                  disabled={lesIdx === sec.lessons.length - 1}
+                                  className="p-1 rounded-md text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                  title={lesIdx === sec.lessons.length - 1 ? 'Bottom lesson' : 'Move Lesson Down (↓)'}
+                                >
+                                  <span className="material-symbols-outlined text-[16px]">arrow_downward</span>
+                                </button>
+
+                                <div className="w-[1px] h-3.5 bg-slate-200 mx-0.5" />
+
                                 <button
                                   onClick={() => selectLesson(les)}
                                   className={`p-1 rounded-md transition-colors ${
@@ -848,7 +1135,7 @@ export default function CourseEditor() {
                                     e.stopPropagation();
                                     setPlayerModalOpen(true);
                                   }}
-                                  className="p-1 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-slate-50 transition-colors"
+                                  className="p-1 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-slate-50 transition-colors cursor-pointer"
                                   title="Preview Lesson"
                                 >
                                   <span className="material-symbols-outlined text-[16px]">visibility</span>
@@ -858,14 +1145,14 @@ export default function CourseEditor() {
                                     e.stopPropagation();
                                     toast.success(`Lesson '${les.title}' duplicated as draft.`);
                                   }}
-                                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors"
+                                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
                                   title="Duplicate Lesson"
                                 >
                                   <span className="material-symbols-outlined text-[16px]">content_copy</span>
                                 </button>
                                 <button
                                   onClick={(e) => handleDeleteLesson(les.id, e)}
-                                  className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-slate-50 transition-colors"
+                                  className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-slate-50 transition-colors cursor-pointer"
                                   title="Archive / Delete Lesson"
                                 >
                                   <span className="material-symbols-outlined text-[16px]">delete</span>
@@ -888,7 +1175,8 @@ export default function CourseEditor() {
                   </div>
                 )}
               </div>
-            ))}
+            );
+          })}
 
             {/* CREATE NEW SECTION DROPZONE CARD */}
             <div

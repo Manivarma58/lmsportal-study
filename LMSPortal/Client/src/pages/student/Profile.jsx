@@ -35,7 +35,7 @@ const Profile = () => {
     bio:
       user?.bio ||
       'Dedicated scholar exploring modern software engineering, cloud architecture, artificial intelligence, and cybersecurity.',
-    email: user?.email || 'scholar@studypilot.edu',
+    email: user?.email || 'scholar@novalms.io',
     affiliation: 'NOVA Institute of Technology',
     location: 'Active Student',
     avatar: user?.avatar || user?.profileImage || '',
@@ -631,7 +631,7 @@ const Profile = () => {
                     <h4 className="font-bold text-sm text-slate-900 line-clamp-2">
                       {cert.course?.title || 'Academic Certification'}
                     </h4>
-                    <p className="text-xs text-slate-500 mt-1">Issued by StudyPilot Academic Consortium</p>
+                    <p className="text-xs text-slate-500 mt-1">Issued by Nova LMS Academic Consortium</p>
                     <div className="mt-3 p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 font-mono text-[11px] text-slate-600">
                       Code: {cert.certificateCode || cert._id?.slice(-8)?.toUpperCase()}
                     </div>

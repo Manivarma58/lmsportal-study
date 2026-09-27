@@ -983,7 +983,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2 text-blue-600">
                 <span className="material-symbols-outlined text-xl">terminal</span>
-                <span className="font-bold text-sm">StudyPilot Cloud Kernel Shell // k8s-us-east-core</span>
+                <span className="font-bold text-sm">Nova LMS Cloud Kernel Shell // k8s-us-east-core</span>
               </div>
               <button
                 onClick={() => setShowShellModal(false)}
@@ -994,9 +994,9 @@ export default function AdminDashboard() {
             </div>
             <div className="bg-slate-900 p-4 rounded-xl text-xs space-y-2 max-h-80 overflow-y-auto text-emerald-400 font-mono">
               <p className="text-blue-400 font-semibold">$ kubectl get nodes -o wide</p>
-              <p>node-01.us-east.studypilot   Ready   control-plane   v1.29.3   10.0.1.14   kernel-6.1-aws</p>
-              <p>node-02.us-east.studypilot   Ready   worker          v1.29.3   10.0.1.18   kernel-6.1-aws</p>
-              <p>node-03.us-east.studypilot   Ready   worker          v1.29.3   10.0.1.22   kernel-6.1-aws</p>
+              <p>node-01.us-east.novalms   Ready   control-plane   v1.29.3   10.0.1.14   kernel-6.1-aws</p>
+              <p>node-02.us-east.novalms   Ready   worker          v1.29.3   10.0.1.18   kernel-6.1-aws</p>
+              <p>node-03.us-east.novalms   Ready   worker          v1.29.3   10.0.1.22   kernel-6.1-aws</p>
               <p className="text-indigo-400 font-semibold mt-3">$ cdn-probe --latency-matrix</p>
               <p>Origin: IAD (Ashburn, VA)   Ping: 1.2ms   Throughput: 4.8 Gbps   Status: OPTIMAL</p>
               <p>Origin: FRA (Frankfurt)     Ping: 18.4ms  Throughput: 3.2 Gbps   Status: OPTIMAL</p>

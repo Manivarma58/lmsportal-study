@@ -177,19 +177,19 @@ const ForgotPassword = () => {
               <img
                 alt="Brand logo"
                 className="h-full w-full object-cover"
-                src="/assets/nova-logo.png"
+                src="/nova-icon.png"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = '/assets/nova-logo.png';
+                  e.target.src = '/nova-icon.png';
                 }}
               />
             </div>
             <div className="flex flex-col">
               <span className="font-headline-sm text-headline-sm text-slate-900 leading-tight tracking-tight">
-                StudyPilot
+                Nova LMS
               </span>
               <span className="font-label-sm text-label-sm text-slate-500 hidden sm:inline leading-none">
-                NOVA Learning Cloud
+                Virtual Academy
               </span>
             </div>
           </Link>
@@ -207,7 +207,7 @@ const ForgotPassword = () => {
       </header>
 
       {/* ================= MAIN CONTAINER ================= */}
-      <main className="w-full pt-20 pb-8 flex-1 flex flex-col justify-center items-center px-gutter relative z-10">
+      <main className="w-full pt-20 pb-8 flex-1 flex flex-col justify-start sm:justify-center items-center px-4 relative z-10 overflow-y-auto">
         <div className="w-full max-w-[480px] mx-auto relative my-auto">
           {/* Card Container with Modern Light Glassmorphism */}
           <div className="w-full backdrop-blur-2xl bg-white rounded-3xl p-6 sm:p-9 relative border border-slate-200/80 shadow-[0_20px_50px_rgba(0,0,0,0.06)] transition-all">
@@ -344,7 +344,7 @@ const ForgotPassword = () => {
                     Reset your password
                   </h1>
                   <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed max-w-sm mx-auto">
-                    Enter the email associated with your StudyPilot account and we'll send you a reset link or verification code.
+                    Enter the email associated with your Nova LMS account and we'll send you a reset link or verification code.
                   </p>
                 </div>
 
@@ -509,7 +509,7 @@ const ForgotPassword = () => {
                     Set new password
                   </h1>
                   <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed max-w-sm mx-auto">
-                    Create a resilient new password for your StudyPilot environment.
+                    Create a resilient new password for your Nova LMS environment.
                   </p>
                 </div>
 
@@ -614,7 +614,7 @@ const ForgotPassword = () => {
                 <div>
                   <h2 className="font-headline-md text-headline-md text-on-surface">Password Updated!</h2>
                   <p className="mt-1 font-body-md text-body-md text-on-surface-variant max-w-sm mx-auto">
-                    Your StudyPilot credentials have been re-encrypted and synchronized with all regional compute clusters.
+                    Your Nova LMS credentials have been re-encrypted and synchronized with all regional compute clusters.
                   </p>
                 </div>
 
@@ -663,7 +663,7 @@ const ForgotPassword = () => {
       <footer className="w-full bg-white/90 py-space-md border-t border-slate-200/80 backdrop-blur-xl relative z-10">
         <div className="max-w-7xl mx-auto px-gutter flex flex-col sm:flex-row items-center justify-between gap-space-sm text-center sm:text-left">
           <div className="font-label-sm text-label-sm text-on-surface-variant">
-            © 2025 StudyPilot by NOVA Learning Systems Inc. All rights reserved.
+            © 2025 Nova LMS. All rights reserved.
           </div>
           <div className="flex items-center gap-space-md font-label-sm text-label-sm text-on-surface-variant">
             <Link to="/about" className="hover:text-on-surface transition-colors">

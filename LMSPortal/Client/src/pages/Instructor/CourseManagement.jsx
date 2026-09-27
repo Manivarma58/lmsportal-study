@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import API from '../../services/api';
 import { toast } from 'sonner';
 
-// Default mock courses aligned with StudyPilot Cyber-Academic Spec
+// Default mock courses aligned with Nova LMS Cyber-Academic Spec
 const INITIAL_CURRICULA = [
   {
     _id: 'c-qpu-904',
@@ -170,7 +170,7 @@ export default function CourseManagement() {
       const res = await API.get('/courses/instructor/my-courses');
       const dbCourses = res.data.courses || [];
       if (dbCourses.length > 0) {
-        // Map backend courses to StudyPilot curriculum schema
+        // Map backend courses to Nova LMS curriculum schema
         const mapped = dbCourses.map((c, i) => ({
           _id: c._id,
           code: c.code || `LMS-${100 + i}`,
@@ -292,7 +292,7 @@ export default function CourseManagement() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `StudyPilot_Course_Audit_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `NovaLMS_Course_Audit_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

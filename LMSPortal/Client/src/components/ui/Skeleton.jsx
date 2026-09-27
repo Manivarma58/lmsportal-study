@@ -90,10 +90,10 @@ export const ListSkeleton = ({ items = 4 }) => {
   );
 };
 
-export default {
-  Skeleton,
-  StatSkeleton,
-  CardSkeleton,
-  TableSkeleton,
-  ListSkeleton,
-};
+Skeleton.Stat = StatSkeleton;
+Skeleton.Card = CardSkeleton;
+Skeleton.Table = TableSkeleton;
+Skeleton.List = ListSkeleton;
+
+export default Skeleton;
+

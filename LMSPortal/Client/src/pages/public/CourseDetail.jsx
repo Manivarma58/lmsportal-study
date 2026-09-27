@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import API from '../../services/api';
 import Navbar from '../../components/Navbar';
+import { EmptyState, ErrorState, Skeleton } from '../../components/ui';
 import {
   BookOpen,
   CheckCircle,
@@ -26,31 +27,36 @@ const CourseDetail = () => {
   const [lessons, setLessons] = useState([]);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [enrolling, setEnrolling] = useState(false);
 
-  useEffect(() => {
-    const fetchDetails = async () => {
-      try {
-        setLoading(true);
-        const [cRes, lRes] = await Promise.all([
-          API.get(`/courses/${id}`),
-          API.get(`/lessons/course/${id}`),
-        ]);
-        setCourse(cRes.data.course);
-        setLessons(lRes.data.lessons);
+  const fetchDetails = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [cRes, lRes] = await Promise.all([
+        API.get(`/courses/${id}`),
+        API.get(`/lessons/course/${id}`),
+      ]);
+      setCourse(cRes.data.course);
+      setLessons(lRes.data.lessons || []);
 
-        if (isAuthenticated && user?.role === 'student') {
-          const eRes = await API.get(`/enrollments/check/${id}`);
-          setIsEnrolled(eRes.data.isEnrolled);
+      if (isAuthenticated && user?.role === 'student') {
+        const eRes = await API.get(`/enrollments/check/${id}`).catch(() => null);
+        if (eRes?.data) {
+          setIsEnrolled(Boolean(eRes.data.isEnrolled));
         }
-      } catch (err) {
-        toast.error(err.message || 'Failed to load course');
-      } finally {
-        setLoading(false);
       }
-    };
-    fetchDetails();
+    } catch (err) {
+      setError(err.message || 'Failed to load course details');
+    } finally {
+      setLoading(false);
+    }
   }, [id, isAuthenticated, user]);
+
+  useEffect(() => {
+    fetchDetails();
+  }, [fetchDetails]);
 
   const handleEnroll = async () => {
     if (!isAuthenticated) {
@@ -75,19 +81,55 @@ const CourseDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors">
+        <Navbar />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full space-y-8 animate-pulse">
+          <div className="h-64 rounded-3xl bg-slate-200 dark:bg-slate-800/60 w-full" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-4">
+              <Skeleton className="h-8 w-3/4 rounded-xl" />
+              <Skeleton className="h-4 w-full rounded-lg" />
+              <Skeleton className="h-4 w-5/6 rounded-lg" />
+              <Skeleton className="h-48 w-full rounded-2xl mt-6" />
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-64 w-full rounded-2xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center p-6">
+          <ErrorState
+            title="Failed to Load Course"
+            message={error}
+            onRetry={fetchDetails}
+            showBack={true}
+          />
+        </div>
       </div>
     );
   }
 
   if (!course) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <h2 className="text-xl font-bold">Course Not Found</h2>
-        <Link to="/courses" className="text-indigo-600 mt-2">
-          Back to Catalog
-        </Link>
+      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center p-6">
+          <EmptyState
+            title="Course Not Found"
+            description="The requested course could not be located in our academic ledger. It may have been unpublished or removed."
+            actionLabel="Explore Course Catalog"
+            onAction={() => navigate('/courses')}
+            actionIcon={<ArrowRight className="w-4 h-4" />}
+          />
+        </div>
       </div>
     );
   }

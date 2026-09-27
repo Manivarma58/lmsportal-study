@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   generateCertificate,
+  generateProofOfSkillCertificate,
   getCertificateById,
   verifyCertificate,
   getMyCertificates,
@@ -13,6 +14,7 @@ const router = express.Router();
 router.get('/verify/:code', verifyCertificate);
 
 // Student certificate management
+router.post('/generate-proof-of-skill', authMiddleware, generateProofOfSkillCertificate);
 router.post('/generate/:courseId', authMiddleware, generateCertificate);
 router.get('/student/my-certificates', authMiddleware, getMyCertificates);
 router.get('/', authMiddleware, getMyCertificates);

@@ -84,7 +84,16 @@ export const apiLimiter = new RateLimiter(
   'Rate limit exceeded. Please slow down your requests.'
 ).middleware();
 
+// AI Mentor rate limiter (protecting AI queries from abuse)
+export const aiMentorLimiter = new RateLimiter(
+  10 * 60 * 1000,
+  isProduction ? 30 : 100,
+  'AI Mentor consultation limit reached. Please wait a few minutes before submitting more queries.'
+).middleware();
+
 export default {
   authLimiter,
   apiLimiter,
+  aiMentorLimiter,
 };
+

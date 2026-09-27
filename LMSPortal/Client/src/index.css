@@ -1,9 +1,57 @@
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  height: auto;
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 body {
   margin: 0;
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   background-color: #f8fafc;
   color: #0f172a;
+  min-height: 100vh;
+  min-width: 320px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Fluid responsive zoom helpers */
+img, svg, video, canvas, audio, iframe, embed, object {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Prevent grid/flex child blowout at high zoom levels */
+.flex-1,
+[class*="col-span-"],
+[class*="grid-cols-"] > * {
+  min-width: 0;
+}
+
+/* Table zoom containers */
+table {
+  max-width: 100%;
+}
+
 
 /* Animations */
 @keyframes floatSlow {
@@ -55,6 +103,25 @@ body {
 .animate-float-lag {
   animation: floatLag 8s ease-in-out infinite;
   animation-delay: 1.5s;
+}
+
+@keyframes marqueeRoll {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-roll {
+  display: flex;
+  width: max-content;
+  animation: marqueeRoll 14s linear infinite;
+}
+
+.animate-marquee-roll:hover {
+  animation-play-state: paused;
 }
 
 @keyframes floatReaction {
@@ -636,17 +703,29 @@ body {
   scrollbar-width: none;
 }
 
-/* Light Theme 3D Login Blueprint & Dot Grids */
-.blueprint-grid {
-  background-size: 36px 36px;
+/* Modern Clean Ambient Background (removed square box blueprint grid) */
+.blueprint-grid,
+.modern-app-bg {
+  background-color: #f8fafc;
   background-image: 
-    linear-gradient(to right, rgba(203, 213, 225, 0.45) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(203, 213, 225, 0.45) 1px, transparent 1px);
+    radial-gradient(at 0% 0%, rgba(224, 242, 254, 0.5) 0px, transparent 45%),
+    radial-gradient(at 100% 0%, rgba(238, 242, 255, 0.6) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(241, 245, 249, 0.7) 0px, transparent 60%);
+  background-attachment: fixed;
+}
+
+.dark .blueprint-grid,
+.dark .modern-app-bg {
+  background-color: #0b0f19;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(30, 58, 138, 0.15) 0px, transparent 40%),
+    radial-gradient(at 100% 0%, rgba(49, 46, 129, 0.15) 0px, transparent 45%),
+    radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.5) 0px, transparent 60%);
+  background-attachment: fixed;
 }
 
 .subtle-dots {
-  background-image: radial-gradient(rgba(148, 163, 184, 0.35) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image: none;
 }
 
 @keyframes terminalBlink {

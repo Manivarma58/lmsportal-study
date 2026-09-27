@@ -9,6 +9,24 @@ import QuizAttempt from './QuizAttempt.js';
 import Certificate from './Certificate.js';
 import Notification from './Notification.js';
 import Message from './Message.js';
+import Skill from './Skill.js';
+import CourseSkill from './CourseSkill.js';
+import LearnerSkillProgress, { UserSkill } from './LearnerSkillProgress.js';
+import CodingChallenge from './CodingChallenge.js';
+import CodingSubmission from './CodingSubmission.js';
+import Assignment from './Assignment.js';
+import AssignmentSubmission from './AssignmentSubmission.js';
+import Project from './Project.js';
+import ProjectSubmission from './ProjectSubmission.js';
+import TargetRole from './TargetRole.js';
+import LearnerTargetRole from './LearnerTargetRole.js';
+import RecommendationHistory from './RecommendationHistory.js';
+import AIMentorConversation from './AIMentorConversation.js';
+import JobSimulation from './JobSimulation.js';
+import JobSimulationSubmission from './JobSimulationSubmission.js';
+import AdaptiveIntervention from './AdaptiveIntervention.js';
+
+import LearnerPortfolio from './LearnerPortfolio.js';
 
 // Compatibility aliases
 import QuizSubmission from './QuizSubmission.js';
@@ -26,6 +44,24 @@ export {
   Certificate,
   Notification,
   Message,
+  Skill,
+  CourseSkill,
+  LearnerSkillProgress,
+  UserSkill,
+  CodingChallenge,
+  CodingSubmission,
+  Assignment,
+  AssignmentSubmission,
+  Project,
+  ProjectSubmission,
+  TargetRole,
+  LearnerTargetRole,
+  RecommendationHistory,
+  AIMentorConversation,
+  JobSimulation,
+  JobSimulationSubmission,
+  AdaptiveIntervention,
+  LearnerPortfolio,
   QuizSubmission,
   ChatMessage,
 };
@@ -42,6 +78,23 @@ export default {
   Certificate,
   Notification,
   Message,
+  Skill,
+  CourseSkill,
+  LearnerSkillProgress,
+  UserSkill,
+  CodingChallenge,
+  CodingSubmission,
+  Assignment,
+  AssignmentSubmission,
+  Project,
+  ProjectSubmission,
+  TargetRole,
+  LearnerTargetRole,
+  RecommendationHistory,
+  AIMentorConversation,
   QuizSubmission,
   ChatMessage,
 };
+
+
+

@@ -38,26 +38,36 @@ export default function CertificateViewer() {
     };
   }, [id]);
 
-  const candidateName =
-    certificate?.student?.name || user?.name || 'Academic Scholar';
-  const courseTitle =
+  const isProofOfSkill = certificate?.certificateType === 'proof_of_skill';
+  const candidateName = certificate?.student?.name || user?.name || 'Academic Scholar';
+  const certTitle =
+    certificate?.roleOrSkillTitle ||
     certificate?.course?.title ||
-    'Neural Networks & Quantum Computing: Tensor Latents & Hybrid Algorithms';
-  const courseCategory = certificate?.course?.category || 'Applied Quantum Computing';
+    'Full Stack Cloud & Distributed Systems Engineering';
+  const certCategory =
+    certificate?.course?.category || (isProofOfSkill ? 'Proof-of-Skill Specialization' : 'Applied Technology');
   const certCode =
-    certificate?.certificateCode || id || 'CERT-NV-2026-99428-QNT';
-  const issueDate = certificate?.issueDate
-    ? new Date(certificate.issueDate).toLocaleDateString(undefined, {
+    certificate?.certificateId || certificate?.certificateCode || id || 'CERT-POS-2026-99428';
+  const issueDate = certificate?.assessmentDate || certificate?.issueDate
+    ? new Date(certificate?.assessmentDate || certificate?.issueDate).toLocaleDateString(undefined, {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
       })
     : 'October 24, 2026';
   const instructorName =
-    certificate?.course?.instructor?.name || 'Dr. Elena Vance';
+    certificate?.instructorName ||
+    certificate?.course?.instructor?.name ||
+    'NOVA Academic & Industry Evaluation Board';
   const merkleProof =
     certificate?.merkleProof ||
     `0x8f2d88194a0b2c129e71cc81bf9a004b2c37e19b${(id || 'abc').slice(-4)}`;
+
+  const demonstratedSkills = certificate?.demonstratedSkills || [];
+  const practicalProjects = certificate?.practicalProjects || [];
+  const codingCount = certificate?.codingAssessmentsCount ?? 0;
+  const simCount = certificate?.jobSimulationsCount ?? 0;
+  const capstone = certificate?.capstoneProject;
 
   const handlePrint = () => {
     window.print();
@@ -73,7 +83,7 @@ export default function CertificateViewer() {
   };
 
   const handleCopyLink = () => {
-    const url = `${window.location.origin}/verify/${certCode}`;
+    const url = certificate?.verificationUrl || `${window.location.origin}/verify/${certCode}`;
     navigator.clipboard?.writeText(url);
     setCopiedLink(true);
     toast.success('Public Verification URL copied to clipboard!');
@@ -103,6 +113,11 @@ export default function CertificateViewer() {
             <span>/</span>
             <span className="text-slate-700 font-semibold">{certCode}</span>
           </div>
+          {isProofOfSkill && (
+            <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 font-mono text-[10px] font-bold border border-purple-200">
+              PROOF-OF-SKILL CREDENTIAL
+            </span>
+          )}
         </div>
 
         <div className="flex items-center flex-wrap gap-2">
@@ -117,7 +132,7 @@ export default function CertificateViewer() {
           <button
             onClick={handleDownloadPdf}
             disabled={isCompilingPdf}
-            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer disabled:opacity-50"
+            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-[18px]">
               {isCompilingPdf ? 'progress_activity' : 'download'}
@@ -132,6 +147,15 @@ export default function CertificateViewer() {
             <span className="material-symbols-outlined text-[18px]">share</span>
             <span>{copiedLink ? 'Copied Link!' : 'Share'}</span>
           </button>
+
+          <Link
+            to={`/verify/${certCode}`}
+            target="_blank"
+            className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+          >
+            <span className="material-symbols-outlined text-[18px]">verified</span>
+            <span>Public Verify</span>
+          </Link>
         </div>
       </div>
 
@@ -158,12 +182,16 @@ export default function CertificateViewer() {
                   NOVA INSTITUTE OF TECHNOLOGY
                 </h2>
                 <span className="text-xs font-mono text-amber-700 tracking-widest uppercase font-semibold">
-                  OFFICIAL ACADEMIC CREDENTIAL &amp; SPECIALIZATION DIPLOMA
+                  {isProofOfSkill
+                    ? 'OFFICIAL PROOF-OF-SKILL CREDENTIAL & APPLIED MASTERY DIPLOMA'
+                    : 'OFFICIAL ACADEMIC CREDENTIAL & SPECIALIZATION DIPLOMA'}
                 </span>
               </div>
 
-              <p className="text-xs sm:text-sm text-slate-500 italic max-w-md mb-4 font-serif">
-                This certifies that the academic candidate specified below has fulfilled all requisite laboratory practicums, peer audits, and curricular standards with honors.
+              <p className="text-xs sm:text-sm text-slate-500 italic max-w-lg mb-4 font-serif">
+                {isProofOfSkill
+                  ? 'This attests that the scholar named below has demonstrated verified technical proficiency across evaluated coding challenges, applied laboratories, job simulations, and real-world software milestones.'
+                  : 'This certifies that the academic candidate specified below has fulfilled all requisite laboratory practicums, peer audits, and curricular standards with honors.'}
               </p>
 
               {/* Candidate Name */}
@@ -173,21 +201,56 @@ export default function CertificateViewer() {
                 </h1>
               </div>
               <span className="text-xs text-slate-400 font-mono uppercase tracking-wider mb-6">
-                SCHOLAR CREDENTIAL CANDIDATE
+                VERIFIED CREDENTIAL RECIPIENT
               </span>
 
-              {/* Conferred Curriculum */}
-              <div className="max-w-xl mb-8">
-                <span className="text-xs font-mono font-semibold text-blue-600 uppercase">
-                  IN RECOGNITION OF ADVANCED MASTERY IN
+              {/* Conferred Skill / Curriculum */}
+              <div className="max-w-xl mb-6">
+                <span className="text-xs font-mono font-semibold text-indigo-600 uppercase">
+                  {isProofOfSkill ? 'DEMONSTRATED COMPETENCY IN' : 'IN RECOGNITION OF ADVANCED MASTERY IN'}
                 </span>
                 <h3 className="text-lg sm:text-xl font-bold text-slate-900 mt-1">
-                  {courseTitle}
+                  {certTitle}
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
-                  Department of {courseCategory} • High-Performance Computing &amp; Software Engineering
+                  Department of {certCategory} • Cyber-Academic Engineering &amp; Applied Telemetry
                 </p>
               </div>
+
+              {/* Proof-of-Skill Specific Breakdown inside Certificate */}
+              {isProofOfSkill && demonstratedSkills.length > 0 && (
+                <div className="w-full my-4 p-4 rounded-xl bg-slate-50/80 border border-slate-200 text-left space-y-3">
+                  <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-700 pb-1 border-b border-slate-200">
+                    <span>DEMONSTRATED SKILL TELEMETRY</span>
+                    <span>VERIFIED PROFICIENCY</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    {demonstratedSkills.slice(0, 4).map((skill, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200/80">
+                        <span className="font-semibold text-slate-800">{skill.name}</span>
+                        <div className="flex items-center gap-1.5 font-mono">
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                            skill.level === 'Expert' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {skill.level}
+                          </span>
+                          <span className="font-bold text-slate-700">{skill.score}%</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Capstone Mention */}
+                  {capstone?.title && (
+                    <div className="pt-2 border-t border-slate-200 flex flex-wrap items-center justify-between gap-1 text-[11px] font-mono">
+                      <span className="text-slate-500">CAPSTONE PROJECT: <strong className="text-slate-800">{capstone.title}</strong></span>
+                      <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        PASSED ({capstone.score}%)
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Signatures & Seal Row */}
               <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 border-t border-slate-200 items-end">
@@ -196,7 +259,7 @@ export default function CertificateViewer() {
                     {instructorName}
                   </span>
                   <span className="text-[10px] font-mono text-slate-400 uppercase mt-1">
-                    Lead Faculty Chair
+                    Industry Evaluation Board
                   </span>
                 </div>
 
@@ -234,7 +297,7 @@ export default function CertificateViewer() {
         <div className="lg:col-span-4 flex flex-col gap-5 print:hidden">
           <div className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm flex flex-col gap-4">
             <h3 className="text-base font-bold text-slate-900 pb-2 border-b border-slate-100 flex items-center gap-2">
-              <span className="material-symbols-outlined text-blue-600 text-[20px]">security</span>
+              <span className="material-symbols-outlined text-indigo-600 text-[20px]">security</span>
               Cryptographic Verification
             </h3>
 
@@ -249,10 +312,21 @@ export default function CertificateViewer() {
                 <span className="font-bold text-slate-800 text-xs">{candidateName}</span>
               </div>
 
+              {isProofOfSkill && (
+                <div className="flex flex-col gap-1 p-3 rounded-xl bg-purple-50/60 border border-purple-200/80">
+                  <span className="text-purple-600 uppercase text-[10px] font-bold">Verified Evidence Counts</span>
+                  <div className="grid grid-cols-3 gap-1 text-[11px] text-purple-950 font-bold mt-1">
+                    <div>{practicalProjects.length} Projects</div>
+                    <div>{codingCount} Challenges</div>
+                    <div>{simCount} Simulations</div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-col gap-1 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
                 <div className="flex items-center justify-between">
                   <span className="text-slate-400 uppercase text-[10px]">Merkle Proof Hash</span>
-                  <button onClick={handleCopyHash} className="text-blue-600 hover:underline text-[10px]">
+                  <button onClick={handleCopyHash} className="text-indigo-600 hover:underline text-[10px] cursor-pointer">
                     {copiedHash ? 'Copied' : 'Copy'}
                   </button>
                 </div>
@@ -267,7 +341,7 @@ export default function CertificateViewer() {
 
             <button
               onClick={handleCopyLink}
-              className="w-full py-2.5 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white text-xs font-semibold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+              className="w-full py-2.5 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white text-xs font-semibold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <span className="material-symbols-outlined text-[16px]">link</span>
               <span>Copy Public Verification Link</span>

@@ -63,18 +63,18 @@ const ResetPassword = () => {
               <img
                 alt="Brand logo"
                 className="h-8 w-auto object-contain rounded-md group-hover:scale-105 transition-transform"
-                src="/assets/nova-logo.png"
+                src="/nova-icon.png"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = '/assets/nova-logo.png';
+                  e.target.src = '/nova-icon.png';
                 }}
               />
               <div className="flex flex-col">
                 <span className="font-headline-sm text-headline-sm text-slate-900 leading-tight tracking-tight">
-                  StudyPilot
+                  Nova LMS
                 </span>
                 <span className="font-label-sm text-label-sm text-slate-500 hidden sm:inline">
-                  NOVA Learning Cloud
+                  Virtual Academy
                 </span>
               </div>
             </Link>
@@ -93,8 +93,8 @@ const ResetPassword = () => {
       </header>
 
       {/* ================= MAIN CONTAINER ================= */}
-      <main className="w-full pt-16 flex-1 flex flex-col justify-center items-center px-gutter py-space-xl">
-        <div className="flex flex-col w-full items-center justify-center relative py-space-xl">
+      <main className="w-full pt-20 pb-8 flex-1 flex flex-col justify-start sm:justify-center items-center px-4 relative z-10 overflow-y-auto">
+        <div className="flex flex-col w-full items-center justify-center relative my-auto py-6">
           {/* Ambient Glow */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
             <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[380px] bg-gradient-to-tr from-blue-200/30 to-indigo-200/20 blur-3xl opacity-50"></div>
@@ -174,7 +174,7 @@ const ResetPassword = () => {
                 Set new password
               </h1>
               <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                Provide your security token and enter a strong new password for your StudyPilot account.
+                Provide your security token and enter a strong new password for your Nova LMS account.
               </p>
             </div>
 
@@ -287,7 +287,7 @@ const ResetPassword = () => {
       <footer className="w-full bg-surface-container-lowest py-space-lg shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-t border-surface-container-high/30">
         <div className="max-w-7xl mx-auto px-gutter flex flex-col sm:flex-row items-center justify-between gap-space-md text-center sm:text-left">
           <div className="font-label-sm text-label-sm text-on-surface-variant">
-            © 2025 StudyPilot by NOVA Learning Systems Inc. All rights reserved.
+            © 2025 Nova LMS. All rights reserved.
           </div>
           <div className="flex items-center gap-space-md font-label-sm text-label-sm text-on-surface-variant">
             <Link to="/about" className="hover:text-on-surface transition-colors">

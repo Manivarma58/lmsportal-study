@@ -34,6 +34,8 @@ import chatRoutes from './routes/chatRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import skillRoutes from './routes/skillRoutes.js';
+import challengeRoutes from './routes/challengeRoutes.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
 let mongoServer;
@@ -103,6 +105,8 @@ async function runSecurityAudit() {
     app.use('/api/analytics', analyticsRoutes);
     app.use('/api/users', userRoutes);
     app.use('/api/upload', uploadRoutes);
+    app.use('/api/skills', skillRoutes);
+    app.use('/api/challenges', challengeRoutes);
 
     app.use(notFound);
     app.use(errorHandler);
@@ -511,6 +515,124 @@ async function runSecurityAudit() {
     await new Promise((r) => setTimeout(r, 200));
     assert(eavesdropBlocked, 'Socket.IO blocks unauthorized client from joining private direct_* room');
     clientSocketAuth.disconnect();
+
+    // =========================================================================
+    // AUDIT CHECK 12: Skill Evidence RBAC & Score Tampering Defense
+    // =========================================================================
+    console.log('\n🔹 CHECK 12: Skill Evidence RBAC & Direct Score Tampering Defense');
+    const Skill = (await import('./models/Skill.js')).default;
+    const testSkill = await Skill.create({
+      name: 'Cloud Security Architecture',
+      slug: 'cloud-sec-arch',
+      category: 'Cloud & DevOps',
+      difficulty: 'Advanced',
+    });
+
+    // Student attempts to self-award skill score
+    const studentSkillHack = await request(
+      'POST',
+      '/api/skills/evidence',
+      {
+        skillId: testSkill._id,
+        type: 'project',
+        title: 'Hacked Skill',
+        score: 100,
+        maxScore: 100,
+        weight: 10,
+      },
+      activeStudentToken
+    );
+    assert(studentSkillHack.status === 403, 'Student blocked from self-awarding skill scores via POST /api/skills/evidence (403 Forbidden)');
+
+    // Instructor records skill evidence for student
+    const instSkillEvidence = await request(
+      'POST',
+      '/api/skills/evidence',
+      {
+        studentId: studentUser.id,
+        skillId: testSkill._id,
+        type: 'assignment',
+        title: 'Verified Assignment Evaluation',
+        score: 88,
+        maxScore: 100,
+        weight: 1.0,
+      },
+      inst1Token
+    );
+    assert(instSkillEvidence.status === 201, 'Instructor successfully records verified skill evidence for learner (201 Created)');
+
+    // =========================================================================
+    // AUDIT CHECK 13: Hidden Test Case Masking in Submissions
+    // =========================================================================
+    console.log('\n🔹 CHECK 13: Hidden Test Case Masking in Challenge Submissions');
+    const CodingChallenge = (await import('./models/CodingChallenge.js')).default;
+    const challengeDoc = await CodingChallenge.create({
+      title: 'Reverse String Secure Lab',
+      slug: 'reverse-string-secure-lab',
+      description: 'Reverse the input string.',
+      difficulty: 'Easy',
+      category: 'Algorithms',
+      skills: [testSkill._id],
+      testCases: [
+        { input: '"hello"', expectedOutput: '"olleh"', isHidden: false },
+        { input: '"secret_hidden_flag"', expectedOutput: '"galf_neddih_terces"', isHidden: true },
+      ],
+      createdBy: inst1Res.data.user.id,
+    });
+
+    // Student submits code for challenge
+    const challengeSubmitRes = await request(
+      'POST',
+      `/api/challenges/${challengeDoc._id}/submit`,
+      {
+        language: 'javascript',
+        sourceCode: 'function solution(s) { return s.split("").reverse().join(""); }',
+      },
+      activeStudentToken
+    );
+    assert(challengeSubmitRes.status === 200, 'Student challenge submission evaluated successfully');
+    const hiddenInSubmit = challengeSubmitRes.data.testResults.find((tr) => tr.isHidden);
+    assert(hiddenInSubmit && hiddenInSubmit.actualOutput === '[Hidden Test Case]', 'Hidden test case actualOutput masked in submit response');
+
+    // Query submission history
+    const mySubmissionsRes = await request('GET', '/api/challenges/submissions/my', null, activeStudentToken);
+    assert(mySubmissionsRes.status === 200, 'Submissions history retrieved');
+    const storedHidden = mySubmissionsRes.data.submissions[0].testResults.find((tr) => tr.isHidden);
+    assert(storedHidden && storedHidden.actualOutput === '[Hidden Test Case]', 'Hidden test case actualOutput masked in submission history query');
+
+    // =========================================================================
+    // AUDIT CHECK 14: Isolated Sandbox Code Execution Security
+    // =========================================================================
+    console.log('\n🔹 CHECK 14: Isolated Sandbox Code Execution Security');
+    // Test that JS runner rejects forbidden system process tokens
+    const maliciousJsSubmit = await request(
+      'POST',
+      `/api/challenges/${challengeDoc._id}/run`,
+      {
+        language: 'javascript',
+        sourceCode: 'function solution(s) { return require("child_process").execSync("whoami"); }',
+      },
+      activeStudentToken
+    );
+    assert(
+      maliciousJsSubmit.data.error && maliciousJsSubmit.data.error.includes('Security Error'),
+      'JavaScript runner blocks require("child_process") execution with Security Error'
+    );
+
+    // Test that Python runner rejects dangerous os import
+    const maliciousPySubmit = await request(
+      'POST',
+      `/api/challenges/${challengeDoc._id}/run`,
+      {
+        language: 'python',
+        sourceCode: 'import os\ndef solution(s):\n    return os.environ.get("JWT_SECRET", "none")',
+      },
+      activeStudentToken
+    );
+    assert(
+      maliciousPySubmit.data.error && maliciousPySubmit.data.error.includes('Security Error'),
+      'Python runner blocks import os execution with Security Error'
+    );
 
     // =========================================================================
     // SUMMARY REPORT

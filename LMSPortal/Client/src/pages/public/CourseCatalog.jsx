@@ -634,6 +634,7 @@ const CourseCatalog = ({ embedded = false }) => {
 
     return list;
   }, [
+    allCourses,
     searchQuery,
     selectedQuickTag,
     selectedCategories,
@@ -677,17 +678,17 @@ const CourseCatalog = ({ embedded = false }) => {
           <div className="flex items-center gap-space-lg shrink-0">
             <Link to="/" className="flex items-center gap-space-sm group">
               <img
-                alt="NOVA LMS Logo"
-                className="h-8 w-auto object-contain rounded-md group-hover:scale-105 transition-transform"
-                src="/assets/nova-logo.png"
+                alt="Nova LMS Logo"
+                className="h-8 w-8 object-contain rounded-md group-hover:scale-105 transition-transform"
+                src="/nova-icon.png"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = '/assets/nova-logo.png';
+                  e.target.src = '/nova-icon.png';
                 }}
               />
               <div className="flex flex-col">
                 <span className="font-headline-sm text-headline-sm tracking-tight text-on-surface leading-none">
-                  NOVA <span className="text-primary font-code-md text-body-sm font-normal">/ StudyPilot</span>
+                  Nova <span className="text-primary font-code-md text-body-sm font-semibold">LMS</span>
                 </span>
               </div>
             </Link>
@@ -1642,7 +1643,7 @@ const CourseCatalog = ({ embedded = false }) => {
               <div className="flex flex-col gap-space-xs">
                 <div className="flex items-center gap-space-sm">
                   <span className="font-headline-sm text-headline-sm tracking-tight text-on-surface">
-                    NOVA <span className="text-primary font-code-md text-body-sm font-normal">/ StudyPilot</span>
+                    Nova <span className="text-primary font-code-md text-body-sm font-semibold">LMS</span>
                   </span>
                   <span className="px-space-xs py-0.5 rounded bg-surface-container-high text-tertiary font-code-md text-label-sm">
                     TLS 1.3 VERIFIED
@@ -1680,7 +1681,7 @@ const CourseCatalog = ({ embedded = false }) => {
 
             <div className="flex flex-col md:flex-row justify-between items-center gap-space-sm pt-space-md bg-surface-container-low/40 rounded-xl px-space-md py-space-sm">
               <div className="font-body-sm text-body-sm text-on-surface-variant">
-                © 2025 NOVA LMS / StudyPilot Academic Foundation. All rights reserved.
+                © 2025 Nova LMS Virtual Academy. All rights reserved.
               </div>
             </div>
           </div>

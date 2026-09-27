@@ -43,12 +43,24 @@ const Resources = lazy(() => import('./pages/student/Resources'));
 const Schedule = lazy(() => import('./pages/student/Schedule'));
 const Setting = lazy(() => import('./pages/student/Setting'));
 const NotificationPage = lazy(() => import('./pages/shared/NotificationPage'));
+const CodingLabList = lazy(() => import('./pages/student/CodingLabList'));
+const CodingLabDetail = lazy(() => import('./pages/student/CodingLabDetail'));
+const ProjectList = lazy(() => import('./pages/student/ProjectList'));
+const ProjectWorkspace = lazy(() => import('./pages/student/ProjectWorkspace'));
+const SkillGapAnalyzer = lazy(() => import('./pages/student/SkillGapAnalyzer'));
+const AIMentor = lazy(() => import('./pages/student/AIMentor'));
+const JobSimulationList = lazy(() => import('./pages/student/JobSimulationList'));
+const JobSimulationWorkspace = lazy(() => import('./pages/student/JobSimulationWorkspace'));
+const AdaptiveLearning = lazy(() => import('./pages/student/AdaptiveLearning'));
+const LearnerPortfolio = lazy(() => import('./pages/student/LearnerPortfolio'));
+const PublicPortfolio = lazy(() => import('./pages/public/PublicPortfolio'));
 
 // Instructor Components (Lazy-loaded)
 const InstructorDashboard = lazy(() => import('./pages/Instructor/Dashboard'));
 const CourseManagement = lazy(() => import('./pages/Instructor/CourseManagement'));
 const CourseEditor = lazy(() => import('./pages/Instructor/CourseEditor'));
 const InstructorAnalytics = lazy(() => import('./pages/Instructor/InstructorAnalytics'));
+const AssignmentEvaluation = lazy(() => import('./pages/Instructor/AssignmentEvaluation'));
 
 // Admin Components (Lazy-loaded)
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
@@ -129,7 +141,9 @@ function App() {
           }
         />
         <Route path="/course/:id" element={<CourseDetail />} />
+        <Route path="/verify" element={<CertificateVerify />} />
         <Route path="/verify/:code" element={<CertificateVerify />} />
+        <Route path="/certificates/verify/:code" element={<CertificateVerify />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
 
@@ -158,6 +172,10 @@ function App() {
             isAuthenticated ? <Navigate to={getDashboardPath()} replace /> : <ResetPassword />
           }
         />
+
+        {/* Public Verified Recruiter Skill Portfolio */}
+        <Route path="/portfolio/:slug" element={<PublicPortfolio />} />
+        <Route path="/portfolio/public/:slug" element={<PublicPortfolio />} />
 
         {/* Direct Universal Profile & Notification Routes */}
         <Route
@@ -231,7 +249,24 @@ function App() {
           <Route path="notifications" element={<NotificationPage />} />
           <Route path="profile" element={<Profile />} />
           <Route path="assignments" element={<Assignments />} />
+          <Route path="skill-gap" element={<SkillGapAnalyzer />} />
+          <Route path="skill-gap-analyzer" element={<SkillGapAnalyzer />} />
+          <Route path="mentor" element={<AIMentor />} />
+          <Route path="ai-mentor" element={<AIMentor />} />
+          <Route path="adaptive" element={<AdaptiveLearning />} />
+          <Route path="adaptive-learning" element={<AdaptiveLearning />} />
+          <Route path="projects" element={<ProjectList />} />
+          <Route path="projects/:id" element={<ProjectWorkspace />} />
+          <Route path="simulations" element={<JobSimulationList />} />
+          <Route path="simulations/:id" element={<JobSimulationWorkspace />} />
+          <Route path="job-simulations" element={<JobSimulationList />} />
+          <Route path="job-simulations/:id" element={<JobSimulationWorkspace />} />
+          <Route path="portfolio" element={<LearnerPortfolio />} />
+          <Route path="skill-portfolio" element={<LearnerPortfolio />} />
           <Route path="quizzes" element={<QuizTaker embedded={true} />} />
+          <Route path="challenges" element={<CodingLabList />} />
+          <Route path="coding-lab" element={<CodingLabList />} />
+          <Route path="challenge/:id" element={<CodingLabDetail />} />
           <Route path="resources" element={<Resources />} />
           <Route path="schedule" element={<Schedule />} />
           <Route path="setting" element={<Setting />} />
@@ -252,6 +287,8 @@ function App() {
           <Route path="create-course" element={<CourseEditor />} />
           <Route path="courses/new" element={<CourseEditor />} />
           <Route path="courses/:id/editor" element={<CourseEditor />} />
+          <Route path="assignments" element={<AssignmentEvaluation />} />
+          <Route path="evaluations" element={<AssignmentEvaluation />} />
           <Route path="analytics" element={<InstructorAnalytics />} />
           <Route path="chat" element={<Chat />} />
           <Route path="notifications" element={<NotificationPage />} />

@@ -27,6 +27,16 @@ import chatRoutes from './routes/chatRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import skillRoutes from './routes/skillRoutes.js';
+import challengeRoutes from './routes/challengeRoutes.js';
+import assignmentRoutes from './routes/assignmentRoutes.js';
+import projectRoutes from './routes/projectRoutes.js';
+import targetRoleRoutes from './routes/targetRoleRoutes.js';
+import recommendationRoutes from './routes/recommendationRoutes.js';
+import aiMentorRoutes from './routes/aiMentorRoutes.js';
+import jobSimulationRoutes from './routes/jobSimulationRoutes.js';
+import adaptiveLearningRoutes from './routes/adaptiveLearningRoutes.js';
+import portfolioRoutes from './routes/portfolioRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -42,6 +52,44 @@ connectDB().then(async () => {
       await seedDatabase();
       console.log('[LMS Server] Auto-seed completed successfully.');
     }
+
+    const Assignment = (await import('./models/Assignment.js')).default;
+    const assignmentCount = await Assignment.countDocuments();
+    if (assignmentCount === 0) {
+      console.log('[LMS Server] Seeding practical assignments catalog...');
+      const { seedAssignments } = await import('./seed-assignments.js');
+      await seedAssignments();
+    }
+
+    const Project = (await import('./models/Project.js')).default;
+    const projectCount = await Project.countDocuments();
+    if (projectCount === 0) {
+      console.log('[LMS Server] Seeding real-world projects catalog...');
+      const { seedProjects } = await import('./seed-projects.js');
+      await seedProjects();
+    }
+
+    const TargetRole = (await import('./models/TargetRole.js')).default;
+    const targetRoleCount = await TargetRole.countDocuments();
+    if (targetRoleCount === 0) {
+      console.log('[LMS Server] Seeding target roles catalog...');
+      const { seedTargetRoles } = await import('./seed-target-roles.js');
+      await seedTargetRoles();
+    }
+
+    const JobSimulation = (await import('./models/JobSimulation.js')).default;
+    const simCount = await JobSimulation.countDocuments();
+    if (simCount === 0) {
+      console.log('[LMS Server] Seeding job simulations catalog...');
+      const { seedJobSimulations } = await import('./services/jobSimulationService.js');
+      await seedJobSimulations();
+    }
+
+    const { seedInstructorIntelligenceCohort } = await import('./seed-instructor-intelligence.js');
+    await seedInstructorIntelligenceCohort();
+
+    const { seedPortfolioEvidenceForStudent } = await import('./seed-portfolio-evidence.js');
+    await seedPortfolioEvidenceForStudent();
   } catch (seedErr) {
     console.warn('[LMS Server] Auto-seed check notice:', seedErr.message);
   }
@@ -70,8 +118,7 @@ const corsOriginHandler = (origin, callback) => {
   const cleanOrigin = origin.replace(/\/$/, '');
   const isAllowed =
     allowedOrigins.some((allowed) => allowed.replace(/\/$/, '') === cleanOrigin) ||
-    cleanOrigin.endsWith('.vercel.app') ||
-    cleanOrigin.endsWith('.onrender.com') ||
+    (cleanOrigin.startsWith('https://lmsportal-') && cleanOrigin.endsWith('.vercel.app')) ||
     process.env.NODE_ENV !== 'production';
 
   if (isAllowed) {
@@ -175,6 +222,16 @@ const mountAllRoutes = (prefix = '/api') => {
   app.use(`${prefix}/analytics`, analyticsRoutes);
   app.use(`${prefix}/users`, userRoutes);
   app.use(`${prefix}/upload`, uploadRoutes);
+  app.use(`${prefix}/skills`, skillRoutes);
+  app.use(`${prefix}/challenges`, challengeRoutes);
+  app.use(`${prefix}/assignments`, assignmentRoutes);
+  app.use(`${prefix}/projects`, projectRoutes);
+  app.use(`${prefix}/target-roles`, targetRoleRoutes);
+  app.use(`${prefix}/recommendations`, recommendationRoutes);
+  app.use(`${prefix}/mentor`, aiMentorRoutes);
+  app.use(`${prefix}/simulations`, jobSimulationRoutes);
+  app.use(`${prefix}/adaptive`, adaptiveLearningRoutes);
+  app.use(`${prefix}/portfolio`, portfolioRoutes);
 };
 
 // Mount primary /api/* routes and root fallback routes

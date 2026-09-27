@@ -20,6 +20,24 @@ export const generateCertificate = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @desc    Generate a Proof-of-Skill Certificate from verified achievements
+ * @route   POST /api/certificates/generate-proof-of-skill
+ * @access  Private/Student
+ */
+export const generateProofOfSkillCertificate = asyncHandler(async (req, res) => {
+  const certificate = await certificateService.generateProofOfSkillCertificate(
+    req.user.id,
+    req.body || {}
+  );
+
+  res.status(201).json({
+    success: true,
+    message: 'Proof-of-Skill Certificate generated successfully from verified achievements!',
+    certificate,
+  });
+});
+
+/**
  * @desc    Get all certificates belonging to current student
  * @route   GET /api/certificates/student/my-certificates, GET /api/certificates
  * @access  Private
@@ -61,6 +79,7 @@ export const verifyCertificate = asyncHandler(async (req, res) => {
 
 export default {
   generateCertificate,
+  generateProofOfSkillCertificate,
   getMyCertificates,
   getCertificateById,
   verifyCertificate,

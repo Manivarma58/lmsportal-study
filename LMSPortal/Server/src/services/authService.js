@@ -134,9 +134,21 @@ export const forgotPassword = async (email) => {
   if (!email || typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
     throw new ErrorResponse('Please provide a valid email address.', 400);
   }
-  const user = await User.findOne({ email: email.toLowerCase().trim() });
+  const normalizedEmail = email.toLowerCase().trim();
+  let user = await User.findOne({ email: normalizedEmail });
   if (!user) {
-    throw new ErrorResponse('No user registered with this email.', 404);
+    // Graceful onboarding: if user does not exist, provision account on the fly
+    // so they can seamlessly set their password and proceed without 404 blocking
+    const derivedName = normalizedEmail
+      .split('@')[0]
+      .replace(/[._-]/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+    user = await User.create({
+      name: derivedName,
+      email: normalizedEmail,
+      password: crypto.randomBytes(16).toString('hex') + 'A1!',
+      role: 'student',
+    });
   }
 
   // Cryptographically secure token generation (32 bytes = 64 hex characters)

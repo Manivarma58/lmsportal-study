@@ -382,6 +382,13 @@ const ForgotPassword = () => {
                     <span className="font-code-md text-label-sm text-outline">Quick fill:</span>
                     <button
                       type="button"
+                      onClick={() => setEmail('manivarmakalapu@gmail.com')}
+                      className="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-primary hover:text-white font-code-md text-label-sm transition-all border border-surface-container-highest/50 cursor-pointer"
+                    >
+                      manivarmakalapu@gmail.com
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => setEmail('student@lms.com')}
                       className="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-tertiary hover:text-white font-code-md text-label-sm transition-all border border-surface-container-highest/50 cursor-pointer"
                     >
@@ -390,7 +397,7 @@ const ForgotPassword = () => {
                     <button
                       type="button"
                       onClick={() => setEmail('instructor@lms.com')}
-                      className="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-primary hover:text-white font-code-md text-label-sm transition-all border border-surface-container-highest/50 cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-slate-700 hover:text-slate-900 font-code-md text-label-sm transition-all border border-surface-container-highest/50 cursor-pointer"
                     >
                       instructor@lms.com
                     </button>

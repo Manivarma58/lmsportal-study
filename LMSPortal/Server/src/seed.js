@@ -105,8 +105,19 @@ export const seedDatabase = async () => {
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
     });
 
+    const maniUser = await User.create({
+      name: 'Mani Varma',
+      email: 'manivarmakalapu@gmail.com',
+      password: 'Password123!',
+      role: 'admin',
+      headline: 'Platform Engineer & Software Architect',
+      bio: 'LMS Platform Administrator and Scholar.',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80',
+    });
+
     console.log('[Seed] Core users initialized:');
     console.log(`  Admin:       ${admin.email} / Password123!`);
+    console.log(`  Owner:       ${maniUser.email} / Password123!`);
     console.log(`  Instructor:  ${instructor1.email} / Password123!`);
     console.log(`  Student:     ${student.email} / Password123!`);
 

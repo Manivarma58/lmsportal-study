@@ -6,7 +6,6 @@ import * as THREE from 'three';
 import {
   Eye,
   EyeOff,
-  Zap,
   ArrowRight,
   AlertTriangle,
   CheckCircle2,
@@ -25,7 +24,6 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
-  const [selectedRole, setSelectedRole] = useState(null);
 
   // Dynamic feedback / alert notification state
   const [notification, setNotification] = useState(null);
@@ -504,16 +502,6 @@ const Login = () => {
   const handleEmailChange = (e) => {
     const val = e.target.value;
     setEmail(val);
-    if (selectedRole) {
-      const lower = val.toLowerCase().trim();
-      if (
-        (selectedRole === 'student' && lower !== 'student@lms.com') ||
-        (selectedRole === 'instructor' && lower !== 'instructor@lms.com') ||
-        (selectedRole === 'admin' && lower !== 'admin@lms.com')
-      ) {
-        setSelectedRole(null);
-      }
-    }
     if (emailRegex.test(val.trim())) {
       setEmailError('');
     }
@@ -583,15 +571,6 @@ const Login = () => {
       });
       toast.error(errMsg);
     }
-  };
-
-  const handleSelectRole = (demoEmail, demoRole) => {
-    setEmail(demoEmail);
-    setPassword('Password123!');
-    setSelectedRole(demoRole.toLowerCase());
-    setEmailError('');
-    setNotification(null);
-    toast.info(`${demoRole} credentials populated. Click "Initialize Workspace" below to log in.`);
   };
 
   return (
@@ -670,73 +649,6 @@ const Login = () => {
               </p>
             </header>
 
-            {/* Role Quick-Selector Box (Enlarged) */}
-            <div className="mb-7 p-4 sm:p-5 rounded-2xl bg-slate-50/90 border border-slate-200/90 shadow-sm">
-              <div className="flex items-center justify-between mb-3 text-xs sm:text-sm">
-                <div className="flex items-center gap-2 font-mono text-xs sm:text-sm font-semibold text-blue-700 uppercase tracking-wider">
-                  <Zap className="w-4 h-4 text-blue-600" />
-                  Select role to pre-fill:
-                </div>
-                {selectedRole ? (
-                  <span className="text-xs font-mono font-semibold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-md border border-emerald-300">
-                    {selectedRole.toUpperCase()} LOADED
-                  </span>
-                ) : (
-                  <span className="text-xs text-slate-500 font-medium">Manual Submit Mode</span>
-                )}
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <button
-                  type="button"
-                  id="demoStudentBtn"
-                  onClick={() => handleSelectRole('student@lms.com', 'Student')}
-                  disabled={isSubmitting || reduxLoading}
-                  className={`py-3 px-4 text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer ${
-                    selectedRole === 'student'
-                      ? 'bg-blue-50 border-2 border-blue-400 text-blue-700 shadow-md font-bold ring-2 ring-blue-300/50'
-                      : 'bg-white border border-slate-200 text-slate-700 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/40 shadow-sm'
-                  }`}
-                >
-                  Student
-                </button>
-                <button
-                  type="button"
-                  id="demoInstructorBtn"
-                  onClick={() => handleSelectRole('instructor@lms.com', 'Instructor')}
-                  disabled={isSubmitting || reduxLoading}
-                  className={`py-3 px-4 text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer ${
-                    selectedRole === 'instructor'
-                      ? 'bg-blue-50 border-2 border-blue-400 text-blue-700 shadow-md font-bold ring-2 ring-blue-300/50'
-                      : 'bg-white border border-slate-200 text-slate-700 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/40 shadow-sm'
-                  }`}
-                >
-                  Instructor
-                </button>
-                <button
-                  type="button"
-                  id="demoAdminBtn"
-                  onClick={() => handleSelectRole('admin@lms.com', 'Admin')}
-                  disabled={isSubmitting || reduxLoading}
-                  className={`py-3 px-4 text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer ${
-                    selectedRole === 'admin'
-                      ? 'bg-blue-50 border-2 border-blue-400 text-blue-700 shadow-md font-bold ring-2 ring-blue-300/50'
-                      : 'bg-white border border-slate-200 text-slate-700 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/40 shadow-sm'
-                  }`}
-                >
-                  Admin
-                </button>
-              </div>
-            </div>
-
-            {/* Separator */}
-            <div className="relative flex items-center justify-center my-6">
-              <div className="border-t border-slate-200 w-full"></div>
-              <span className="bg-white px-4 text-xs sm:text-sm font-mono tracking-widest text-slate-500 uppercase whitespace-nowrap">
-                or enter credentials manually
-              </span>
-              <div className="border-t border-slate-200 w-full"></div>
-            </div>
-
             {/* Dynamic Status Notification Alert */}
             {notification && (
               <div
@@ -763,26 +675,31 @@ const Login = () => {
               </div>
             )}
 
-            {/* Form */}
-            <form className="space-y-5" onSubmit={handleLoginSubmit}>
+            {/* Form - Manual Entry */}
+            <form className="space-y-5" onSubmit={handleLoginSubmit} autoComplete="off">
               {/* Email Field */}
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="block text-xs sm:text-sm font-semibold text-slate-700">
-                    Academic / Institutional Email
+                    Email Address
                   </label>
-                  <span className="text-xs font-mono text-slate-500 tracking-wider">.EDU / .ORG / ENTERPRISE</span>
+                  <span className="text-xs font-mono text-slate-500 tracking-wider">MANUAL CREDENTIAL</span>
                 </div>
                 <div className="relative">
                   <input
                     id="email"
                     name="email"
                     type="email"
-                    autoComplete="email"
+                    autoComplete="off"
+                    data-lpignore="true"
+                    data-form-type="other"
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                    spellCheck="false"
                     required
                     value={email}
                     onChange={handleEmailChange}
-                    placeholder="engineer@institution.edu"
+                    placeholder="Enter your email address"
                     className={`w-full px-4 py-3 sm:py-3.5 rounded-xl bg-white border ${
                       emailError ? 'border-rose-400 focus:ring-rose-500' : 'border-slate-300 focus:ring-blue-500'
                     } text-slate-900 text-sm sm:text-base focus:outline-none focus:ring-2 focus:border-blue-500 transition-colors shadow-sm`}
@@ -794,7 +711,7 @@ const Login = () => {
               {/* Password Field */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <label className="block text-xs sm:text-sm font-semibold text-slate-700">Workstation Password</label>
+                  <label className="block text-xs sm:text-sm font-semibold text-slate-700">Password</label>
                   <Link
                     to="/forgot-password"
                     className="text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
@@ -807,11 +724,13 @@ const Login = () => {
                     id="password"
                     name="password"
                     type={showPassword ? 'text' : 'password'}
-                    autoComplete="current-password"
+                    autoComplete="new-password"
+                    data-lpignore="true"
+                    data-form-type="other"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••••••"
+                    placeholder="Enter your password"
                     className="w-full px-4 py-3 sm:py-3.5 rounded-xl bg-white border border-slate-300 text-slate-900 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm pr-12"
                   />
                   <button
@@ -847,11 +766,11 @@ const Login = () => {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      <span className="font-mono text-sm">Authenticating telemetry...</span>
+                      <span className="font-mono text-sm">Authenticating...</span>
                     </span>
                   ) : (
                     <>
-                      <span>Initialize Workspace</span>
+                      <span>Sign In</span>
                       <ArrowRight className="w-5 h-5" />
                     </>
                   )}

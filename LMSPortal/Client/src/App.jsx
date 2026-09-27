@@ -208,14 +208,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/student/quizzes"
-          element={
-            <ProtectedRoute>
-              <QuizTaker />
-            </ProtectedRoute>
-          }
-        />
+
         {/* Student Portal (With Sidebar Layout) */}
         <Route
           path="/student"
@@ -238,6 +231,7 @@ function App() {
           <Route path="notifications" element={<NotificationPage />} />
           <Route path="profile" element={<Profile />} />
           <Route path="assignments" element={<Assignments />} />
+          <Route path="quizzes" element={<QuizTaker embedded={true} />} />
           <Route path="resources" element={<Resources />} />
           <Route path="schedule" element={<Schedule />} />
           <Route path="setting" element={<Setting />} />

@@ -168,6 +168,49 @@ export const disconnectSocket = () => {
   }
 };
 
+// Real-Time Quiz Multiplayer Arena Helpers
+export const joinQuizRoom = (data, callback) => {
+  const s = getSocket();
+  if (s) {
+    s.emit('quiz:join', data, callback);
+  }
+};
+
+export const submitQuizAnswerSocket = (data, callback) => {
+  const s = getSocket();
+  if (s) {
+    s.emit('quiz:submit_answer', data, callback);
+  }
+};
+
+export const sendQuizReaction = (roomId, emoji) => {
+  const s = getSocket();
+  if (s) {
+    s.emit('quiz:reaction', { roomId, emoji });
+  }
+};
+
+export const sendQuizProctorAlert = (roomId, eventType, details) => {
+  const s = getSocket();
+  if (s) {
+    s.emit('quiz:proctor_alert', { roomId, eventType, details });
+  }
+};
+
+export const finishQuizSocket = (data, callback) => {
+  const s = getSocket();
+  if (s) {
+    s.emit('quiz:finish', data, callback);
+  }
+};
+
+export const leaveQuizRoom = (roomId) => {
+  const s = getSocket();
+  if (s) {
+    s.emit('quiz:leave', { roomId });
+  }
+};
+
 export default {
   getSocket,
   connectSocket,
@@ -179,4 +222,10 @@ export default {
   leaveRoom,
   sendSocketMessage,
   disconnectSocket,
+  joinQuizRoom,
+  submitQuizAnswerSocket,
+  sendQuizReaction,
+  sendQuizProctorAlert,
+  finishQuizSocket,
+  leaveQuizRoom,
 };

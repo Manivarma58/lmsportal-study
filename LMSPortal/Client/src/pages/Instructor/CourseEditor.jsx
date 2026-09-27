@@ -53,21 +53,21 @@ export default function CourseEditor() {
               name: 'decoherence_formalism_slides.pdf',
               meta: '3.8 MB • PDF Deck • Downloadable',
               icon: 'picture_as_pdf',
-              color: 'text-error',
+              color: 'text-rose-600',
             },
             {
               id: 'r-2',
               name: 'lindblad_sim_exercise.ipynb',
               meta: '1.2 MB • Jupyter Notebook • Sandbox Attached',
               icon: 'data_object',
-              color: 'text-tertiary',
+              color: 'text-emerald-600',
             },
             {
               id: 'r-3',
               name: 'qubit_relaxation_telemetry.csv',
               meta: '840 KB • Telemetry Dataset',
               icon: 'table_chart',
-              color: 'text-secondary',
+              color: 'text-indigo-600',
             },
           ],
         },
@@ -97,7 +97,7 @@ export default function CourseEditor() {
               name: 'kraus_operators_formalism.pdf',
               meta: '4.8 MB • PDF Deck • Downloadable',
               icon: 'picture_as_pdf',
-              color: 'text-error',
+              color: 'text-rose-600',
             },
           ],
         },
@@ -127,7 +127,7 @@ export default function CourseEditor() {
               name: 'bloch_sim.ipynb',
               meta: '1.5 MB • Autograded Testsuite Attached',
               icon: 'data_object',
-              color: 'text-tertiary',
+              color: 'text-emerald-600',
             },
           ],
         },
@@ -209,21 +209,21 @@ export default function CourseEditor() {
         name: 'decoherence_formalism_slides.pdf',
         meta: '3.8 MB • PDF Deck • Downloadable',
         icon: 'picture_as_pdf',
-        color: 'text-error',
+        color: 'text-rose-600',
       },
       {
         id: 'r-2',
         name: 'lindblad_sim_exercise.ipynb',
         meta: '1.2 MB • Jupyter Notebook • Sandbox Attached',
         icon: 'data_object',
-        color: 'text-tertiary',
+        color: 'text-emerald-600',
       },
       {
         id: 'r-3',
         name: 'qubit_relaxation_telemetry.csv',
         meta: '840 KB • Telemetry Dataset',
         icon: 'table_chart',
-        color: 'text-secondary',
+        color: 'text-indigo-600',
       },
     ],
   });
@@ -452,10 +452,10 @@ export default function CourseEditor() {
           ? 'data_object'
           : 'table_chart',
         color: filename.endsWith('.pdf')
-          ? 'text-error'
+          ? 'text-rose-600'
           : filename.endsWith('.ipynb')
-          ? 'text-tertiary'
-          : 'text-secondary',
+          ? 'text-emerald-600'
+          : 'text-indigo-600',
       };
       setEditorData((prev) => ({
         ...prev,
@@ -475,204 +475,216 @@ export default function CourseEditor() {
   };
 
   return (
-    <div className="flex flex-col w-full text-on-surface bg-surface min-h-screen relative antialiased selection:bg-primary-container selection:text-on-primary-container">
-      {/* Dynamic Gradient Ambient Backdrop */}
-      <div className="absolute -top-12 -left-20 w-96 h-96 bg-primary-container/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
-      <div className="absolute top-80 right-10 w-[30rem] h-[30rem] bg-tertiary-container/10 rounded-full blur-[140px] pointer-events-none -z-10"></div>
-
-      <div className="flex flex-col w-full px-gutter lg:px-margin pb-16">
+    <div className="flex flex-col w-full text-slate-800 antialiased pb-16">
+      <div className="relative w-full px-6 sm:px-8 lg:px-10 py-6 flex flex-col gap-8 max-w-[1680px] mx-auto">
         {/* ================= BREADCRUMBS & CONTEXT BAR ================= */}
-        <div className="flex flex-col gap-space-sm pt-space-lg mb-space-lg">
-          <nav className="flex items-center gap-space-xs text-on-surface-variant font-label-md text-label-md">
-            <Link to="/instructor/dashboard" className="hover:text-tertiary transition-colors flex items-center gap-1">
+        <div className="flex flex-col gap-3">
+          <nav className="flex items-center gap-2 text-slate-500 text-xs font-medium">
+            <Link to="/instructor/dashboard" className="hover:text-blue-600 transition-colors flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px]">domain</span>
-              Instructor Portal
+              <span>Instructor Portal</span>
             </Link>
-            <span className="material-symbols-outlined text-[14px] text-outline-variant">chevron_right</span>
-            <Link to="/instructor/courses" className="hover:text-tertiary transition-colors">
+            <span className="material-symbols-outlined text-[14px] text-slate-400">chevron_right</span>
+            <Link to="/instructor/courses" className="hover:text-blue-600 transition-colors">
               Courses
             </Link>
-            <span className="material-symbols-outlined text-[14px] text-outline-variant">chevron_right</span>
-            <span className="text-on-surface">Neural Networks & Quantum Computing</span>
-            <span className="material-symbols-outlined text-[14px] text-outline-variant">chevron_right</span>
-            <span className="text-primary font-semibold">Curriculum Organizer</span>
+            <span className="material-symbols-outlined text-[14px] text-slate-400">chevron_right</span>
+            <span className="text-slate-700 font-semibold truncate max-w-xs">Neural Networks & Quantum Computing</span>
+            <span className="material-symbols-outlined text-[14px] text-slate-400">chevron_right</span>
+            <span className="text-blue-600 font-semibold">Curriculum Organizer</span>
           </nav>
 
-          {/* Top Sub-Header: Course Identity & Primary Actions */}
-          <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-space-md">
-            <div className="flex flex-col gap-space-xs">
-              <div className="flex flex-wrap items-center gap-space-xs">
-                <span className="font-code-md text-code-md text-tertiary bg-surface-container-high px-space-xs py-0.5 rounded uppercase tracking-wider font-semibold">
-                  QPU-904 // POSTGRAD
-                </span>
-                <span className="bg-primary/10 text-primary font-label-sm text-label-sm px-space-sm py-0.5 rounded-full font-semibold">
-                  Graduate Tier
-                </span>
-                <span className="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-space-sm py-0.5 rounded-full">
-                  14.5 CEUs Accredited
-                </span>
-                <span className="bg-tertiary/10 text-tertiary font-label-sm text-label-sm px-space-sm py-0.5 rounded-full flex items-center gap-1 font-semibold">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span>
-                  Active Live Cohort
-                </span>
+          {/* 1. HERO BANNER SECTION (Matching Student Dashboard Welcome Banner) */}
+          <section className="relative w-full rounded-2xl bg-white shadow-sm border border-slate-200/90 p-6 lg:p-8 overflow-hidden">
+            {/* Subtle blueprint accent line */}
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500"></div>
+
+            <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+              {/* Left Title & Telemetry Badges */}
+              <div className="flex flex-col gap-3 max-w-3xl min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 font-mono text-xs font-semibold border border-blue-200/70">
+                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                    QPU-904 // POSTGRAD
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 font-mono text-xs font-semibold border border-indigo-200/70">
+                    GRADUATE TIER
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 font-mono text-xs font-medium border border-slate-200/80">
+                    14.5 CEUs Accredited
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-mono text-xs font-semibold border border-emerald-200/70">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Active Live Cohort
+                  </span>
+                </div>
+
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                  Neural Networks & <span className="text-blue-600">Quantum Computing</span>
+                </h1>
+                <p className="text-sm text-slate-500 leading-relaxed max-w-2xl">
+                  Design syllabus architecture, transcode lectures to adaptive HLS streams, configure assessment sandboxes, and synchronize decentralized curriculum state.
+                </p>
               </div>
-              <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">
-                Neural Networks & Quantum Computing
-              </h1>
+
+              {/* Right Primary Actions Cluster */}
+              <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                <button
+                  onClick={toggleReorderMode}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer text-xs font-semibold ${
+                    isReordering
+                      ? 'bg-blue-600 text-white shadow-sm ring-2 ring-blue-500/20'
+                      : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 shadow-xs'
+                  }`}
+                  type="button"
+                >
+                  <span className="material-symbols-outlined text-[18px] text-slate-500">drag_indicator</span>
+                  <span>{isReordering ? 'Done Reordering' : 'Reorder Mode'}</span>
+                </button>
+
+                <button
+                  onClick={handleAddSection}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 shadow-xs transition-all duration-200 cursor-pointer border border-slate-200 text-xs font-semibold"
+                  type="button"
+                >
+                  <span className="material-symbols-outlined text-[18px] text-emerald-600">folder_special</span>
+                  <span>+ Add Section</span>
+                </button>
+
+                <button
+                  onClick={() => handleAddLessonToSection(sections[0]?.id || 'sec-1')}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 shadow-xs transition-all duration-200 cursor-pointer border border-slate-200 text-xs font-semibold"
+                  type="button"
+                >
+                  <span className="material-symbols-outlined text-[18px] text-blue-600">add_circle</span>
+                  <span>+ New Lesson</span>
+                </button>
+
+                <button
+                  onClick={() => setPlayerModalOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-700 hover:bg-slate-50 shadow-xs transition-all duration-200 cursor-pointer border border-slate-200 text-xs font-semibold"
+                  type="button"
+                >
+                  <span className="material-symbols-outlined text-[18px] text-slate-500">slideshow</span>
+                  <span>Player Preview</span>
+                  <span className="material-symbols-outlined text-[14px] text-slate-400">open_in_new</span>
+                </button>
+
+                <button
+                  onClick={triggerBatchSave}
+                  disabled={isBatchSaving}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition-all duration-200 cursor-pointer disabled:opacity-50"
+                  type="button"
+                >
+                  <span className={`material-symbols-outlined text-[18px] ${isBatchSaving ? 'animate-spin' : ''}`}>
+                    {saveIcon}
+                  </span>
+                  <span>{saveButtonText}</span>
+                </button>
+              </div>
             </div>
-
-            {/* Action Toolbar */}
-            <div className="flex flex-wrap items-center gap-space-sm">
-              <button
-                onClick={toggleReorderMode}
-                className={`flex items-center gap-space-xs px-space-md py-space-sm rounded-lg transition-all duration-200 cursor-pointer ${
-                  isReordering
-                    ? 'bg-primary-container text-on-primary-container font-semibold shadow-md'
-                    : 'bg-surface-container-high text-on-surface hover:bg-surface-container-highest'
-                }`}
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[18px] text-secondary">drag_indicator</span>
-                <span className="font-label-lg text-label-lg">
-                  {isReordering ? 'Done Reordering' : 'Reorder Mode'}
-                </span>
-              </button>
-
-              <button
-                onClick={handleAddSection}
-                className="flex items-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface shadow-sm transition-all duration-200 cursor-pointer border border-surface-container-high/40"
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[18px] text-tertiary">folder_special</span>
-                <span className="font-label-lg text-label-lg">+ Add Section</span>
-              </button>
-
-              <button
-                onClick={() => handleAddLessonToSection(sections[0]?.id || 'sec-1')}
-                className="flex items-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-container-high hover:bg-surface-bright text-on-surface transition-all duration-200 cursor-pointer"
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[18px] text-primary">add_circle</span>
-                <span className="font-label-lg text-label-lg">+ New Lesson</span>
-              </button>
-
-              <button
-                onClick={() => setPlayerModalOpen(true)}
-                className="flex items-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all duration-200 cursor-pointer border border-surface-container-high/30"
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[18px]">slideshow</span>
-                <span className="font-label-lg text-label-lg">Player Preview</span>
-                <span className="material-symbols-outlined text-[14px]">open_in_new</span>
-              </button>
-
-              <button
-                onClick={triggerBatchSave}
-                disabled={isBatchSaving}
-                className="flex items-center gap-space-xs px-space-lg py-space-sm rounded-lg bg-gradient-to-r from-primary-container to-inverse-primary text-white font-label-lg text-label-lg shadow-lg hover:shadow-primary-container/30 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] cursor-pointer font-semibold"
-                type="button"
-              >
-                <span className={`material-symbols-outlined text-[18px] ${isBatchSaving ? 'animate-spin' : ''}`}>
-                  {saveIcon}
-                </span>
-                <span>{saveButtonText}</span>
-              </button>
-            </div>
-          </div>
+          </section>
         </div>
 
         {/* ================= CURRICULUM SYNC HEALTH METRIC BAR ================= */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-space-sm mb-space-lg">
-          <div className="bg-surface-container-low p-space-md rounded-xl flex items-center justify-between shadow-sm border border-surface-container-high/30">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/90 flex items-center justify-between transition-all hover:shadow-md">
             <div className="flex flex-col">
-              <span className="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Total Modules</span>
-              <span className="font-headline-sm text-headline-sm text-on-surface mt-0.5 font-bold">
-                {sections.length} Sections • {sections.reduce((a, s) => a + s.lessons.length, 0)} Lessons
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Modules</span>
+              <span className="text-2xl lg:text-3xl font-extrabold text-slate-900 mt-2">
+                {sections.length} <span className="text-sm font-semibold text-slate-400 font-normal">Sec</span> • {sections.reduce((a, s) => a + s.lessons.length, 0)} <span className="text-sm font-semibold text-slate-400 font-normal">Lessons</span>
+              </span>
+              <span className="text-xs text-slate-400 mt-1">Structured syllabus units</span>
+            </div>
+            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-2xl">account_tree</span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/90 flex items-center justify-between transition-all hover:shadow-md">
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Curriculum Runtime</span>
+              <span className="text-2xl lg:text-3xl font-extrabold text-slate-900 mt-2">2h 06m 09s</span>
+              <span className="text-xs text-slate-400 mt-1">High-definition master stream</span>
+            </div>
+            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-2xl">schedule</span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/90 flex items-center justify-between transition-all hover:shadow-md">
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Encoding CDN</span>
+              <span className="text-2xl lg:text-3xl font-extrabold text-slate-900 mt-2">84% Transcoded</span>
+              <span className="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                1 job processing in cloud
               </span>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-tertiary">
-              <span className="material-symbols-outlined">account_tree</span>
+            <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-2xl animate-spin">sync</span>
             </div>
           </div>
 
-          <div className="bg-surface-container-low p-space-md rounded-xl flex items-center justify-between shadow-sm border border-surface-container-high/30">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/90 flex items-center justify-between transition-all hover:shadow-md">
             <div className="flex flex-col">
-              <span className="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Curriculum Runtime</span>
-              <span className="font-headline-sm text-headline-sm text-on-surface mt-0.5 font-bold">2h 06m 09s</span>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Enrolled Scholars</span>
+              <span className="text-2xl lg:text-3xl font-extrabold text-slate-900 mt-2">342 Researchers</span>
+              <span className="text-xs text-blue-600 font-semibold mt-1">Active registered fellows</span>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined">schedule</span>
-            </div>
-          </div>
-
-          <div className="bg-surface-container-low p-space-md rounded-xl flex items-center justify-between shadow-sm border border-surface-container-high/30">
-            <div className="flex flex-col">
-              <span className="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Active Encoding CDN</span>
-              <span className="font-headline-sm text-headline-sm text-on-surface mt-0.5 font-bold">1 Transcoding (84%)</span>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-tertiary">
-              <span className="material-symbols-outlined animate-spin text-tertiary">sync</span>
-            </div>
-          </div>
-
-          <div className="bg-surface-container-low p-space-md rounded-xl flex items-center justify-between shadow-sm border border-surface-container-high/30">
-            <div className="flex flex-col">
-              <span className="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Enrolled Scholars</span>
-              <span className="font-headline-sm text-headline-sm text-on-surface mt-0.5 font-bold">342 Researchers</span>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-secondary">
-              <span className="material-symbols-outlined">school</span>
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-2xl">school</span>
             </div>
           </div>
         </div>
 
-        {/* ================= MAIN DUAL PANE WORKSPACE (58% Tree / 42% Editor) ================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+        {/* ================= MAIN DUAL PANE WORKSPACE (7 Cols Outline / 5 Cols Editor) ================= */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* ================= LEFT MASTER TREE COLUMN (~58% -> 7 Cols) ================= */}
-          <div className="lg:col-span-7 flex flex-col gap-space-lg min-w-0">
+          <div className="lg:col-span-7 flex flex-col gap-6 min-w-0">
             {/* List Utility Row */}
-            <div className="flex items-center justify-between px-space-xs">
-              <div className="flex items-center gap-space-sm">
-                <span className="font-headline-sm text-headline-sm text-on-surface font-semibold">Curriculum Outline</span>
-                <span className="font-code-md text-code-md px-space-xs py-0.5 bg-surface-container-high rounded text-on-surface-variant font-medium">
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-2.5">
+                <span className="text-lg font-bold text-slate-900">Curriculum Outline</span>
+                <span className="font-mono text-xs px-2.5 py-0.5 bg-blue-50 text-blue-700 rounded-md font-semibold border border-blue-200">
                   Auto-Sync On
                 </span>
               </div>
-              <div className="flex items-center gap-space-xs text-body-sm font-body-sm text-outline">
+              <div className="flex items-center gap-2 text-xs text-slate-500">
                 <button
                   onClick={() => setSections((prev) => prev.map((s) => ({ ...s, collapsed: true })))}
-                  className="hover:text-on-surface p-1 rounded hover:bg-surface-container cursor-pointer"
+                  className="hover:text-slate-900 p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
                   title="Collapse All Sections"
                 >
                   <span className="material-symbols-outlined text-[18px]">unfold_less</span>
                 </button>
                 <button
                   onClick={() => setSections((prev) => prev.map((s) => ({ ...s, collapsed: false })))}
-                  className="hover:text-on-surface p-1 rounded hover:bg-surface-container cursor-pointer"
+                  className="hover:text-slate-900 p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors"
                   title="Expand All Sections"
                 >
                   <span className="material-symbols-outlined text-[18px]">unfold_more</span>
                 </button>
-                <span className="mx-1 text-surface-variant">|</span>
-                <span className="text-label-sm font-label-sm">Total Weight: 100%</span>
+                <span className="mx-1 text-slate-300">|</span>
+                <span className="font-medium">Total Weight: 100%</span>
               </div>
             </div>
 
             {/* SECTIONS LIST */}
-            {sections.map((sec, secIdx) => (
+            {sections.map((sec) => (
               <div
                 key={sec.id}
-                className="flex flex-col bg-surface-container-low rounded-xl p-space-md shadow-md transition-all border border-surface-container-high/30"
+                className="flex flex-col bg-white rounded-2xl p-6 shadow-sm border border-slate-200/90 transition-all"
               >
                 {/* Section Header Card */}
-                <div className="flex items-center justify-between gap-space-sm pb-space-md bg-surface-container-low rounded-t-lg">
-                  <div className="flex items-center gap-space-sm min-w-0">
-                    <div className="cursor-grab active:cursor-grabbing text-outline hover:text-on-surface p-1 transition-colors">
+                <div className="flex items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-700 p-1 transition-colors">
                       <span className="material-symbols-outlined text-[20px]">drag_pan</span>
                     </div>
                     <button
                       onClick={() => toggleCollapse(sec.id)}
-                      className="text-outline hover:text-tertiary p-0.5 rounded transition-transform duration-150 cursor-pointer"
+                      className="text-slate-400 hover:text-blue-600 p-1 rounded-lg hover:bg-slate-100 transition-transform duration-150 cursor-pointer"
                     >
                       <span
                         className={`material-symbols-outlined text-[20px] transition-transform ${
@@ -683,37 +695,37 @@ export default function CourseEditor() {
                       </span>
                     </button>
                     <div className="flex flex-col min-w-0">
-                      <div className="flex items-center gap-space-xs flex-wrap">
-                        <span className="font-headline-sm text-headline-sm text-on-surface truncate font-semibold">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-base font-bold text-slate-900 truncate">
                           {sec.title}
                         </span>
-                        <span className="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-space-xs py-0.5 rounded">
+                        <span className="bg-slate-100 text-slate-700 font-semibold text-xs px-2.5 py-0.5 rounded-md border border-slate-200">
                           {sec.lessons.length} Lessons • {sec.meta}
                         </span>
                       </div>
-                      <span className="font-body-sm text-body-sm text-outline truncate">{sec.subtitle}</span>
+                      <span className="text-xs text-slate-500 truncate mt-0.5">{sec.subtitle}</span>
                     </div>
                   </div>
 
                   {/* Section Action Tools */}
-                  <div className="flex items-center gap-space-xs shrink-0">
+                  <div className="flex items-center gap-1 shrink-0">
                     <button
                       onClick={() => toast.info(`Section settings for ${sec.title}`)}
-                      className="p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
                       title="Section Settings"
                     >
                       <span className="material-symbols-outlined text-[18px]">tune</span>
                     </button>
                     <button
                       onClick={() => handleAddLessonToSection(sec.id)}
-                      className="p-1.5 rounded-lg text-outline hover:text-tertiary hover:bg-surface-container transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-slate-100 transition-colors cursor-pointer"
                       title="Add Lesson to Section"
                     >
                       <span className="material-symbols-outlined text-[18px]">add</span>
                     </button>
                     <button
                       onClick={() => handleDeleteSection(sec.id, sec.title)}
-                      className="p-1.5 rounded-lg text-outline hover:text-error hover:bg-surface-container transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-slate-100 transition-colors cursor-pointer"
                       title="Delete Section"
                     >
                       <span className="material-symbols-outlined text-[18px]">delete</span>
@@ -723,30 +735,30 @@ export default function CourseEditor() {
 
                 {/* Section Lessons Container */}
                 {!sec.collapsed && (
-                  <div className="flex flex-col gap-space-sm pt-space-sm pl-space-md">
+                  <div className="flex flex-col gap-3 pt-4 pl-1 sm:pl-3">
                     {sec.lessons.map((les) => {
                       const isSelected = selectedLessonId === les.id;
                       return (
                         <div
                           key={les.id}
                           onClick={() => selectLesson(les)}
-                          className={`group relative flex flex-col p-space-md rounded-xl transition-all duration-150 cursor-pointer ${
+                          className={`group relative flex flex-col p-4 rounded-xl transition-all duration-150 cursor-pointer ${
                             isSelected
-                              ? 'bg-surface-container shadow-md border border-primary/30'
-                              : 'bg-surface-container/60 hover:bg-surface-container border border-transparent'
+                              ? 'bg-blue-50/80 shadow-sm border border-blue-200 ring-2 ring-blue-500/20'
+                              : 'bg-white hover:bg-slate-50 border border-slate-200/80 shadow-xs'
                           }`}
                         >
-                          {/* Neon Luminous Indigo Indicator Left Border for Active Selection */}
+                          {/* Active Selection Indicator */}
                           {isSelected && (
-                            <div className="absolute left-0 top-3 bottom-3 w-1.5 bg-primary rounded-r-full shadow-[0_0_12px_rgba(192,193,255,0.8)]"></div>
+                            <div className="absolute left-0 top-3 bottom-3 w-1.5 bg-blue-600 rounded-r-full shadow-sm"></div>
                           )}
 
-                          <div className="flex items-start justify-between gap-space-sm min-w-0">
-                            <div className="flex items-start gap-space-sm min-w-0 pl-1">
+                          <div className="flex items-start justify-between gap-3 min-w-0">
+                            <div className="flex items-start gap-3 min-w-0 pl-1">
                               {/* Reorder Grip Handle */}
                               <div
-                                className={`cursor-grab active:cursor-grabbing pt-0.5 hover:scale-110 transition-transform ${
-                                  isSelected ? 'text-primary' : 'text-outline hover:text-on-surface'
+                                className={`cursor-grab active:cursor-grabbing pt-1 hover:scale-110 transition-transform ${
+                                  isSelected ? 'text-blue-600' : 'text-slate-400 hover:text-slate-700'
                                 }`}
                                 title="Drag to reorder lesson"
                               >
@@ -755,10 +767,10 @@ export default function CourseEditor() {
 
                               {/* Lesson Media Icon */}
                               <div
-                                className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
                                   isSelected
-                                    ? 'bg-primary-container/20 text-primary'
-                                    : 'bg-surface-container-highest text-secondary'
+                                    ? 'bg-blue-100 text-blue-700 border-blue-200'
+                                    : 'bg-slate-100 text-slate-600 border-slate-200 shadow-xs'
                                 }`}
                               >
                                 <span className="material-symbols-outlined text-[20px]">
@@ -768,24 +780,24 @@ export default function CourseEditor() {
 
                               {/* Lesson Info */}
                               <div className="flex flex-col min-w-0">
-                                <div className="flex items-center gap-space-xs flex-wrap">
-                                  <span className="font-headline-sm text-headline-sm text-on-surface truncate font-semibold">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-sm font-bold text-slate-900 truncate">
                                     {les.code} {les.title}
                                   </span>
                                   {isSelected && (
-                                    <span className="bg-primary/20 text-primary font-label-sm text-label-sm px-space-xs py-0.5 rounded font-semibold">
+                                    <span className="bg-blue-100 text-blue-700 text-[11px] font-semibold px-2 py-0.5 rounded">
                                       Active Selection
                                     </span>
                                   )}
                                   {les.type === 'quiz' && (
-                                    <span className="bg-secondary-container/40 text-secondary font-label-sm text-label-sm px-space-xs py-0.2 rounded font-medium">
+                                    <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[11px] font-medium px-2 py-0.5 rounded">
                                       Lab Assessment
                                     </span>
                                   )}
                                 </div>
 
                                 {/* Metadata Chips */}
-                                <div className="flex items-center gap-space-xs flex-wrap mt-space-xs text-body-sm font-body-sm text-on-surface-variant">
+                                <div className="flex items-center gap-2.5 flex-wrap mt-1.5 text-xs text-slate-500">
                                   <span className="flex items-center gap-1">
                                     <span className="material-symbols-outlined text-[14px]">videocam</span> Video
                                     {les.resources?.length > 0 && ` + ${les.resources.length} Files`}
@@ -796,13 +808,13 @@ export default function CourseEditor() {
                                     {les.durationMin}:{String(les.durationSec).padStart(2, '0')} min
                                   </span>
                                   <span>•</span>
-                                  <span className="bg-surface-container-high px-space-xs py-0.2 rounded text-[11px] font-code-md">
+                                  <span className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-[11px] font-mono text-slate-600">
                                     {les.quality || '4K UHD'}
                                   </span>
                                   {les.freePreview && (
                                     <>
                                       <span>•</span>
-                                      <span className="bg-tertiary/10 text-tertiary px-space-xs py-0.2 rounded text-[11px] font-semibold">
+                                      <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[11px] font-semibold">
                                         Free Preview Enabled
                                       </span>
                                     </>
@@ -812,20 +824,20 @@ export default function CourseEditor() {
                             </div>
 
                             {/* Status Badge & Micro Action Buttons */}
-                            <div className="flex items-center gap-space-xs shrink-0">
-                              <span className="hidden sm:inline-flex items-center gap-1 bg-surface-container-high text-on-surface-variant text-[11px] font-medium px-space-xs py-1 rounded-full">
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="hidden sm:inline-flex items-center gap-1.5 bg-slate-50 text-slate-700 border border-slate-200 text-xs px-3 py-1 rounded-full font-medium shadow-xs">
                                 <span
                                   className={`w-1.5 h-1.5 rounded-full ${
-                                    les.status.includes('Published') ? 'bg-tertiary' : 'bg-secondary-fixed'
+                                    les.status.includes('Published') ? 'bg-emerald-500' : 'bg-amber-500'
                                   }`}
                                 ></span>
                                 {les.status} {les.views && `• ${les.views}`}
                               </span>
-                              <div className="flex items-center bg-surface-container-high p-0.5 rounded-lg">
+                              <div className="flex items-center bg-white border border-slate-200 p-0.5 rounded-lg shadow-xs">
                                 <button
                                   onClick={() => selectLesson(les)}
-                                  className={`p-1 rounded transition-colors ${
-                                    isSelected ? 'text-primary bg-surface-bright' : 'text-outline hover:text-primary'
+                                  className={`p-1 rounded-md transition-colors ${
+                                    isSelected ? 'text-blue-600 bg-blue-50' : 'text-slate-400 hover:text-blue-600'
                                   }`}
                                   title="Edit Lesson"
                                 >
@@ -836,7 +848,7 @@ export default function CourseEditor() {
                                     e.stopPropagation();
                                     setPlayerModalOpen(true);
                                   }}
-                                  className="p-1 rounded text-outline hover:text-tertiary hover:bg-surface-bright transition-colors"
+                                  className="p-1 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-slate-50 transition-colors"
                                   title="Preview Lesson"
                                 >
                                   <span className="material-symbols-outlined text-[16px]">visibility</span>
@@ -846,14 +858,14 @@ export default function CourseEditor() {
                                     e.stopPropagation();
                                     toast.success(`Lesson '${les.title}' duplicated as draft.`);
                                   }}
-                                  className="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-bright transition-colors"
+                                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors"
                                   title="Duplicate Lesson"
                                 >
                                   <span className="material-symbols-outlined text-[16px]">content_copy</span>
                                 </button>
                                 <button
                                   onClick={(e) => handleDeleteLesson(les.id, e)}
-                                  className="p-1 rounded text-outline hover:text-error hover:bg-surface-bright transition-colors"
+                                  className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-slate-50 transition-colors"
                                   title="Archive / Delete Lesson"
                                 >
                                   <span className="material-symbols-outlined text-[16px]">delete</span>
@@ -868,7 +880,7 @@ export default function CourseEditor() {
                     {/* Add Lesson to Section Button */}
                     <button
                       onClick={() => handleAddLessonToSection(sec.id)}
-                      className="w-full py-space-sm px-space-md rounded-xl bg-surface-container hover:bg-surface-container-high text-outline hover:text-tertiary flex items-center justify-center gap-space-xs font-label-md text-label-md transition-all cursor-pointer border border-surface-container-high/40"
+                      className="w-full py-3 px-4 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-blue-600 flex items-center justify-center gap-2 text-xs font-bold transition-all cursor-pointer border border-dashed border-slate-300 mt-1"
                     >
                       <span className="material-symbols-outlined text-[18px]">add</span>
                       <span>+ Add Lesson to {sec.title.split(':')[0]}</span>
@@ -878,123 +890,121 @@ export default function CourseEditor() {
               </div>
             ))}
 
-            {/* CREATE NEW SECTION 3 DROPZONE CARD */}
+            {/* CREATE NEW SECTION DROPZONE CARD */}
             <div
               onClick={handleAddSection}
-              className="w-full rounded-2xl p-space-lg bg-surface-container-low/60 hover:bg-surface-container-low flex flex-col items-center justify-center gap-space-sm text-center cursor-pointer transition-all duration-200 group border border-dashed border-surface-container-highest/60"
+              className="w-full rounded-2xl p-8 bg-white hover:bg-slate-50/80 flex flex-col items-center justify-center gap-2.5 text-center cursor-pointer transition-all border-2 border-dashed border-slate-300 group shadow-xs"
             >
-              <div className="w-12 h-12 rounded-full bg-surface-container-high group-hover:bg-primary-container/20 group-hover:text-primary text-outline flex items-center justify-center transition-colors">
-                <span className="material-symbols-outlined text-[24px]">library_add</span>
+              <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 group-hover:scale-105 border border-blue-200/60 flex items-center justify-center transition-all shadow-xs">
+                <span className="material-symbols-outlined text-[28px]">library_add</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors font-semibold">
+                <span className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                   + Append Section {sections.length + 1}
                 </span>
-                <span className="font-body-sm text-body-sm text-outline mt-0.5">
-                  Drag syllabus JSON or click here to build quantum module segment
+                <span className="text-xs text-slate-500 mt-0.5">
+                  Click here to build new curriculum module segment
                 </span>
               </div>
             </div>
           </div>
 
           {/* ================= RIGHT IN-DEPTH LESSON EDITOR COLUMN (~42% -> 5 Cols) ================= */}
-          <div className="lg:col-span-5 flex flex-col gap-space-md sticky top-20">
+          <div className="lg:col-span-5 flex flex-col gap-6 sticky top-20">
             {/* Editor Master Panel */}
-            <div className="flex flex-col bg-surface-container-low rounded-2xl p-space-lg shadow-xl relative overflow-hidden border border-surface-container-high/40">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full pointer-events-none"></div>
-
+            <div className="flex flex-col bg-white rounded-2xl p-6 lg:p-7 shadow-sm border border-slate-200/90 relative overflow-hidden">
               {/* Editor Header */}
-              <div className="flex items-center justify-between pb-space-md mb-space-md bg-surface-container-low border-b border-surface-container-high/30">
+              <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-100">
                 <div className="flex flex-col">
-                  <div className="flex items-center gap-space-xs">
-                    <span className="font-headline-md text-headline-md text-on-surface font-bold">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl font-bold text-slate-900">
                       Editing Lesson {selectedLessonId}
                     </span>
-                    <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse" title="Connected to Nova Realtime Node"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" title="Connected to Realtime Node"></span>
                   </div>
-                  <span className="font-label-sm text-label-sm text-outline">
+                  <span className="text-xs text-slate-500 mt-0.5">
                     Section 1: Quantum Decoherence & Density Matrices
                   </span>
                 </div>
-                <div className="flex items-center gap-space-xs">
-                  <span className="bg-surface-container-high text-tertiary font-code-md text-code-md px-space-xs py-0.5 rounded flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[13px]">cloud_done</span> Autosaved
+                <div className="flex items-center gap-2">
+                  <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono text-xs px-2.5 py-1 rounded-full flex items-center gap-1 font-semibold">
+                    <span className="material-symbols-outlined text-[14px]">cloud_done</span> Autosaved
                   </span>
-                  <span className="bg-primary/10 text-primary font-label-sm text-label-sm px-space-xs py-0.5 rounded-full font-semibold">
+                  <span className="bg-blue-50 text-blue-700 border border-blue-200 text-xs px-3 py-1 rounded-full font-semibold">
                     Live Changes
                   </span>
                 </div>
               </div>
 
               {/* Lesson Meta & Textual Properties */}
-              <div className="flex flex-col gap-space-md">
+              <div className="flex flex-col gap-4">
                 {/* Title Input */}
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="font-label-md text-label-md text-on-surface-variant font-medium">Lesson Title</label>
-                    <span className="font-code-md text-code-md text-outline">chars: {editorData.title.length} / 80</span>
+                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Lesson Title</label>
+                    <span className="font-mono text-xs text-slate-400">chars: {editorData.title.length} / 80</span>
                   </div>
                   <input
                     type="text"
                     value={editorData.title}
                     onChange={(e) => setEditorData({ ...editorData, title: e.target.value })}
-                    className="w-full bg-surface-container text-on-surface font-body-md text-body-md rounded-lg px-space-sm py-2.5 outline-none focus:bg-surface-container-high transition-colors border border-surface-container-high/40 focus:border-primary/50"
+                    className="w-full bg-slate-50 text-slate-900 text-sm font-medium rounded-xl px-4 py-2.5 outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 border border-slate-200 transition-all placeholder:text-slate-400 shadow-xs"
                   />
                 </div>
 
                 {/* URL Slug & Structured Duration Row */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-space-sm">
-                  <div className="md:col-span-7 flex flex-col gap-1">
-                    <label className="font-label-md text-label-md text-on-surface-variant font-medium">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+                  <div className="md:col-span-7 flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                       Canonical Path / Slug
                     </label>
-                    <div className="relative flex items-center bg-surface-container rounded-lg px-space-sm py-2 border border-surface-container-high/40">
-                      <span className="material-symbols-outlined text-[16px] text-outline mr-1">link</span>
+                    <div className="relative flex items-center bg-slate-50 rounded-xl px-3.5 py-2.5 border border-slate-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500 transition-all shadow-xs">
+                      <span className="material-symbols-outlined text-[16px] text-slate-400 mr-2">link</span>
                       <input
                         type="text"
                         value={editorData.slug}
                         onChange={(e) => setEditorData({ ...editorData, slug: e.target.value })}
-                        className="bg-transparent text-on-surface font-code-md text-code-md w-full outline-none"
+                        className="bg-transparent text-slate-900 font-mono text-xs w-full outline-none"
                       />
                     </div>
                   </div>
-                  <div className="md:col-span-5 flex flex-col gap-1">
-                    <label className="font-label-md text-label-md text-on-surface-variant font-medium">Duration</label>
-                    <div className="flex items-center gap-space-xs">
-                      <div className="flex items-center bg-surface-container rounded-lg px-space-xs py-2 flex-1 border border-surface-container-high/40">
+                  <div className="md:col-span-5 flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Duration</label>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center bg-slate-50 rounded-xl px-3 py-2.5 flex-1 border border-slate-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500 transition-all shadow-xs">
                         <input
                           type="number"
                           value={editorData.durationMin}
                           onChange={(e) => setEditorData({ ...editorData, durationMin: Number(e.target.value) })}
-                          className="bg-transparent text-on-surface font-code-md text-code-md w-full text-center outline-none"
+                          className="bg-transparent text-slate-900 font-mono text-xs w-full text-center outline-none"
                         />
-                        <span className="text-outline font-label-sm text-label-sm pr-1">min</span>
+                        <span className="text-slate-400 text-xs pr-1 font-semibold">min</span>
                       </div>
-                      <div className="flex items-center bg-surface-container rounded-lg px-space-xs py-2 flex-1 border border-surface-container-high/40">
+                      <div className="flex items-center bg-slate-50 rounded-xl px-3 py-2.5 flex-1 border border-slate-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500 transition-all shadow-xs">
                         <input
                           type="number"
                           value={editorData.durationSec}
                           onChange={(e) => setEditorData({ ...editorData, durationSec: Number(e.target.value) })}
-                          className="bg-transparent text-on-surface font-code-md text-code-md w-full text-center outline-none"
+                          className="bg-transparent text-slate-900 font-mono text-xs w-full text-center outline-none"
                         />
-                        <span className="text-outline font-label-sm text-label-sm pr-1">sec</span>
+                        <span className="text-slate-400 text-xs pr-1 font-semibold">sec</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Description & Rich Markdown Editor */}
-                <div className="flex flex-col gap-1">
-                  <label className="font-label-md text-label-md text-on-surface-variant font-medium">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                     Lecture Overview & Learning Objectives
                   </label>
-                  <div className="flex flex-col rounded-xl overflow-hidden bg-surface-container border border-surface-container-high/40">
+                  <div className="flex flex-col rounded-xl overflow-hidden border border-slate-200 shadow-xs">
                     {/* Toolbar */}
-                    <div className="flex items-center justify-between px-space-sm py-1.5 bg-surface-container-high text-outline">
+                    <div className="flex items-center justify-between px-3.5 py-2 bg-slate-100/90 border-b border-slate-200 text-slate-600">
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
-                          className="p-1 hover:text-on-surface hover:bg-surface-container rounded cursor-pointer"
+                          className="p-1 hover:text-slate-900 hover:bg-slate-200/70 rounded cursor-pointer transition-colors"
                           title="Bold"
                           onClick={() => setEditorData((d) => ({ ...d, description: d.description + ' **bold**' }))}
                         >
@@ -1002,7 +1012,7 @@ export default function CourseEditor() {
                         </button>
                         <button
                           type="button"
-                          className="p-1 hover:text-on-surface hover:bg-surface-container rounded cursor-pointer"
+                          className="p-1 hover:text-slate-900 hover:bg-slate-200/70 rounded cursor-pointer transition-colors"
                           title="Italic"
                           onClick={() => setEditorData((d) => ({ ...d, description: d.description + ' _italic_' }))}
                         >
@@ -1010,7 +1020,7 @@ export default function CourseEditor() {
                         </button>
                         <button
                           type="button"
-                          className="p-1 hover:text-on-surface hover:bg-surface-container rounded cursor-pointer"
+                          className="p-1 hover:text-slate-900 hover:bg-slate-200/70 rounded cursor-pointer transition-colors"
                           title="Code Block"
                           onClick={() => setEditorData((d) => ({ ...d, description: d.description + '\n```python\n# code\n```' }))}
                         >
@@ -1018,7 +1028,7 @@ export default function CourseEditor() {
                         </button>
                         <button
                           type="button"
-                          className="p-1 hover:text-on-surface hover:bg-surface-container rounded cursor-pointer"
+                          className="p-1 hover:text-slate-900 hover:bg-slate-200/70 rounded cursor-pointer transition-colors"
                           title="LaTeX Equation"
                           onClick={() => setEditorData((d) => ({ ...d, description: d.description + ' $$\\hat{H} = \\hbar \\omega$$' }))}
                         >
@@ -1026,14 +1036,14 @@ export default function CourseEditor() {
                         </button>
                         <button
                           type="button"
-                          className="p-1 hover:text-on-surface hover:bg-surface-container rounded cursor-pointer"
+                          className="p-1 hover:text-slate-900 hover:bg-slate-200/70 rounded cursor-pointer transition-colors"
                           title="Bullet List"
                           onClick={() => setEditorData((d) => ({ ...d, description: d.description + '\n- Item' }))}
                         >
                           <span className="material-symbols-outlined text-[16px]">format_list_bulleted</span>
                         </button>
                       </div>
-                      <span className="font-code-md text-code-md text-outline">Markdown Enabled</span>
+                      <span className="font-mono text-xs text-slate-400">Markdown Enabled</span>
                     </div>
 
                     {/* Text Area */}
@@ -1041,38 +1051,44 @@ export default function CourseEditor() {
                       rows={3}
                       value={editorData.description}
                       onChange={(e) => setEditorData({ ...editorData, description: e.target.value })}
-                      className="w-full bg-surface-container p-space-sm text-on-surface font-body-sm text-body-sm outline-none resize-none"
+                      className="w-full bg-slate-50 p-3.5 text-slate-900 text-sm outline-none resize-none focus:bg-white transition-colors"
                     ></textarea>
                   </div>
                 </div>
 
                 {/* Video Asset Management & Transcoder Widget */}
-                <div className="flex flex-col gap-space-xs p-space-md rounded-xl bg-surface-container border border-surface-container-high/40">
+                <div className="flex flex-col gap-3.5 p-4 rounded-xl bg-slate-50/80 border border-slate-200/80">
                   <div className="flex items-center justify-between">
-                    <span className="font-label-lg text-label-lg text-on-surface font-semibold flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-primary text-[18px]">videocam</span>
+                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 uppercase tracking-wider">
+                      <span className="material-symbols-outlined text-blue-600 text-[18px]">videocam</span>
                       Master Lecture Video Feed
                     </span>
-                    <span className="font-code-md text-code-md text-tertiary">Live Processing</span>
+                    <span className="font-mono text-xs text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-semibold">
+                      Live Processing
+                    </span>
                   </div>
 
                   {/* Video Preview Thumbnail Card */}
-                  <div className="relative w-full h-44 rounded-lg overflow-hidden group shadow-inner bg-surface-container-lowest">
+                  <div className="relative w-full h-48 rounded-xl overflow-hidden group shadow-md bg-slate-950">
                     <img
-                      className="w-full h-full object-cover opacity-75 group-hover:opacity-90 transition-opacity"
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-95 transition-opacity"
                       alt="Lecture preview"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBDa6-cJy70-zYSvLMf72bHmtB7G-Jrjkthl8GAPjPJa9QE3fOX_Dd-K8E6DK796yLbTxwzJM7ffQ7OJzdRi6GMTGbGRyXqR0W8uTKNcewut7HgzZcazfCPkNGI44ESzdPQIpCug4ICTT7d0NL1frMLbs6UYWdZ8waxpa_PksiLVLOCq29jxpf9RfZRIDO-0PgDUnt2fewOeWjPmOR-jBoMRWjUiNqFQMAOGvLgYwoBOEsplCg_bw"
+                      src="/assets/course-cloud.jpg"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = '/assets/course-cloud.jpg';
+                      }}
                     />
 
                     {/* Video Scrim Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-transparent to-black/40 flex flex-col justify-between p-space-sm">
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-black/30 flex flex-col justify-between p-3.5">
                       <div className="flex items-center justify-between">
-                        <span className="bg-surface-container-lowest/80 text-tertiary font-code-md text-code-md px-space-xs py-0.5 rounded backdrop-blur">
+                        <span className="bg-slate-900/80 text-emerald-400 font-mono text-[11px] px-2.5 py-0.5 rounded backdrop-blur font-semibold">
                           4K PRORES SOURCE
                         </span>
                         <button
                           onClick={() => setPlayerModalOpen(true)}
-                          className="p-1 rounded-full bg-surface-container-lowest/70 text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
+                          className="p-1.5 rounded-full bg-slate-900/70 text-white hover:bg-slate-800 transition-colors cursor-pointer"
                         >
                           <span className="material-symbols-outlined text-[16px]">open_in_full</span>
                         </button>
@@ -1081,42 +1097,42 @@ export default function CourseEditor() {
                       <div className="flex items-center justify-center">
                         <div
                           onClick={() => setPlayerModalOpen(true)}
-                          className="w-12 h-12 rounded-full bg-primary-container/80 text-on-primary-container flex items-center justify-center backdrop-blur shadow-lg group-hover:scale-110 transition-transform cursor-pointer"
+                          className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center backdrop-blur shadow-lg group-hover:scale-110 transition-transform cursor-pointer"
                         >
                           <span className="material-symbols-outlined text-[26px]">play_arrow</span>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between text-body-sm font-body-sm text-on-surface">
-                        <span className="font-code-md text-code-md">{editorData.videoFile}</span>
-                        <span className="text-outline">{editorData.videoSize}</span>
+                      <div className="flex items-center justify-between text-xs text-white">
+                        <span className="font-mono text-slate-200">{editorData.videoFile}</span>
+                        <span className="text-slate-300 font-medium">{editorData.videoSize}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Realtime Transcoding Engine Monitor */}
-                  <div className="flex flex-col gap-1.5 mt-space-xs p-space-sm rounded-lg bg-surface-container-low border border-surface-container-high/30">
-                    <div className="flex items-center justify-between text-body-sm font-body-sm">
-                      <span className="text-on-surface font-medium flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[16px] text-tertiary animate-spin">sync</span>
+                  <div className="flex flex-col gap-2 p-3.5 rounded-xl bg-white border border-slate-200 shadow-xs">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-800 font-bold flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-[16px] text-blue-600 animate-spin">sync</span>
                         Transcoding: {editorData.transcodingPct}% Complete
                       </span>
-                      <span className="font-code-md text-code-md text-tertiary">12.4 MB/s • ~42s remaining</span>
+                      <span className="font-mono text-emerald-700 font-semibold">12.4 MB/s • ~42s remaining</span>
                     </div>
 
                     {/* Multi-tier glowing progress bar */}
-                    <div className="w-full h-2 rounded-full bg-surface-container-high overflow-hidden relative">
+                    <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden relative">
                       <div
-                        className="h-full bg-gradient-to-r from-primary via-tertiary to-primary-container rounded-full transition-all duration-300"
+                        className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-300"
                         style={{ width: `${editorData.transcodingPct}%` }}
                       ></div>
                     </div>
 
-                    <div className="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm pt-0.5">
-                      <span className="text-tertiary">1080p ✓</span>
-                      <span className="text-tertiary">1440p ✓</span>
-                      <span className="text-primary font-semibold">4K UHD ({editorData.transcodingPct}%)</span>
-                      <span className="text-tertiary">HLS Packaging ✓</span>
+                    <div className="flex items-center justify-between text-xs text-slate-500 pt-0.5 font-medium">
+                      <span className="text-emerald-700">1080p ✓</span>
+                      <span className="text-emerald-700">1440p ✓</span>
+                      <span className="text-blue-700 font-bold">4K UHD ({editorData.transcodingPct}%)</span>
+                      <span className="text-emerald-700">HLS Packaging ✓</span>
                     </div>
                   </div>
 
@@ -1129,7 +1145,7 @@ export default function CourseEditor() {
                         toast.success(`Video source updated to ${file}`);
                       }
                     }}
-                    className="flex items-center justify-center gap-space-xs py-2 text-outline hover:text-tertiary cursor-pointer font-label-md text-label-md transition-colors"
+                    className="flex items-center justify-center gap-1.5 py-1.5 text-slate-500 hover:text-blue-600 cursor-pointer text-xs font-semibold transition-colors"
                   >
                     <span className="material-symbols-outlined text-[16px]">file_upload</span>
                     <span>Drag to replace raw lecture video file</span>
@@ -1137,38 +1153,38 @@ export default function CourseEditor() {
                 </div>
 
                 {/* Attached Learning Resources & Files */}
-                <div className="flex flex-col gap-space-xs">
+                <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
-                    <label className="font-label-md text-label-md text-on-surface-variant font-medium">
+                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                       Attached Learning Resources ({editorData.resources?.length || 0} Files)
                     </label>
-                    <span className="font-code-md text-code-md text-outline">Total 5.84 MB</span>
+                    <span className="font-mono text-xs text-slate-400">Total 5.84 MB</span>
                   </div>
 
-                  <div className="flex flex-col gap-1.5">
+                  <div className="flex flex-col gap-2">
                     {editorData.resources?.map((res) => (
                       <div
                         key={res.id}
-                        className="flex items-center justify-between p-space-xs px-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors border border-surface-container-high/30"
+                        className="flex items-center justify-between p-3 px-3.5 rounded-xl bg-white hover:bg-slate-50 transition-colors border border-slate-200 shadow-xs"
                       >
-                        <div className="flex items-center gap-space-sm min-w-0">
-                          <span className={`material-symbols-outlined text-[20px] ${res.color}`}>{res.icon}</span>
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className={`material-symbols-outlined text-[22px] ${res.color}`}>{res.icon}</span>
                           <div className="flex flex-col min-w-0">
-                            <span className="font-body-md text-body-md text-on-surface truncate">{res.name}</span>
-                            <span className="font-code-md text-code-md text-outline">{res.meta}</span>
+                            <span className="text-xs font-bold text-slate-800 truncate">{res.name}</span>
+                            <span className="font-mono text-[11px] text-slate-400">{res.meta}</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
                           <button
                             onClick={() => toast.info(`Previewing ${res.name}...`)}
-                            className="p-1 rounded text-outline hover:text-on-surface cursor-pointer"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors"
                             title="Preview File"
                           >
                             <span className="material-symbols-outlined text-[16px]">visibility</span>
                           </button>
                           <button
                             onClick={() => handleRemoveResource(res.id)}
-                            className="p-1 rounded text-outline hover:text-error cursor-pointer"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-slate-100 cursor-pointer transition-colors"
                             title="Remove Resource"
                           >
                             <span className="material-symbols-outlined text-[16px]">close</span>
@@ -1181,7 +1197,7 @@ export default function CourseEditor() {
                   {/* Upload Resource Dropzone */}
                   <div
                     onClick={handleUploadResource}
-                    className="p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container text-outline hover:text-primary flex items-center justify-center gap-space-xs font-label-sm text-label-sm cursor-pointer transition-all border border-dashed border-surface-container-high"
+                    className="p-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-blue-600 flex items-center justify-center gap-2 text-xs font-bold cursor-pointer transition-all border border-dashed border-slate-300 shadow-xs"
                   >
                     <span className="material-symbols-outlined text-[18px]">upload_file</span>
                     <span>+ Upload Resource (PDF, Notebook, Code, Dataset)</span>
@@ -1189,22 +1205,22 @@ export default function CourseEditor() {
                 </div>
 
                 {/* Visibility & Access Controls Card */}
-                <div className="flex flex-col gap-space-sm p-space-md rounded-xl bg-surface-container border border-surface-container-high/40">
-                  <span className="font-label-lg text-label-lg text-on-surface font-semibold">
+                <div className="flex flex-col gap-3.5 p-4 rounded-xl bg-slate-50/80 border border-slate-200/80">
+                  <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                     Visibility & Access Controls
                   </span>
 
                   {/* Publishing State Selector */}
-                  <div className="grid grid-cols-3 gap-space-xs p-1 bg-surface-container-high rounded-lg text-center">
+                  <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-200/60 rounded-xl text-center">
                     {['Published', 'Draft', 'Scheduled'].map((st) => (
                       <button
                         key={st}
                         type="button"
                         onClick={() => setEditorData({ ...editorData, status: st })}
-                        className={`py-1 px-space-xs rounded font-label-sm text-label-sm transition-colors cursor-pointer ${
+                        className={`py-1.5 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                           editorData.status === st
-                            ? 'bg-primary-container text-on-primary-container font-semibold shadow-sm'
-                            : 'text-outline hover:text-on-surface'
+                            ? 'bg-white text-slate-900 shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
                         {st}
@@ -1215,8 +1231,8 @@ export default function CourseEditor() {
                   {/* Free Preview Toggle */}
                   <div className="flex items-center justify-between pt-1">
                     <div className="flex flex-col">
-                      <span className="font-body-md text-body-md text-on-surface font-medium">Free Preview Sample</span>
-                      <span className="font-body-sm text-body-sm text-outline">
+                      <span className="text-xs font-bold text-slate-800">Free Preview Sample</span>
+                      <span className="text-[11px] text-slate-500">
                         Allow prospective scholars to watch without course enrollment
                       </span>
                     </div>
@@ -1227,15 +1243,15 @@ export default function CourseEditor() {
                         onChange={(e) => setEditorData({ ...editorData, freePreview: e.target.checked })}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary"></div>
+                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </label>
                   </div>
 
                   {/* Discussion & Forum Toggle */}
                   <div className="flex items-center justify-between pt-1">
                     <div className="flex flex-col">
-                      <span className="font-body-md text-body-md text-on-surface font-medium">Student Q&A Thread</span>
-                      <span className="font-body-sm text-body-sm text-outline">
+                      <span className="text-xs font-bold text-slate-800">Student Q&A Thread</span>
+                      <span className="text-[11px] text-slate-500">
                         Mount cohort discussion forum directly below this lecture stream
                       </span>
                     </div>
@@ -1246,14 +1262,14 @@ export default function CourseEditor() {
                         onChange={(e) => setEditorData({ ...editorData, discussionForum: e.target.checked })}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </label>
                   </div>
                 </div>
               </div>
 
               {/* Footer Action Docks for Panel */}
-              <div className="flex items-center justify-between pt-space-lg mt-space-lg bg-surface-container-low border-t border-surface-container-high/30">
+              <div className="flex items-center justify-between pt-5 mt-5 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => {
@@ -1261,25 +1277,25 @@ export default function CourseEditor() {
                       window.location.reload();
                     }
                   }}
-                  className="px-space-md py-space-sm rounded-lg text-on-surface-variant hover:text-error hover:bg-surface-container transition-colors font-label-md text-label-md cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors text-xs font-semibold cursor-pointer"
                 >
                   Discard
                 </button>
 
-                <div className="flex items-center gap-space-xs">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setPlayerModalOpen(true)}
-                    className="flex items-center gap-1 px-space-md py-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors cursor-pointer border border-surface-container-high/40"
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors cursor-pointer border border-slate-200 shadow-xs"
                   >
-                    <span className="material-symbols-outlined text-[16px]">play_circle</span>
+                    <span className="material-symbols-outlined text-[16px] text-slate-500">play_circle</span>
                     <span>Preview Lesson</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={handleSaveLessonSolo}
-                    className="flex items-center gap-1.5 px-space-lg py-space-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold hover:opacity-90 shadow-md shadow-primary/20 transition-all cursor-pointer"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-[16px]">save</span>
                     <span>Save & Apply</span>
@@ -1289,11 +1305,13 @@ export default function CourseEditor() {
             </div>
 
             {/* Quick Tips Box */}
-            <div className="p-space-md rounded-xl bg-surface-container-low flex items-start gap-space-sm text-outline border border-surface-container-high/30">
-              <span className="material-symbols-outlined text-tertiary text-[20px] shrink-0">tips_and_updates</span>
-              <div className="flex flex-col font-body-sm text-body-sm">
-                <span className="text-on-surface font-medium">Instructional Design Tip</span>
-                <span>
+            <div className="p-5 rounded-2xl bg-blue-50/70 border border-blue-200/70 flex items-start gap-3.5 text-slate-700 shadow-xs">
+              <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <span className="material-symbols-outlined text-[20px]">tips_and_updates</span>
+              </div>
+              <div className="flex flex-col text-xs">
+                <span className="text-slate-900 font-bold text-sm">Instructional Design Tip</span>
+                <span className="text-slate-500 mt-1 leading-relaxed">
                   Lectures featuring linked Jupyter notebooks exhibit a 43% higher completion rate among postgrad fellows.
                 </span>
               </div>
@@ -1304,18 +1322,18 @@ export default function CourseEditor() {
 
       {/* ================= EMBEDDED STUDENT PLAYER PREVIEW MODAL ================= */}
       {playerModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-surface-container-low rounded-2xl max-w-3xl w-full p-space-lg shadow-2xl relative flex flex-col gap-space-md border border-surface-container-high/50">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative flex flex-col gap-4 border border-slate-200/90">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-space-xs">
-                <span className="material-symbols-outlined text-tertiary">slideshow</span>
-                <span className="font-headline-sm text-headline-sm text-on-surface font-semibold">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-blue-600">slideshow</span>
+                <span className="text-lg font-bold text-slate-900">
                   Student Player Preview: {selectedLessonId} {editorData.title}
                 </span>
               </div>
               <button
                 onClick={() => setPlayerModalOpen(false)}
-                className="p-1 rounded text-outline hover:text-on-surface cursor-pointer"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
@@ -1325,32 +1343,36 @@ export default function CourseEditor() {
               <img
                 className="w-full h-full object-cover"
                 alt="Lecture player simulation"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCphP798aYLhJ8y57WD52HEu7Oq0t6JMIZludZIrmn51jLMbQSMh2_Vl96RnekTAa647MJOTwzfBWjpz69fdYVVILfOjQSyIiYgXrKC6XzMez8zXT39ztbcBJIpDfDHiVN6Ir0cjwMsc-3WWLiU9r7YqIPNoQCysgSfTZVWbsCfY-yNc-LNb0NLQ7jrkvvgCuxIoZFcEjQLcUAsgYUBPyqGPJ0f50CF3Kv4ccfr5HtFq8Ii32FcGEU"
+                src="/assets/course-quantum.jpg"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = '/assets/course-quantum.jpg';
+                }}
               />
 
               {/* Player Simulated Chrome */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-space-md">
-                <div className="w-full h-1.5 bg-surface-container-highest rounded-full mb-space-sm relative cursor-pointer">
-                  <div className="w-1/3 h-full bg-tertiary rounded-full"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-4">
+                <div className="w-full h-1.5 bg-white/20 rounded-full mb-3 relative cursor-pointer">
+                  <div className="w-1/3 h-full bg-blue-500 rounded-full"></div>
                   <div className="absolute left-1/3 -top-1 w-3.5 h-3.5 rounded-full bg-white shadow"></div>
                 </div>
 
-                <div className="flex items-center justify-between text-white text-body-sm">
-                  <div className="flex items-center gap-space-sm">
-                    <span className="material-symbols-outlined cursor-pointer hover:text-tertiary transition-colors">
+                <div className="flex items-center justify-between text-white text-xs">
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined cursor-pointer hover:text-blue-400 transition-colors">
                       play_arrow
                     </span>
-                    <span className="material-symbols-outlined cursor-pointer hover:text-tertiary transition-colors">
+                    <span className="material-symbols-outlined cursor-pointer hover:text-blue-400 transition-colors">
                       volume_up
                     </span>
-                    <span className="font-code-md text-code-md">06:08 / 18:24</span>
+                    <span className="font-mono text-slate-200">06:08 / 18:24</span>
                   </div>
-                  <div className="flex items-center gap-space-sm">
-                    <span className="bg-primary/20 px-1.5 py-0.5 rounded text-primary text-[11px] font-code-md">4K UHD</span>
-                    <span className="material-symbols-outlined cursor-pointer hover:text-tertiary transition-colors">
+                  <div className="flex items-center gap-3">
+                    <span className="bg-blue-600/80 px-2 py-0.5 rounded text-white text-[11px] font-mono">4K UHD</span>
+                    <span className="material-symbols-outlined cursor-pointer hover:text-blue-400 transition-colors">
                       settings
                     </span>
-                    <span className="material-symbols-outlined cursor-pointer hover:text-tertiary transition-colors">
+                    <span className="material-symbols-outlined cursor-pointer hover:text-blue-400 transition-colors">
                       fullscreen
                     </span>
                   </div>
@@ -1358,11 +1380,11 @@ export default function CourseEditor() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-space-xs text-body-sm font-body-sm text-on-surface-variant">
+            <div className="flex items-center justify-between pt-1 text-xs text-slate-500">
               <span>Transcoded via Nova Adaptive HLS • Zero Latency CDN</span>
               <button
                 onClick={() => setPlayerModalOpen(false)}
-                className="px-space-md py-1.5 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-bright cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 cursor-pointer transition-colors"
               >
                 Close Preview
               </button>

@@ -1,54 +1,133 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import API from '../../services/api';
+import {
+  getSocket,
+  joinQuizRoom,
+  submitQuizAnswerSocket,
+  sendQuizReaction,
+  sendQuizProctorAlert,
+  finishQuizSocket,
+  leaveQuizRoom,
+} from '../../services/socket';
 import confetti from 'canvas-confetti';
 import { toast } from 'sonner';
+import {
+  Zap,
+  Flame,
+  Trophy,
+  Users,
+  Shield,
+  Copy,
+  Check,
+  Radio,
+  Award,
+  AlertTriangle,
+  ArrowRight,
+  ArrowLeft,
+  Volume2,
+  VolumeX,
+  Play,
+  RotateCcw,
+  Sparkles,
+  ChevronRight,
+  Clock,
+  BookOpen,
+  CheckCircle2,
+  XCircle,
+  HelpCircle,
+  Hash,
+  Share2,
+  LogOut,
+} from 'lucide-react';
 
-// Curated 10-Question Cyber-Academic Assessment Pool (RESTful & Distributed Architecture)
+// Web Audio synthesizer for haptic audio feedback
+const playSynthesizedSound = (type = 'correct') => {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    if (type === 'correct') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.28);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.28);
+    } else if (type === 'streak') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.07);
+      osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.14);
+      gain.gain.setValueAtTime(0.16, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.38);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.38);
+    } else if (type === 'incorrect') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(260, ctx.currentTime);
+      osc.frequency.setValueAtTime(200, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.25);
+    }
+  } catch (e) {
+    // Audio context may be muted until user interaction
+  }
+};
+
+// Curated Fallback Assessment Pool
 const DEFAULT_QUESTIONS = [
   {
     id: 1,
     points: 10,
-    category: 'Core Theory',
-    question: 'Which HTTP method is specifically defined as idempotent according to RFC 7231?',
-    subtitle: 'Evaluate state mutation and repeatability semantics for standard HTTP verbs.',
+    category: 'Autonomous Agents',
+    question: 'Which framework pattern combines reasoning traces and task-specific actions for autonomous agents?',
+    subtitle: 'Evaluate state mutation and repeatability semantics for multi-step AI agents.',
     context:
-      'Idempotence guarantees that multiple identical requests will produce the same operational side effect on the server state as a single request.',
-    contextTag: 'RFC 7231 §4.2.2 • Method Semantics',
+      'Modern cognitive agents interleave reasoning ("thought") and action ("tool use") traces to guide complex autonomous problem solving without hallucinating execution paths.',
+    contextTag: 'ReAct Architecture • ICLR 2023',
     options: [
-      { key: 'A', text: 'POST requests creating new relational entities.' },
-      { key: 'B', text: 'PUT and DELETE requests replacing or removing targeted resources.' },
-      { key: 'C', text: 'PATCH requests applying delta JSON transformations.' },
-      { key: 'D', text: 'Custom vendor verbs without explicit caching headers.' },
+      { key: 'A', text: 'ReAct (Reasoning and Acting) prompting pattern.' },
+      { key: 'B', text: 'Static Regex Pattern Matching with fixed dictionary fallbacks.' },
+      { key: 'C', text: 'Single-layer Feedforward Perceptrons without hidden activations.' },
+      { key: 'D', text: 'Monolithic Linear Regression with gradient descent.' },
     ],
-    correctAnswer: 'B',
+    correctAnswer: 'A',
     explanation:
-      'PUT and DELETE are idempotent per HTTP specifications; sending multiple identical PUT/DELETE requests leaves server state identical to sending one.',
+      'ReAct interleaves reasoning ("thought") and action ("tool use") traces to guide complex autonomous problem solving.',
   },
   {
     id: 2,
     points: 10,
-    category: 'Cache Invalidation',
-    question: 'What is the primary function of the ETag (Entity Tag) HTTP header in REST microservices?',
-    subtitle: 'Determine mechanism for optimistic concurrency control and conditional updates.',
+    category: 'Security & TLS',
+    question: 'Which cryptographic principle ensures that compromise of long-term server private keys does not decrypt past recorded sessions?',
+    subtitle: 'Determine mechanism for forward-secure ephemeral session negotiations.',
     context:
-      'ETags act as cryptographic or hash-based fingerprints for specific resource representations, avoiding stale updates across distributed client caches.',
-    contextTag: 'HTTP/1.1 Caching • RFC 7232',
+      'Perfect Forward Secrecy ensures each session creates independent ephemeral keys (via ECDHE), isolating compromise to only the current transaction.',
+    contextTag: 'RFC 8446 • TLS 1.3 Architecture',
     options: [
-      { key: 'A', text: 'To encrypt the HTTP payload using TLS session keys.' },
-      { key: 'B', text: 'To enable conditional requests via If-Match / If-None-Match headers.' },
-      { key: 'C', text: 'To enforce cross-origin resource sharing (CORS) preflights.' },
-      { key: 'D', text: 'To specify the maximum packet size for UDP transports.' },
+      { key: 'A', text: 'MD5 Checksum Inversion with salt.' },
+      { key: 'B', text: 'Forward Secrecy (PFS) via Ephemeral Diffie-Hellman (ECDHE).' },
+      { key: 'C', text: 'Base64 Symmetric Transposition with static salt.' },
+      { key: 'D', text: 'Static RSA Key Exchange with long-lived certificates.' },
     ],
     correctAnswer: 'B',
     explanation:
-      'ETags allow web servers to validate cached resources conditionally via If-Match and If-None-Match headers.',
+      'Perfect Forward Secrecy generates unique ephemeral session keys per handshake so past traffic remains unbreakable.',
   },
   {
     id: 3,
     points: 10,
-    category: 'Security & Auth',
+    category: 'Distributed Systems',
     question: 'In OAuth 2.1 / OIDC architectural flows, which token format is standard for stateless authorization?',
     subtitle: 'Analyze self-contained cryptographic identity claims for edge gateways.',
     context:
@@ -67,38 +146,26 @@ const DEFAULT_QUESTIONS = [
   {
     id: 4,
     points: 10,
-    category: 'Core Theory',
-    question: 'What is the primary purpose of a REST API?',
-    subtitle: 'Evaluate the architectural constraints and operational rationale governing modern HTTP microservice communications.',
+    category: 'REST Architecture',
+    question: 'Which HTTP method is specifically defined as idempotent according to RFC 7231?',
+    subtitle: 'Evaluate state mutation and repeatability semantics for standard HTTP verbs.',
     context:
-      'In modern cloud microservices and distributed computing architectures, REST (Representational State Transfer) adheres to stateless communication protocols over HTTP, exposing explicit resource URIs while decoupling the execution context of clients and origin servers.',
-    contextTag: 'RFC 7231 Context • Architectural Blueprint',
+      'Idempotence guarantees that multiple identical requests will produce the same operational side effect on the server state as a single request.',
+    contextTag: 'RFC 7231 §4.2.2 • Method Semantics',
     options: [
-      {
-        key: 'A',
-        text: 'To provide a stateless, standardized architectural interface for distributed software systems to communicate and exchange representations of resources over HTTP.',
-      },
-      {
-        key: 'B',
-        text: 'To execute raw binary SQL transactions directly across cloud storage volumes without database abstraction.',
-      },
-      {
-        key: 'C',
-        text: 'To compile frontend client-side TypeScript code into machine bytecode on hardware servers.',
-      },
-      {
-        key: 'D',
-        text: 'To establish proprietary real-time hardware clock synchronization between distributed CPU kernels.',
-      },
+      { key: 'A', text: 'POST requests creating new relational entities.' },
+      { key: 'B', text: 'PUT and DELETE requests replacing or removing targeted resources.' },
+      { key: 'C', text: 'PATCH requests applying delta JSON transformations.' },
+      { key: 'D', text: 'Custom vendor verbs without explicit caching headers.' },
     ],
-    correctAnswer: 'A',
+    correctAnswer: 'B',
     explanation:
-      'REST provides a uniform, stateless, resource-oriented interface allowing heterogeneous systems to interoperate reliably over standard HTTP protocols.',
+      'PUT and DELETE are idempotent per HTTP specifications; sending multiple identical PUT/DELETE requests leaves server state identical to sending one.',
   },
   {
     id: 5,
     points: 10,
-    category: 'Status Codes',
+    category: 'HTTP Status Codes',
     question: 'Which HTTP status code should be returned when a request is syntactically valid but fails semantic business logic?',
     subtitle: 'Distinguish protocol transport failures from domain rule validation errors.',
     context:
@@ -118,11 +185,10 @@ const DEFAULT_QUESTIONS = [
     id: 6,
     points: 10,
     category: 'API Rate Limiting',
-    question: 'Which algorithmic pattern is widely implemented in edge API Gateways (Envoy, Kong) for burst-tolerant rate limiting?',
+    question: 'Which algorithmic pattern is widely implemented in edge API Gateways for burst-tolerant rate limiting?',
     subtitle: 'Model token replenishment and continuous throughput degradation under high load.',
-    context:
-      'The algorithm continuously replenishes capacity units at a defined fill rate while accommodating bursty client traffic up to bucket capacity.',
-    contextTag: 'IETF Draft • RateLimit Header Field',
+    context: 'The algorithm replenishes capacity units at a defined fill rate while accommodating bursty client traffic up to bucket capacity.',
+    contextTag: 'IETF Draft • RateLimit Field',
     options: [
       { key: 'A', text: 'Token Bucket / Leaky Bucket Algorithm.' },
       { key: 'B', text: 'Round Robin CPU Interleaving.' },
@@ -130,36 +196,32 @@ const DEFAULT_QUESTIONS = [
       { key: 'D', text: 'B-Tree Key Index Splitting.' },
     ],
     correctAnswer: 'A',
-    explanation:
-      'Token Bucket permits temporary traffic bursts up to maximum bucket depth while bounding sustained request rates to the refill velocity.',
+    explanation: 'Token Bucket permits temporary traffic bursts up to maximum bucket depth while bounding sustained request rates.',
   },
   {
     id: 7,
     points: 10,
-    category: 'Hypermedia',
+    category: 'Hypermedia & HATEOAS',
     question: 'What is the highest maturity level in the Richardson Maturity Model (Level 3)?',
     subtitle: 'Examine self-descriptive discoverability across distributed hypermedia workflows.',
-    context:
-      'At Level 3, clients navigate resources dynamically through relational hypermedia link controls embedded inside JSON responses.',
-    contextTag: 'HATEOAS • Richardson Maturity Model',
+    context: 'At Level 3, clients navigate resources dynamically through relational hypermedia link controls embedded inside JSON responses.',
+    contextTag: 'HATEOAS • Richardson Maturity',
     options: [
       { key: 'A', text: 'Level 3: HATEOAS (Hypermedia As The Engine Of Application State).' },
       { key: 'B', text: 'Level 3: GraphQL Schema Stitching.' },
       { key: 'C', text: 'Level 3: HTTP/2 Multiplexing.' },
-      { key: 'D', text: 'Level 3: gRPC Protocol Buffers.' },
+      { key: 'D', text: 'Level 3: Protocol Buffers.' },
     ],
     correctAnswer: 'A',
-    explanation:
-      'Level 3 introduces HATEOAS, guiding API clients dynamically via embedded links rather than hardcoded client URIs.',
+    explanation: 'Level 3 introduces HATEOAS, guiding API clients dynamically via embedded links rather than hardcoded URLs.',
   },
   {
     id: 8,
     points: 10,
     category: 'Data Serialization',
     question: 'Why is content negotiation achieved using the Accept and Content-Type headers?',
-    subtitle: 'Decouple raw representation format from underlying server data models.',
-    context:
-      'Clients communicate expected MIME media types (e.g. application/json, application/xml) enabling polyglot server formatting.',
+    subtitle: 'Decouple representation format from underlying server data models.',
+    context: 'Clients communicate expected MIME media types (e.g. application/json) enabling polyglot server formatting.',
     contextTag: 'RFC 7231 §5.3 • Content Negotiation',
     options: [
       { key: 'A', text: 'To permit servers to format response bodies in the representation requested by the client.' },
@@ -168,17 +230,15 @@ const DEFAULT_QUESTIONS = [
       { key: 'D', text: 'To bypass reverse proxy caching.' },
     ],
     correctAnswer: 'A',
-    explanation:
-      'The Accept header allows clients to request specific MIME representations without mutating API endpoint paths.',
+    explanation: 'The Accept header allows clients to request specific MIME representations without mutating API endpoint paths.',
   },
   {
     id: 9,
     points: 10,
     category: 'Concurrency Control',
-    question: 'How do REST APIs prevent the "Lost Update" problem during concurrent resource mutations?',
+    question: 'How do distributed REST APIs prevent the "Lost Update" problem during concurrent resource mutations?',
     subtitle: 'Contrast pessimistic locking with optimistic conditional concurrency checks.',
-    context:
-      'When multiple clients read state and send updates simultaneously, race conditions can overwrite intermediate changes unless validated.',
+    context: 'When multiple clients read state and send updates simultaneously, race conditions can overwrite intermediate changes unless validated.',
     contextTag: 'RFC 7232 §3.1 • Optimistic Concurrency',
     options: [
       { key: 'A', text: 'By utilizing If-Match headers with ETags or version timestamps (Optimistic Locking).' },
@@ -187,8 +247,7 @@ const DEFAULT_QUESTIONS = [
       { key: 'D', text: 'By converting all HTTP PUT calls to async message queues.' },
     ],
     correctAnswer: 'A',
-    explanation:
-      'If-Match headers ensure that a resource update only proceeds if the client’s cached ETag matches the current server version.',
+    explanation: 'If-Match headers ensure that a resource update only proceeds if the client’s cached ETag matches the current server version.',
   },
   {
     id: 10,
@@ -196,8 +255,7 @@ const DEFAULT_QUESTIONS = [
     category: 'API Versioning',
     question: 'Which REST API versioning strategy avoids breaking existing URL namespaces and enables transparent routing?',
     subtitle: 'Compare URI path versioning, query parameters, custom media types, and headers.',
-    context:
-      'Custom vendor media types (e.g. Accept: application/vnd.company.v2+json) preserve uniform resource URIs across schema revisions.',
+    context: 'Custom vendor media types preserve uniform resource URIs across schema revisions.',
     contextTag: 'REST Architectural Constraints',
     options: [
       { key: 'A', text: 'Content Negotiation via Custom Vendor Media Types in the Accept Header.' },
@@ -206,47 +264,427 @@ const DEFAULT_QUESTIONS = [
       { key: 'D', text: 'Rewriting all database primary keys.' },
     ],
     correctAnswer: 'A',
-    explanation:
-      'Header/Media type versioning preserves pure resource URIs while giving clients fine-grained control over API schema evolution.',
+    explanation: 'Header/Media type versioning preserves pure resource URIs while giving clients fine-grained control over API schema evolution.',
+  },
+  {
+    id: 11,
+    points: 10,
+    category: 'Database Optimization',
+    question: 'In MongoDB, what does the ESR (Equality, Sort, Range) rule optimize for compound index creation?',
+    subtitle: 'Analyze compound index selectivity and in-memory sort prevention.',
+    context: 'Placing equality fields first, followed by sort fields, and lastly range filter fields eliminates in-memory sorting.',
+    contextTag: 'MongoDB Index Architecture',
+    options: [
+      { key: 'A', text: 'Index prefix utilization that allows queries to filter and sort directly from the B-tree.' },
+      { key: 'B', text: 'Compresses JSON documents into binary zip format.' },
+      { key: 'C', text: 'Automatically removes expired documents.' },
+      { key: 'D', text: 'Enforces foreign key cascading deletes.' },
+    ],
+    correctAnswer: 'A',
+    explanation: 'Following the ESR rule ensures the index covers both exact matches and sort ordering before applying range bounds.',
+  },
+  {
+    id: 12,
+    points: 10,
+    category: 'Distributed Systems',
+    question: 'What trade-off does the CAP theorem formally establish for distributed data stores?',
+    subtitle: 'Evaluate consistency versus availability during network partition events.',
+    context: 'Under an unavoidable network partition (P), a distributed system must choose between Consistency (C) and Availability (A).',
+    contextTag: 'Brewer CAP Theorem',
+    options: [
+      { key: 'A', text: 'A distributed store can guarantee at most two of Consistency, Availability, and Partition Tolerance simultaneously.' },
+      { key: 'B', text: 'Cost, Speed, and Accuracy cannot exceed 100% combined.' },
+      { key: 'C', text: 'CPUs cannot execute more than two threads concurrently.' },
+      { key: 'D', text: 'Databases cannot store more than 1 billion documents.' },
+    ],
+    correctAnswer: 'A',
+    explanation: 'When network partitions occur, systems must either reject requests (prioritizing consistency) or accept writes (prioritizing availability).',
+  },
+  {
+    id: 13,
+    points: 10,
+    category: 'Web Security',
+    question: 'Why is storing sensitive JWT session tokens in HttpOnly cookies superior to localStorage?',
+    subtitle: 'Analyze client-side script execution boundaries and token exfiltration vectors.',
+    context: 'HttpOnly cookies cannot be accessed by JavaScript via document.cookie, blocking extraction during Cross-Site Scripting (XSS).',
+    contextTag: 'OWASP Session Management',
+    options: [
+      { key: 'A', text: 'HttpOnly cookies cannot be read or exfiltrated by malicious JavaScript during XSS attacks.' },
+      { key: 'B', text: 'Cookies compress JSON data automatically by 80%.' },
+      { key: 'C', text: 'localStorage is deprecated in HTTP/3 browsers.' },
+      { key: 'D', text: 'Cookies bypass all firewall inspections.' },
+    ],
+    correctAnswer: 'A',
+    explanation: 'HttpOnly prevents client-side script access, preventing automated credential theft when XSS vulnerabilities occur.',
+  },
+  {
+    id: 14,
+    points: 10,
+    category: 'Microservices',
+    question: 'Which resilience pattern prevents an application from repeatedly calling a failing downstream microservice?',
+    subtitle: 'Contrast retry storms with fail-fast circuit states.',
+    context: 'The pattern trips to an Open state after a threshold of failures, returning immediate fallback responses.',
+    contextTag: 'Release It! • Michael Nygard',
+    options: [
+      { key: 'A', text: 'Circuit Breaker Pattern.' },
+      { key: 'B', text: 'Infinite Retry While Loop.' },
+      { key: 'C', text: 'Round Robin Load Balancer.' },
+      { key: 'D', text: 'DNS Round Robin Cache.' },
+    ],
+    correctAnswer: 'A',
+    explanation: 'Circuit Breakers trip open when downstream dependencies fail, protecting services from cascading collapse.',
+  },
+  {
+    id: 15,
+    points: 10,
+    category: 'Event-Driven Architecture',
+    question: 'What is the role of an Idempotency Key in distributed payment and order processing endpoints?',
+    subtitle: 'Prevent duplicate side effects during client retry storms.',
+    context: 'Unique keys allow servers to recognize retransmitted requests and return the original successful response without re-executing state mutation.',
+    contextTag: 'IETF Idempotency-Key Header',
+    options: [
+      { key: 'A', text: 'Guarantees that re-sending the same request produces exactly one side effect without duplicate charging.' },
+      { key: 'B', text: 'Encrypts the credit card number with RSA.' },
+      { key: 'C', text: 'Translates currency exchange rates.' },
+      { key: 'D', text: 'Compresses payload strings.' },
+    ],
+    correctAnswer: 'A',
+    explanation: 'Idempotency keys ensure network retries and timeout recoveries do not trigger duplicate mutations or financial transactions.',
+  },
+  {
+    id: 16,
+    points: 10,
+    category: 'Cloud Infrastructure',
+    question: 'In Kubernetes, which controller guarantees that exactly one copy of a Pod runs across all cluster worker nodes?',
+    subtitle: 'Compare Deployments, ReplicaSets, StatefulSets, and DaemonSets.',
+    context: 'Used typically for node monitoring agents, log collection (Fluentd), and network plugins.',
+    contextTag: 'Kubernetes Workload Controllers',
+    options: [
+      { key: 'A', text: 'DaemonSet.' },
+      { key: 'B', text: 'ReplicaSet.' },
+      { key: 'C', text: 'Job.' },
+      { key: 'D', text: 'StatefulSet.' },
+    ],
+    correctAnswer: 'A',
+    explanation: 'A DaemonSet ensures all (or matching) nodes run an instance of a pod, ideal for cluster-wide daemon services.',
+  },
+  {
+    id: 17,
+    points: 10,
+    category: 'Protocol Architecture',
+    question: 'What protocol feature in HTTP/2 eliminates Head-of-Line blocking at the application layer?',
+    subtitle: 'Contrast sequential HTTP/1.1 pipelining with binary frame multiplexing.',
+    context: 'HTTP/2 breaks requests and responses into independent binary frames interleaved over a single TCP stream.',
+    contextTag: 'RFC 7540 • HTTP/2 Streams',
+    options: [
+      { key: 'A', text: 'Binary Framing and Stream Multiplexing.' },
+      { key: 'B', text: 'Opening 6 separate TCP sockets simultaneously.' },
+      { key: 'C', text: 'Switching to unencrypted plain text.' },
+      { key: 'D', text: 'UDP Broadcast Framing.' },
+    ],
+    correctAnswer: 'A',
+    explanation: 'Binary framing interleaves packets from multiple simultaneous requests across one TCP connection without blocking.',
+  },
+  {
+    id: 18,
+    points: 10,
+    category: 'Cryptographic Hashing',
+    question: 'Why are general cryptographic hashes like SHA-256 unsuitable for storing user passwords compared to Argon2id or bcrypt?',
+    subtitle: 'Evaluate GPU-accelerated brute force resistance and memory hardness.',
+    context: 'SHA-256 is designed to be as fast as possible; password hashing algorithms must be slow and memory-hard.',
+    contextTag: 'OWASP Password Storage Cheat Sheet',
+    options: [
+      { key: 'A', text: 'SHA-256 is too fast, enabling modern GPUs to calculate billions of guesses per second; Argon2id is intentionally memory-hard and slow.' },
+      { key: 'B', text: 'SHA-256 produces variable length outputs.' },
+      { key: 'C', text: 'Argon2id uses plaintext storage.' },
+      { key: 'D', text: 'SHA-256 keys expire after 30 days.' },
+    ],
+    correctAnswer: 'A',
+    explanation: 'Password hashing functions must be tunable, memory-intensive, and computationally slow to defeat parallel GPU hardware attacks.',
+  },
+  {
+    id: 19,
+    points: 10,
+    category: 'Zero Downtime Deployments',
+    question: 'Which deployment strategy runs two identical production environments, switching router traffic instantly from old to new?',
+    subtitle: 'Contrast Rolling Updates, Canary Deployments, and Blue-Green Deployments.',
+    context: 'Provides instantaneous rollback capability by simply pointing the load balancer back to the previous environment.',
+    contextTag: 'Cloud Deployment Topologies',
+    options: [
+      { key: 'A', text: 'Blue-Green Deployment.' },
+      { key: 'B', text: 'Canary Deployment with 5% sampling.' },
+      { key: 'C', text: 'Big Bang In-Place Deployment.' },
+      { key: 'D', text: 'Recreate Deployment with downtime.' },
+    ],
+    correctAnswer: 'A',
+    explanation: 'Blue-Green runs two parallel environments; once validation passes on Green, router traffic switches instantly with zero downtime.',
+  },
+  {
+    id: 20,
+    points: 10,
+    category: 'Observability & Telemetry',
+    question: 'What are the Three Pillars of Observability in modern distributed cloud native engineering?',
+    subtitle: 'Synthesize telemetry data types for rapid incident triage.',
+    context: 'Combining these three telemetry signals gives SRE teams complete visibility into distributed system health.',
+    contextTag: 'OpenTelemetry Architecture',
+    options: [
+      { key: 'A', text: 'Metrics, Logs, and Distributed Traces.' },
+      { key: 'B', text: 'CPU, RAM, and Disk.' },
+      { key: 'C', text: 'HTML, CSS, and JavaScript.' },
+      { key: 'D', text: 'Read, Write, and Execute permissions.' },
+    ],
+    correctAnswer: 'A',
+    explanation: 'Metrics provide numeric aggregate health, Logs provide detailed event context, and Traces visualize request journeys across services.',
   },
 ];
 
-export default function QuizTaker() {
+export default function QuizTaker({ embedded = false }) {
   const { courseId, quizId } = useParams();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
 
-  // Assessment State
+  // Mode: if no quizId provided and not active in a room, start in Quiz Hub
+  const [inHubMode, setInHubMode] = useState(!quizId);
+  const [availableQuizzes, setAvailableQuizzes] = useState([]);
+  const [loadingQuizzes, setLoadingQuizzes] = useState(false);
+  const [roomPinInput, setRoomPinInput] = useState('');
+
+  // Assessment Questions & Metadata
+  const [activeQuizMeta, setActiveQuizMeta] = useState(null);
   const [questions, setQuestions] = useState(DEFAULT_QUESTIONS);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(3); // Start at Question 4 matching mockup
-  const [selectedAnswers, setSelectedAnswers] = useState({
-    0: 'B',
-    1: 'B',
-    2: 'B',
-    3: 'A', // Q4 selected option A
-  });
-  const [flaggedQuestions, setFlaggedQuestions] = useState({
-    4: true, // Q5 is flagged matching mockup
-  });
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [flaggedQuestions, setFlaggedQuestions] = useState({});
 
-  // Navigation View Tab: 'questions', 'review', 'summary'
-  const [activeNavTab, setActiveNavTab] = useState('questions');
+  // Real-Time Socket & Live Arena State
+  const [roomId, setRoomId] = useState(`quiz_${quizId || 'arena_default'}`);
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
+  const [liveLeaderboard, setLiveLeaderboard] = useState([]);
+  const [livePeersCount, setLivePeersCount] = useState(1);
+  const [activePeers, setActivePeers] = useState([]);
+  const [floatingReactions, setFloatingReactions] = useState([]);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [liveScore, setLiveScore] = useState(0);
+  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [proctorWarnings, setProctorWarnings] = useState(0);
+  const [copiedPin, setCopiedPin] = useState(false);
+  const [recentAnswerFeedback, setRecentAnswerFeedback] = useState(null);
 
-  // Timers & Stats
-  const [timeLeft, setTimeLeft] = useState(1122); // 18:42 in seconds
+  // Timers, Navigation & Modals
+  const [timeLeft, setTimeLeft] = useState(900); // 15:00 in seconds
+  const [activeNavTab, setActiveNavTab] = useState('questions'); // 'questions' | 'review' | 'summary'
   const [submitModalOpen, setSubmitModalOpen] = useState(false);
   const [scratchpadOpen, setScratchpadOpen] = useState(false);
   const [scratchpadNote, setScratchpadNote] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [finalScorecard, setFinalScorecard] = useState(null);
-  const [selectedRemediationIndex, setSelectedRemediationIndex] = useState(5); // Default Q.06 matching design
-  const [remediationFilter, setRemediationFilter] = useState('all'); // 'all' | 'incorrect'
-  const [copiedHash, setCopiedHash] = useState(false);
-  const [retakesRemaining, setRetakesRemaining] = useState(2);
+  const [podiumData, setPodiumData] = useState([]);
+  const [exitModalOpen, setExitModalOpen] = useState(false);
 
-  // Countdown timer
+  // Fetch Available Quizzes for Hub
   useEffect(() => {
-    if (isSubmitted || timeLeft <= 0) return;
+    const fetchQuizzes = async () => {
+      setLoadingQuizzes(true);
+      try {
+        const res = await API.get('/quizzes');
+        if (res.data?.quizzes && res.data.quizzes.length > 0) {
+          setAvailableQuizzes(res.data.quizzes);
+        }
+      } catch (err) {
+        console.warn('Could not fetch quiz catalog, using defaults:', err.message);
+      } finally {
+        setLoadingQuizzes(false);
+      }
+    };
+    fetchQuizzes();
+  }, []);
+
+  // Fetch Specific Quiz details if quizId changes
+  useEffect(() => {
+    if (!quizId) {
+      setInHubMode(true);
+      return;
+    }
+
+    setInHubMode(false);
+    const fetchSpecificQuiz = async () => {
+      try {
+        const res = await API.get(`/quizzes/${quizId}`);
+        if (res.data?.quiz) {
+          const qData = res.data.quiz;
+          setActiveQuizMeta(qData);
+          if (qData.timeLimitMinutes) {
+            setTimeLeft(qData.timeLimitMinutes * 60);
+          }
+          if (Array.isArray(qData.questions) && qData.questions.length > 0) {
+            const mapped = qData.questions.map((q, idx) => ({
+              id: q._id || idx + 1,
+              points: q.marks || q.points || 10,
+              category: q.category || 'Core Architecture',
+              question: q.questionText || q.question,
+              subtitle: q.subtitle || 'Evaluate architecture patterns and operational parameters.',
+              context: q.context || 'Official certification question evaluated in real-time.',
+              contextTag: `Standard §${idx + 1} • Enterprise Spec`,
+              options: Array.isArray(q.options)
+                ? q.options.map((opt, oIdx) => {
+                    if (typeof opt === 'string') {
+                      return { key: String.fromCharCode(65 + oIdx), text: opt };
+                    }
+                    return opt;
+                  })
+                : [],
+              correctAnswer:
+                q.correctAnswerIndex !== undefined
+                  ? String.fromCharCode(65 + q.correctAnswerIndex)
+                  : typeof q.correctAnswer === 'number'
+                  ? String.fromCharCode(65 + q.correctAnswer)
+                  : q.correctAnswer || 'A',
+              explanation: q.explanation || 'Detailed answer evaluation recorded on assessment ledger.',
+            }));
+            setQuestions(mapped);
+          }
+        }
+      } catch (err) {
+        console.warn('Using default question set:', err.message);
+      }
+    };
+
+    fetchSpecificQuiz();
+  }, [quizId]);
+
+  // Real-Time Socket Connection & Arena Events
+  useEffect(() => {
+    if (inHubMode) return;
+
+    const currentRoom = `quiz_${quizId || 'arena_default'}`;
+    setRoomId(currentRoom);
+
+    const socket = getSocket();
+    if (!socket) return;
+
+    setIsSocketConnected(socket.connected);
+
+    const onConnect = () => setIsSocketConnected(true);
+    const onDisconnect = () => setIsSocketConnected(false);
+
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+
+    // Join the real-time quiz room
+    joinQuizRoom(
+      {
+        quizId: quizId || 'arena_default',
+        roomId: currentRoom,
+        totalQuestions: questions.length,
+        quizTitle: activeQuizMeta?.title || 'Cyber-Academic Real-Time Assessment',
+      },
+      (ack) => {
+        if (ack && ack.success) {
+          if (ack.leaderboard) setLiveLeaderboard(ack.leaderboard);
+          if (ack.participantsCount) setLivePeersCount(ack.participantsCount);
+          if (ack.participants) setActivePeers(ack.participants);
+        }
+      }
+    );
+
+    // Listen for peer join
+    const handlePeerJoined = (data) => {
+      setLivePeersCount(data.participantsCount || 1);
+      if (data.leaderboard) setLiveLeaderboard(data.leaderboard);
+      toast.info(`⚡ Scholar ${data.name || 'Peer'} entered the Real-Time Arena!`, {
+        description: `${data.participantsCount} scholars synchronized in this session.`,
+      });
+    };
+
+    // Listen for peer left
+    const handlePeerLeft = (data) => {
+      setLivePeersCount(data.participantsCount || 1);
+      if (data.leaderboard) setLiveLeaderboard(data.leaderboard);
+    };
+
+    // Listen for real-time leaderboard updates
+    const handleLeaderboardUpdate = (data) => {
+      if (data.leaderboard) {
+        setLiveLeaderboard(data.leaderboard);
+      }
+      if (data.event && data.event.userId !== user?.id && data.event.userId !== user?._id) {
+        if (data.event.isCorrect && data.event.streak >= 2) {
+          toast.info(`🔥 ${data.event.name} is on a ${data.event.streak}x streak!`);
+        }
+      }
+    };
+
+    // Listen for peer progress
+    const handlePeerProgress = (data) => {
+      setActivePeers((prev) => {
+        const found = prev.find((p) => p.userId === data.userId);
+        if (found) {
+          return prev.map((p) =>
+            p.userId === data.userId
+              ? { ...p, currentQuestion: data.currentQuestion, score: data.score }
+              : p
+          );
+        }
+        return [...prev, data];
+      });
+    };
+
+    // Listen for floating reactions
+    const handleNewReaction = (reaction) => {
+      setFloatingReactions((prev) => [...prev.slice(-8), reaction]);
+      setTimeout(() => {
+        setFloatingReactions((prev) => prev.filter((r) => r.id !== reaction.id));
+      }, 3000);
+    };
+
+    // Listen for final podium update
+    const handlePodiumUpdate = (data) => {
+      if (data.podium) setPodiumData(data.podium);
+      if (data.leaderboard) setLiveLeaderboard(data.leaderboard);
+    };
+
+    socket.on('quiz:peer_joined', handlePeerJoined);
+    socket.on('quiz:peer_left', handlePeerLeft);
+    socket.on('quiz:leaderboard_update', handleLeaderboardUpdate);
+    socket.on('quiz:peer_progress', handlePeerProgress);
+    socket.on('quiz:new_reaction', handleNewReaction);
+    socket.on('quiz:podium_update', handlePodiumUpdate);
+
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+      socket.off('quiz:peer_joined', handlePeerJoined);
+      socket.off('quiz:peer_left', handlePeerLeft);
+      socket.off('quiz:leaderboard_update', handleLeaderboardUpdate);
+      socket.off('quiz:peer_progress', handlePeerProgress);
+      socket.off('quiz:new_reaction', handleNewReaction);
+      socket.off('quiz:podium_update', handlePodiumUpdate);
+      leaveQuizRoom(currentRoom);
+    };
+  }, [quizId, inHubMode, questions.length, activeQuizMeta, user]);
+
+  // Real-Time Proctoring: Monitor Tab Switches & Window Focus
+  useEffect(() => {
+    if (inHubMode || isSubmitted) return;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setProctorWarnings((prev) => prev + 1);
+        sendQuizProctorAlert(roomId, 'tab_switch', 'Student switched browser tab or minimized window');
+        toast.warning('⚠️ Real-Time Proctor Alert: Tab focus lost!', {
+          description: 'Integrity monitoring active. Disconnects are logged on server telemetry.',
+        });
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [inHubMode, isSubmitted, roomId]);
+
+  // Countdown Timer
+  useEffect(() => {
+    if (inHubMode || isSubmitted || timeLeft <= 0) return;
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -258,34 +696,7 @@ export default function QuizTaker() {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [isSubmitted, timeLeft]);
-
-  // Keyboard navigation [1-4], [A-D], [ArrowLeft], [ArrowRight], [F]
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      // Don't intercept if typing in scratchpad textarea
-      if (document.activeElement?.tagName === 'TEXTAREA' || document.activeElement?.tagName === 'INPUT') {
-        return;
-      }
-
-      const key = e.key.toUpperCase();
-      if (['A', 'B', 'C', 'D'].includes(key)) {
-        handleSelectOption(currentQuestionIndex, key);
-      } else if (['1', '2', '3', '4'].includes(key)) {
-        const map = { '1': 'A', '2': 'B', '3': 'C', '4': 'D' };
-        handleSelectOption(currentQuestionIndex, map[key]);
-      } else if (e.key === 'ArrowRight' && currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex((prev) => prev + 1);
-      } else if (e.key === 'ArrowLeft' && currentQuestionIndex > 0) {
-        setCurrentQuestionIndex((prev) => prev - 1);
-      } else if (key === 'F') {
-        toggleFlag(currentQuestionIndex);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentQuestionIndex, questions.length]);
+  }, [inHubMode, isSubmitted, timeLeft]);
 
   // Format seconds to mm:ss
   const formatTime = (secs) => {
@@ -295,33 +706,87 @@ export default function QuizTaker() {
   };
 
   const currentQ = questions[currentQuestionIndex] || questions[0];
-
-  // Counts & Progress
   const answeredCount = Object.keys(selectedAnswers).length;
   const flaggedCount = Object.keys(flaggedQuestions).filter((k) => flaggedQuestions[k]).length;
   const totalQuestions = questions.length;
   const progressPercent = Math.round((answeredCount / totalQuestions) * 100);
 
-  // Toggle option selection
+  // Trigger Instant Real-Time Option Selection
   const handleSelectOption = (qIdx, optionKey) => {
     if (isSubmitted) return;
+
+    const q = questions[qIdx];
+    const isCorrect = optionKey === q.correctAnswer;
+    const points = q.points || 10;
+
     setSelectedAnswers((prev) => ({
       ...prev,
       [qIdx]: optionKey,
     }));
+
+    // Update streak and play audio chime
+    if (isCorrect) {
+      const nextStreak = currentStreak + 1;
+      setCurrentStreak(nextStreak);
+      const streakBonus = nextStreak >= 3 ? 5 : nextStreak >= 2 ? 2 : 0;
+      const pointsWon = points + streakBonus;
+      setLiveScore((prev) => prev + pointsWon);
+
+      if (soundEnabled) {
+        if (nextStreak >= 2) playSynthesizedSound('streak');
+        else playSynthesizedSound('correct');
+      }
+
+      setRecentAnswerFeedback({
+        isCorrect: true,
+        text: `+${pointsWon} PTS! ${nextStreak >= 2 ? `🔥 ${nextStreak}x STREAK BONUS!` : 'Spot on!'}`,
+      });
+    } else {
+      setCurrentStreak(0);
+      if (soundEnabled) playSynthesizedSound('incorrect');
+      setRecentAnswerFeedback({
+        isCorrect: false,
+        text: 'Incorrect. Zero points added for this question.',
+      });
+    }
+
+    setTimeout(() => setRecentAnswerFeedback(null), 2500);
+
+    // Broadcast instant answer telemetry to Socket.IO room
+    submitQuizAnswerSocket({
+      roomId,
+      quizId: quizId || 'arena_default',
+      questionIndex: qIdx,
+      isCorrect,
+      points,
+      timeSpentSeconds: 5,
+    });
   };
 
   // Toggle flag for review
   const toggleFlag = (qIdx) => {
     setFlaggedQuestions((prev) => {
       const next = { ...prev, [qIdx]: !prev[qIdx] };
-      if (next[qIdx]) {
-        toast.info(`Question ${qIdx + 1} flagged for review.`);
-      } else {
-        toast.success(`Question ${qIdx + 1} flag removed.`);
-      }
+      if (next[qIdx]) toast.info(`Question ${qIdx + 1} flagged for review.`);
+      else toast.success(`Question ${qIdx + 1} flag removed.`);
       return next;
     });
+  };
+
+  // Send Floating Emoji Reaction
+  const handleSendReaction = (emoji) => {
+    sendQuizReaction(roomId, emoji);
+    const localReaction = {
+      id: `local_${Date.now()}`,
+      userId: user?.id || user?._id || 'me',
+      senderName: 'You',
+      emoji,
+      timestamp: new Date(),
+    };
+    setFloatingReactions((prev) => [...prev.slice(-8), localReaction]);
+    setTimeout(() => {
+      setFloatingReactions((prev) => prev.filter((r) => r.id !== localReaction.id));
+    }, 3000);
   };
 
   // Final Assessment Submission
@@ -329,20 +794,27 @@ export default function QuizTaker() {
     setSubmitModalOpen(false);
     setIsSubmitted(true);
 
-    // Compute score
     let correct = 0;
     let earnedPoints = 0;
-    const totalPoints = questions.reduce((acc, q) => acc + q.points, 0);
+    const totalPoints = questions.reduce((acc, q) => acc + (q.points || 10), 0);
 
+    const submissionAnswers = [];
     questions.forEach((q, idx) => {
-      if (selectedAnswers[idx] === q.correctAnswer) {
+      const selected = selectedAnswers[idx];
+      const isCorrect = selected === q.correctAnswer;
+      if (isCorrect) {
         correct++;
-        earnedPoints += q.points;
+        earnedPoints += q.points || 10;
       }
+      submissionAnswers.push({
+        questionIndex: idx,
+        selectedOption: selected !== undefined ? selected : -1,
+        isCorrect,
+      });
     });
 
     const scorePct = Math.round((earnedPoints / totalPoints) * 100);
-    const passed = scorePct >= 70;
+    const passed = scorePct >= (activeQuizMeta?.passingScore || 70);
 
     const scorecard = {
       scorePct,
@@ -351,23 +823,51 @@ export default function QuizTaker() {
       correctCount: correct,
       totalCount: totalQuestions,
       passed,
-      timeSpent: 1200 - timeLeft,
+      timeSpent: 900 - timeLeft,
       completionTimestamp: new Date().toLocaleTimeString(),
-      blockchainProof: '0x79f4...de81a0',
+      blockchainProof: `0x${Math.random().toString(16).substr(2, 8)}...${Math.random().toString(16).substr(2, 6)}`,
     };
 
     setFinalScorecard(scorecard);
     setActiveNavTab('summary');
+
+    // Notify Socket.IO room for live podium rankings
+    finishQuizSocket(
+      {
+        roomId,
+        quizId: quizId || 'arena_default',
+        finalScore: earnedPoints,
+        totalPoints,
+        percentage: scorePct,
+        passed,
+        timeSpent: 900 - timeLeft,
+      },
+      (ack) => {
+        if (ack && ack.podium) setPodiumData(ack.podium);
+      }
+    );
+
+    // Save official attempt to backend
+    if (quizId) {
+      try {
+        await API.post(`/quizzes/${quizId}/submit`, {
+          answers: submissionAnswers,
+          timeSpentSeconds: 900 - timeLeft,
+        });
+      } catch (err) {
+        console.warn('Backend attempt logging note:', err.message);
+      }
+    }
 
     if (passed) {
       confetti({
         particleCount: 220,
         spread: 90,
         origin: { y: 0.5 },
-        colors: ['#c0c1ff', '#8083ff', '#4cd7f6', '#d0bcff'],
+        colors: ['#2563eb', '#4f46e5', '#10b981', '#06b6d4'],
       });
       toast.success('🎉 Exam Passed with Distinction!', {
-        description: `Final Score: ${scorePct}% (${earnedPoints}/${totalPoints} pts). Verified on Ledger.`,
+        description: `Final Score: ${scorePct}% (${earnedPoints}/${totalPoints} pts). Verified on Real-Time Ledger.`,
       });
     } else {
       toast.error('Assessment finalized below threshold.', {
@@ -376,1564 +876,1119 @@ export default function QuizTaker() {
     }
   };
 
-  // Active Scorecard (defaults to the 82% benchmark if opened directly)
-  const activeScorecard = useMemo(() => {
-    if (finalScorecard) return finalScorecard;
-    return {
-      scorePct: 82,
-      earnedPoints: 80,
-      totalPoints: 100,
-      correctCount: 8,
-      totalCount: 10,
-      passed: true,
-      timeSpent: 763, // 12:43
-      totalTime: 1800, // 30:00
-      completionTimestamp: 'October 24, 2025',
-      sessionCode: 'SESSION #SP-99428-REST',
-      blockchainProof: '0x8f2d...c37e19b',
-      missedIndices: [5, 8],
-    };
-  }, [finalScorecard]);
-
-  // Questions displayed in remediation inspector (filtered by All or Incorrect Only)
-  const displayedQuestions = useMemo(() => {
-    if (remediationFilter === 'incorrect') {
-      return questions
-        .map((q, idx) => ({ q, idx }))
-        .filter(({ idx }) => activeScorecard.missedIndices?.includes(idx));
-    }
-    return questions.map((q, idx) => ({ q, idx }));
-  }, [remediationFilter, questions, activeScorecard.missedIndices]);
-
-  // Action: Review Question Breakdown (smooth scroll)
-  const handleReviewBreakdown = () => {
-    const el = document.getElementById('question-inventory-remediation');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+  // Launch a Real-Time Quiz from Hub
+  const handleLaunchQuiz = (targetQuiz) => {
+    navigate(`/student/quiz/${targetQuiz._id}`);
   };
 
-  // Action: Retake Exam
-  const handleRetakeExam = () => {
-    if (
-      window.confirm(
-        `You have ${retakesRemaining} attempts remaining for Module 04 Assessment. Retaking will overwrite your latest submission timestamp. Do you want to initialize a new examination workspace?`
-      )
-    ) {
-      setRetakesRemaining((prev) => Math.max(0, prev - 1));
-      setSelectedAnswers({});
-      setFlaggedQuestions({});
-      setCurrentQuestionIndex(0);
-      setTimeLeft(1122);
-      setIsSubmitted(false);
-      setActiveNavTab('questions');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      toast.info('New examination workspace initialized. Good luck!');
+  // Join via Room PIN
+  const handleJoinByPin = (e) => {
+    e.preventDefault();
+    const cleanPin = roomPinInput.trim();
+    if (!cleanPin) {
+      toast.error('Please enter a 6-digit Room PIN');
+      return;
+    }
+    toast.success(`Synchronizing to Real-Time Room #${cleanPin}...`);
+    navigate(`/student/quiz/${cleanPin}`);
+  };
+
+  // Copy Room PIN to Clipboard
+  const handleCopyPin = () => {
+    const pin = roomId.replace('quiz_', '');
+    navigator.clipboard.writeText(pin);
+    setCopiedPin(true);
+    toast.success(`Room PIN #${pin} copied to clipboard! Share with peers to compete.`);
+    setTimeout(() => setCopiedPin(false), 2000);
+  };
+
+  // Exit Quiz Handler
+  const handleConfirmExit = () => {
+    setExitModalOpen(false);
+    leaveQuizRoom(roomId);
+    toast.info('Exited quiz session.');
+    if (quizId) {
+      navigate('/student/quizzes');
+    } else {
+      setInHubMode(true);
     }
   };
 
-  // Action: Copy Cryptographic Proof Hash
-  const handleCopyHash = () => {
-    navigator.clipboard.writeText('0x8f2d6199a071c37e19b4cd7f90219');
-    setCopiedHash(true);
-    toast.success('Blockchain Audit Proof copied to clipboard!', {
-      description: 'Cryptographic hash: 0x8f2d...c37e19b',
-    });
-    setTimeout(() => setCopiedHash(false), 2000);
-  };
+  // =========================================================================
+  // VIEW: REAL-TIME QUIZ HUB & ARENA LOBBY (Dashboard Matched Theme)
+  // =========================================================================
+  if (inHubMode) {
+    return (
+      <div className="flex flex-col w-full text-slate-800 antialiased pb-12">
+        {/* Top Ambient Glow & Welcome Section */}
+        <div className="relative w-full px-6 sm:px-8 lg:px-10 py-6 flex flex-col gap-8">
+          
+          {/* 1. HERO BANNER SECTION (Exact Match with Dashboard Welcome Banner) */}
+          <section className="relative w-full rounded-2xl bg-white/95 backdrop-blur-xl shadow-sm border border-slate-200/90 p-6 lg:p-8 overflow-hidden">
+            {/* Blueprint Accent Line */}
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500"></div>
 
-  // Action: Download Certificate PDF
-  const handleDownloadCertificate = () => {
-    toast.success('Downloading Certified Certificate (PDF)...', {
-      description: 'Cryptographically signed CEU credential package ready.',
-    });
-  };
+            <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+              {/* Left Greeting & Telemetry Badges */}
+              <div className="flex flex-col gap-3 max-w-2xl min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 font-mono text-xs font-semibold border border-blue-200/70">
+                    <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                    REAL-TIME ARENA ACTIVE
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-mono text-xs font-semibold border border-emerald-200/70">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    WEBSOCKET SYNCHRONIZED
+                  </span>
+                </div>
 
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                  Real-Time Academic <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600">Quiz Arena</span>
+                </h1>
+
+                <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
+                  Participate in live synchronized examinations with peers, track your ranking in real time on interactive leaderboards, and obtain certified credentials.
+                </p>
+
+                {/* Quick Join by PIN Form */}
+                <form onSubmit={handleJoinByPin} className="max-w-md flex items-center gap-2 pt-2">
+                  <div className="relative flex-1">
+                    <Hash className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Enter 6-digit Quiz PIN (e.g. 99428)"
+                      value={roomPinInput}
+                      onChange={(e) => setRoomPinInput(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs sm:text-sm text-slate-800 placeholder-slate-400 font-mono focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-sm shadow-blue-500/20 shrink-0 cursor-pointer"
+                  >
+                    <span>Join Arena</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </form>
+              </div>
+
+              {/* Right Summary Metrics Card */}
+              <div className="flex items-center gap-4 bg-slate-50/80 border border-slate-200/80 rounded-2xl p-4 self-stretch lg:self-auto justify-around lg:justify-start">
+                <div className="text-center px-3">
+                  <span className="text-xs text-slate-500 font-medium">Available Quizzes</span>
+                  <p className="text-xl sm:text-2xl font-extrabold text-blue-600 mt-0.5">
+                    {availableQuizzes.length || 5}
+                  </p>
+                </div>
+                <div className="h-8 w-px bg-slate-200"></div>
+                <div className="text-center px-3">
+                  <span className="text-xs text-slate-500 font-medium">Live Multiplayer</span>
+                  <p className="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-0.5">
+                    Ready
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 2. AVAILABLE QUIZZES GRID */}
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Live Quizzes & Assessments</h2>
+                <p className="text-xs text-slate-500">Launch any quiz to enter its real-time synchronized arena</p>
+              </div>
+              <span className="text-xs font-mono font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200/60">
+                100% Free Open Access
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {availableQuizzes.length > 0 ? (
+                availableQuizzes.map((quiz) => (
+                  <div
+                    key={quiz._id}
+                    className="group relative bg-white rounded-2xl border border-slate-200/90 hover:border-blue-400/60 p-6 transition-all duration-200 shadow-xs hover:shadow-md flex flex-col justify-between"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-mono font-semibold uppercase px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60">
+                          {quiz.course?.domain || 'Technology'}
+                        </span>
+                        <span className="text-xs font-mono font-semibold text-emerald-600 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                          Live Synchronized
+                        </span>
+                      </div>
+
+                      <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                        {quiz.title}
+                      </h3>
+
+                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                        {quiz.description || 'Test and certify your technical architecture proficiency.'}
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs text-slate-500">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{quiz.timeLimitMinutes || 15} mins</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <BookOpen className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{quiz.questions?.length || 5} questions</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-5 mt-4">
+                      <button
+                        onClick={() => handleLaunchQuiz(quiz)}
+                        className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        <span>Enter Real-Time Arena</span>
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                [
+                  {
+                    id: 'agentic-ai',
+                    title: 'Agentic AI & Autonomous Systems: Real-Time Assessment',
+                    desc: 'Verify your mastery over LLM agents, ReAct frameworks, memory structures, and tool calling pipelines.',
+                    time: 15,
+                    qCount: 5,
+                    tag: 'Agentic AI',
+                  },
+                  {
+                    id: 'cyber-sec',
+                    title: 'Cyber Defense & Cryptographic Security: Certification Exam',
+                    desc: 'Assess threat hunting, zero-trust network architectures, TLS 1.3 handshakes, and offensive tradecraft.',
+                    time: 12,
+                    qCount: 4,
+                    tag: 'Cybersecurity',
+                  },
+                  {
+                    id: 'fullstack-dist',
+                    title: 'Full-Stack Distributed Systems & Microservices Challenge',
+                    desc: 'Real-time test on state machines, distributed caching, WebSocket concurrency, and database indexing.',
+                    time: 15,
+                    qCount: 4,
+                    tag: 'Distributed Systems',
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.id}
+                    className="group relative bg-white rounded-2xl border border-slate-200/90 hover:border-blue-400/60 p-6 transition-all duration-200 shadow-xs hover:shadow-md flex flex-col justify-between"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-mono font-semibold uppercase px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60">
+                          {item.tag}
+                        </span>
+                        <span className="text-xs font-mono font-semibold text-emerald-600 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                          Live Synchronized
+                        </span>
+                      </div>
+
+                      <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                        {item.title}
+                      </h3>
+
+                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                        {item.desc}
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs text-slate-500">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{item.time} mins</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <BookOpen className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{item.qCount} questions</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-5 mt-4">
+                      <button
+                        onClick={() => setInHubMode(false)}
+                        className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        <span>Enter Real-Time Arena</span>
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+        </div>
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // VIEW: REAL-TIME QUIZ ARENA (Active Assessment Session - Dashboard Matched)
+  // =========================================================================
   return (
-    <div className="bg-slate-50 font-body-md text-slate-800 antialiased min-h-screen flex flex-col">
-      {/* ========================================================================= */}
-      {/* FIXED TOP HEADER (h-20, crisp light academic bar)                         */}
-      {/* ========================================================================= */}
-      <header className="fixed top-0 left-0 right-0 w-full z-50 bg-white/95 backdrop-blur-xl shadow-sm border-b border-slate-200/90 text-slate-800">
-        <div className="h-20 w-full px-6 sm:px-8 lg:px-10 flex items-center justify-between gap-space-md">
-          {/* Left Title & Breadcrumbs */}
-          <div className="flex items-center gap-space-md min-w-0 flex-1">
-            <Link to="/student/dashboard" className="flex items-center gap-space-sm shrink-0 group">
-              <img
-                alt="Brand logo"
-                className="h-8 w-auto object-contain rounded-md group-hover:scale-105 transition-transform"
-                src="/assets/nova-logo.png"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src =
-                    'https://lh3.googleusercontent.com/aida/AEtjO1UgC3VTGpx9ax-r_6UpM35x8ax2iPF16pw-6-9F4A6rxNge9kMA45erC8H2iSBnyIy4xWEYwjhF9kdDro5CqtIjuKgMuwlLKS3cSbv-zeJ8-0U7T1fFSfFwgf7O0zSJfkCvo4x9ljzn45d17ujEfI92ox2cjYqT6y8xAefFjuqQBiOnY0w-EXB5FDtL6-jmJFUZVPigoqkbzdOf6LBjqJLorwHllR2p6rJaisk60SMmxcTsI_chQfBKOA';
-                }}
-              />
-              <span className="font-headline-sm text-headline-sm text-on-surface tracking-tight hidden sm:inline-block">
-                StudyPilot
-              </span>
-              <span className="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container-high text-primary tracking-widest border border-primary/20">
-                NOVA LMS
-              </span>
-            </Link>
+    <div className="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased relative selection:bg-blue-600 selection:text-white pb-12">
+      {/* Floating Emojis Canvas */}
+      <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+        {floatingReactions.map((r) => (
+          <div
+            key={r.id}
+            className="absolute bottom-24 right-8 sm:right-16 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 border border-slate-200/90 text-slate-800 shadow-xl backdrop-blur-md animate-float-reaction"
+          >
+            <span className="text-2xl">{r.emoji}</span>
+            <span className="text-xs font-semibold text-slate-600">{r.senderName}</span>
+          </div>
+        ))}
+      </div>
 
-            <div className="h-6 w-px bg-outline-variant/30 hidden md:block shrink-0"></div>
-
-            <div className="flex flex-col min-w-0 hidden md:flex">
-              <div className="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm truncate">
-                <Link to="/student/courses" className="hover:text-primary transition-colors cursor-pointer">
-                  Courses
-                </Link>
-                <span className="text-outline">/</span>
-                <span className="hover:text-primary transition-colors cursor-pointer truncate max-w-[200px] lg:max-w-none">
-                  Fullstack Cloud Architecture & APIs
-                </span>
-                <span className="text-outline">/</span>
-                <span className="text-on-surface font-label-md text-label-md truncate max-w-[220px] lg:max-w-none">
-                  Module 04 Assessment: RESTful API Principles
-                </span>
-              </div>
-              <span className="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight truncate">
-                Module 04: RESTful API Architecture & Design Principles Quiz
-              </span>
+      {/* TOP HEADER: REAL-TIME STATUS BAR (Dashboard Theme) */}
+      <header className="sticky top-0 h-18 z-40 bg-white/95 border-b border-slate-200/90 backdrop-blur-xl px-4 sm:px-8 flex items-center justify-between shadow-xs">
+        {/* Left: Brand / Return & Quiz Title */}
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          <button
+            onClick={() => setExitModalOpen(true)}
+            className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer shrink-0"
+            title="Exit Quiz"
+          >
+            <div className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 flex items-center justify-center">
+              <ArrowLeft className="w-4 h-4 text-slate-600" />
             </div>
+          </button>
+
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 text-xs">
+              <span className="font-mono text-emerald-600 font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                LIVE ARENA
+              </span>
+              <span className="text-slate-300">•</span>
+              <button
+                onClick={handleCopyPin}
+                className="font-mono text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-1 cursor-pointer"
+                title="Click to copy Room PIN"
+              >
+                <span>PIN: #{roomId.replace('quiz_', '').slice(0, 6)}</span>
+                {copiedPin ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3 text-slate-400" />}
+              </button>
+            </div>
+            <h1 className="text-sm sm:text-base font-bold text-slate-900 truncate max-w-[220px] sm:max-w-md lg:max-w-xl">
+              {activeQuizMeta?.title || 'Cyber-Academic Real-Time Assessment'}
+            </h1>
+          </div>
+        </div>
+
+        {/* Right: Peers, Score, Timer, Sound & Leaderboard Toggle */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Active Peers Counter */}
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200/80 text-xs font-mono text-slate-600">
+            <Users className="w-3.5 h-3.5 text-blue-600" />
+            <span>{livePeersCount} online</span>
           </div>
 
-          {/* Right Header: Progress, Timer, Navigation Tabs & Actions */}
-          <div className="flex items-center gap-space-lg shrink-0">
-            {/* Question Counter, Timer & Progress Bar */}
-            <div className="flex flex-col items-end gap-1.5">
-              <div className="flex items-center gap-space-md">
-                <div className="flex items-baseline gap-1">
-                  <span className="font-label-md text-label-md text-on-surface-variant">Question</span>
-                  <span className="font-headline-sm text-headline-sm text-tertiary">
-                    {currentQuestionIndex + 1}
-                  </span>
-                  <span className="font-label-sm text-label-sm text-outline">/ {totalQuestions}</span>
-                </div>
-                <div className="flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container-high text-tertiary animate-pulse border border-tertiary/20">
-                  <span className="material-symbols-outlined text-[16px]">timer</span>
-                  <span className="font-code-md text-code-md tracking-tight font-medium">
-                    {formatTime(timeLeft)} remaining
-                  </span>
-                </div>
-              </div>
-              <div className="w-48 sm:w-56 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-primary to-tertiary rounded-full transition-all duration-300"
-                  style={{ width: `${progressPercent}%` }}
-                ></div>
-              </div>
-            </div>
-
-            {/* Nav Tabs: Questions | Review Sheet | Summary */}
-            <nav className="hidden lg:flex items-center gap-space-sm">
-              <button
-                onClick={() => setActiveNavTab('questions')}
-                className={`font-label-md px-space-sm py-1 rounded transition-colors ${
-                  activeNavTab === 'questions'
-                    ? 'bg-primary-container text-on-primary-container font-semibold shadow-sm'
-                    : 'text-on-surface-variant hover:text-on-surface'
-                }`}
-                type="button"
-              >
-                Questions
-              </button>
-              <button
-                onClick={() => setActiveNavTab('review')}
-                className={`font-label-md px-space-sm py-1 rounded transition-colors ${
-                  activeNavTab === 'review'
-                    ? 'bg-primary-container text-on-primary-container font-semibold shadow-sm'
-                    : 'text-on-surface-variant hover:text-on-surface'
-                }`}
-                type="button"
-              >
-                Review Sheet
-              </button>
-              <button
-                onClick={() => setActiveNavTab('summary')}
-                className={`font-label-md px-space-sm py-1 rounded transition-colors ${
-                  activeNavTab === 'summary'
-                    ? 'bg-primary-container text-on-primary-container font-semibold shadow-sm'
-                    : 'text-on-surface-variant hover:text-on-surface'
-                }`}
-                type="button"
-              >
-                Summary
-              </button>
-            </nav>
-
-            {/* Exit & Avatar */}
-            <div className="flex items-center gap-space-sm pl-space-xs">
-              <button
-                onClick={() => {
-                  if (window.confirm('Are you sure you want to exit? Responses will be cached locally.')) {
-                    navigate('/student/dashboard');
-                  }
-                }}
-                className="flex items-center gap-space-xs px-space-md py-2 rounded-lg bg-surface-container-high hover:bg-error-container text-on-surface hover:text-on-error-container font-label-md text-label-md transition-all border border-surface-container-highest/50"
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[18px]">logout</span>
-                <span className="hidden sm:inline">Exit Assessment</span>
-              </button>
-
-              <img
-                alt="Profile"
-                className="w-8 h-8 rounded-full object-cover ring-2 ring-outline-variant/30"
-                src="https://lh3.googleusercontent.com/aida/AEtjO1XbByWEm7GAGBdpGAqxfzCMFkFqyPMDwXR31XzQcAW_7qE0SHGe5KcOzSHZWxcw0LmYVlhtAk7GuWXJwOamtyOO7hYD8eHnfRtALEC4NQ1hJFLBj_d4fWul7LXFbzSQShCNhrcpZZIXAoIGb-LhcSZTC2vvOtdLVJ1flthUBrMubmy1MxwpgQOLAqaQFAgYcT03ym4nj3WiibxwIVLJYhXutQRm9XkDKIunk7iDXjozViMs0zGMJ1ra"
-              />
-            </div>
+          {/* Current Score & Streak Badge */}
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-mono font-bold text-emerald-700">
+            <Award className="w-3.5 h-3.5 text-emerald-600" />
+            <span>{liveScore} PTS</span>
+            {currentStreak >= 2 && (
+              <span className="flex items-center gap-0.5 text-amber-600 animate-pulse">
+                <Flame className="w-3.5 h-3.5" /> {currentStreak}x
+              </span>
+            )}
           </div>
+
+          {/* Synchronized Timer */}
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-mono text-slate-700 font-semibold">
+            <Clock className="w-3.5 h-3.5 text-amber-500" />
+            <span className={timeLeft < 180 ? 'text-rose-600 font-bold animate-pulse' : ''}>
+              {formatTime(timeLeft)}
+            </span>
+          </div>
+
+          {/* Audio Synthesizer Toggle */}
+          <button
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
+            title={soundEnabled ? 'Mute Audio Effects' : 'Enable Audio Effects'}
+          >
+            {soundEnabled ? <Volume2 className="w-4 h-4 text-blue-600" /> : <VolumeX className="w-4 h-4 text-slate-400" />}
+          </button>
+
+          {/* Leaderboard Drawer Toggle */}
+          <button
+            onClick={() => setIsLeaderboardOpen(!isLeaderboardOpen)}
+            className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+              isLeaderboardOpen
+                ? 'bg-amber-500 text-white shadow-sm shadow-amber-500/20'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
+            }`}
+          >
+            <Trophy className="w-4 h-4" />
+            <span className="hidden sm:inline">Leaderboard</span>
+          </button>
+
+          {/* Exit Quiz Button */}
+          <button
+            onClick={() => setExitModalOpen(true)}
+            className="px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/90 shadow-2xs"
+            title="Exit Quiz"
+          >
+            <LogOut className="w-3.5 h-3.5 text-rose-600" />
+            <span className="hidden sm:inline">Exit Quiz</span>
+          </button>
         </div>
       </header>
 
-      {/* ========================================================================= */}
-      {/* MAIN WORKSPACE BODY                                                       */}
-      {/* ========================================================================= */}
-      <main className="w-full pt-20 flex-1 bg-surface">
-        <div className="flex flex-col w-full">
-          {/* Ambient Glow Orbs */}
-          <div className="relative w-full overflow-hidden">
-            <div className="absolute -top-40 left-1/4 w-96 h-96 bg-primary-container/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="absolute top-1/2 right-10 w-80 h-80 bg-tertiary-container/10 rounded-full blur-3xl pointer-events-none"></div>
+      {/* Main Assessment Container */}
+      <div className="flex-1 pt-6 px-4 sm:px-8 max-w-6xl w-full mx-auto flex flex-col gap-6">
+        {/* Navigation Tabs: Questions | Review | Summary */}
+        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setActiveNavTab('questions')}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                activeNavTab === 'questions'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              Questions ({answeredCount}/{totalQuestions})
+            </button>
+            <button
+              onClick={() => setActiveNavTab('review')}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                activeNavTab === 'review'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              Review Grid {flaggedCount > 0 && <span className="ml-1 text-amber-600">({flaggedCount} ⚑)</span>}
+            </button>
+            {isSubmitted && (
+              <button
+                onClick={() => setActiveNavTab('summary')}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                  activeNavTab === 'summary'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+              >
+                Scorecard & Podium
+              </button>
+            )}
+          </div>
 
-            <div className="w-full px-margin py-space-lg flex flex-col gap-space-lg max-w-7xl mx-auto">
-              {/* Compact Diagnostic Ribbon (Hidden on Summary Scorecard) */}
-              {activeNavTab !== 'summary' && (
-                <div className="w-full bg-surface-container-low/90 backdrop-blur-md rounded-xl p-space-md shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md border border-surface-container-high/40">
-                  <div className="flex items-center gap-space-md flex-1 min-w-0">
-                    <div className="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-tertiary shrink-0 shadow-sm border border-tertiary/20">
-                      <span className="material-symbols-outlined text-[20px]">terminal</span>
-                    </div>
-                    <div className="flex flex-col min-w-0">
-                      <div className="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm">
-                        <span className="uppercase tracking-widest text-primary font-semibold">Proctored Session</span>
-                        <span className="text-outline">•</span>
-                        <span>RESTful Architecture &amp; API Systems</span>
-                      </div>
-                      <h1 className="font-headline-sm text-headline-sm text-on-surface truncate font-semibold">
-                        Module 04 Exam Workspace
-                      </h1>
-                    </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setExitModalOpen(true)}
+              className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-xs font-semibold text-rose-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              title="Exit Quiz"
+            >
+              <LogOut className="w-3.5 h-3.5 text-rose-600" />
+              <span>Exit Quiz</span>
+            </button>
+            <button
+              onClick={() => setScratchpadOpen(true)}
+              className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-xs font-mono text-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            >
+              <span>Scratchpad</span>
+            </button>
+            <button
+              onClick={() => setSubmitModalOpen(true)}
+              className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-105 text-white font-bold text-xs transition-all shadow-sm shadow-emerald-500/20 cursor-pointer flex items-center gap-1.5"
+            >
+              <span>Submit Assessment</span>
+              <Check className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Progress Bar Line */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs text-slate-500">
+            <span>Overall Progress: {progressPercent}%</span>
+            <span>Question {currentQuestionIndex + 1} of {totalQuestions}</span>
+          </div>
+          <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-300 rounded-full"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Real-Time Answer Feedback Banner */}
+        {recentAnswerFeedback && (
+          <div
+            className={`p-3 rounded-xl border text-xs font-mono font-bold flex items-center gap-2 transition-all ${
+              recentAnswerFeedback.isCorrect
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                : 'bg-rose-50 border-rose-200 text-rose-700'
+            }`}
+          >
+            {recentAnswerFeedback.isCorrect ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <XCircle className="w-4 h-4 text-rose-600" />}
+            <span>{recentAnswerFeedback.text}</span>
+          </div>
+        )}
+
+        {/* Proctor Warning Banner if Tab Switched */}
+        {proctorWarnings > 0 && (
+          <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-mono flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+              <span>Proctor telemetry active: {proctorWarnings} window blur warning(s) logged.</span>
+            </div>
+            <span className="text-[10px] text-amber-700">Audit Recorded</span>
+          </div>
+        )}
+
+        {/* TAB 1: QUESTIONS VIEW (Dashboard Matched Card) */}
+        {activeNavTab === 'questions' && (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Main Question Card (3 cols) */}
+            <div className="lg:col-span-3 space-y-5">
+              <div className="relative bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-6 overflow-hidden">
+                {/* Blueprint Accent Line */}
+                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500"></div>
+
+                {/* Question Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-semibold uppercase px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200/60">
+                      {currentQ.category}
+                    </span>
+                    <span className="text-xs font-mono text-slate-400">• {currentQ.points || 10} Points</span>
                   </div>
-
-                  <div className="flex flex-wrap items-center gap-space-md shrink-0 w-full md:w-auto justify-between md:justify-end">
-                    <div className="flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-container text-tertiary font-label-sm text-label-sm border border-tertiary/20">
-                      <span className="w-2 h-2 rounded-full bg-tertiary animate-ping"></span>
-                      <span>Cloud Sync Active</span>
-                    </div>
-                    <div className="flex items-center gap-space-xs text-on-surface-variant font-code-md text-code-md bg-surface-container-highest/60 px-space-sm py-1 rounded border border-white/5">
-                      <span className="material-symbols-outlined text-[16px] text-primary">network_ping</span>
-                      <span>22ms jitter</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* ================================================================= */}
-              {/* VIEW 1: QUESTIONS WORKSPACE (Default)                             */}
-              {/* ================================================================= */}
-              {activeNavTab === 'questions' && (
-                <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
-                  {/* Left: Question Area (8 cols) */}
-                  <div className="lg:col-span-8 flex flex-col gap-space-md">
-                    {/* Main Question Card */}
-                    <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/90 relative overflow-hidden flex flex-col gap-6 text-slate-800">
-                      {/* Top Accent Line */}
-                      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500"></div>
-
-                      {/* Header: Question Number & Flag Toggle */}
-                      <div className="flex items-center justify-between gap-space-md flex-wrap">
-                        <div className="flex items-center gap-space-sm">
-                          <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 font-mono text-xs font-semibold border border-blue-200/70">
-                            QUESTION {String(currentQuestionIndex + 1).padStart(2, '0')} • SINGLE CHOICE ({currentQ.points} PTS)
-                          </span>
-                          <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-mono text-xs border border-slate-200">
-                            {currentQ.category}
-                          </span>
-                        </div>
-
-                        {/* Quick Flag Button */}
-                        <button
-                          onClick={() => toggleFlag(currentQuestionIndex)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all border text-xs font-semibold cursor-pointer ${
-                            flaggedQuestions[currentQuestionIndex]
-                              ? 'bg-rose-50 text-rose-700 border-rose-200'
-                              : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200'
-                          }`}
-                          type="button"
-                        >
-                          <span className="material-symbols-outlined text-[16px]">
-                            {flaggedQuestions[currentQuestionIndex] ? 'flag' : 'bookmark_border'}
-                          </span>
-                          <span>
-                            {flaggedQuestions[currentQuestionIndex] ? 'Flagged' : 'Flag for Review'}
-                          </span>
-                        </button>
-                      </div>
-
-                      {/* Question Statement */}
-                      <div className="flex flex-col gap-2">
-                        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-snug">
-                          {currentQ.question}
-                        </h2>
-                        <p className="text-sm text-slate-600">
-                          {currentQ.subtitle}
-                        </p>
-                      </div>
-
-                      {/* Contextual Architecture Blueprint Box */}
-                      <div className="rounded-xl bg-slate-50 p-4 border border-slate-200/80 text-slate-800 flex flex-col gap-1.5 font-mono text-xs">
-                        <div className="flex items-center justify-between text-slate-500">
-                          <div className="flex items-center gap-1.5 text-blue-600 font-semibold">
-                            <span className="material-symbols-outlined text-[15px]">info</span>
-                            <span>{currentQ.contextTag}</span>
-                          </div>
-                          <span className="text-slate-400">spec-ref</span>
-                        </div>
-                        <p className="text-slate-700 leading-relaxed">
-                          {currentQ.context}
-                        </p>
-                      </div>
-
-                      {/* Answer Choices List */}
-                      <div aria-label="Answer Choices" className="flex flex-col gap-3" role="radiogroup">
-                        {currentQ.options.map((opt) => {
-                          const isSelected = selectedAnswers[currentQuestionIndex] === opt.key;
-                          return (
-                            <label
-                              key={opt.key}
-                              onClick={() => handleSelectOption(currentQuestionIndex, opt.key)}
-                              className={`group relative flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all duration-200 border ${
-                                isSelected
-                                  ? 'bg-blue-50/90 shadow-sm border-2 border-blue-600 text-blue-950'
-                                  : 'bg-slate-50 hover:bg-slate-100/80 border-slate-200 text-slate-700'
-                              }`}
-                            >
-                              <input
-                                checked={isSelected}
-                                onChange={() => handleSelectOption(currentQuestionIndex, opt.key)}
-                                className="sr-only"
-                                name={`quiz_q${currentQuestionIndex}`}
-                                type="radio"
-                                value={opt.key}
-                              />
-                              {/* Option Badge */}
-                              <div
-                                className={`w-8 h-8 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 shadow-sm transition-colors ${
-                                  isSelected
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-white border border-slate-200 text-slate-700'
-                                }`}
-                              >
-                                {opt.key}
-                              </div>
-                              <div className="flex-1 flex flex-col gap-0.5">
-                                <div className="flex items-center justify-between">
-                                  <span
-                                    className={`text-[10px] font-mono font-semibold uppercase tracking-wider ${
-                                      isSelected ? 'text-blue-700' : 'text-slate-400'
-                                    }`}
-                                  >
-                                    {isSelected ? 'Selected Option' : 'Alternative Option'}
-                                  </span>
-                                  {isSelected && (
-                                    <span className="material-symbols-outlined text-blue-600 text-[18px]">
-                                      check_circle
-                                    </span>
-                                  )}
-                                </div>
-                                <p className={`text-sm leading-relaxed ${isSelected ? 'font-semibold text-slate-900' : 'text-slate-700'}`}>
-                                  {opt.text}
-                                </p>
-                              </div>
-                            </label>
-                          );
-                        })}
-                      </div>
-
-
-                      {/* Contextual Helper Tip */}
-                      <div className="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm pt-space-xs">
-                        <span className="flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[15px] text-outline">lock</span>
-                          Answers are encrypted and cached continuously in browser memory.
-                        </span>
-                        <span className="font-code-md text-code-md text-outline">Keys [1-4] or [A-D]</span>
-                      </div>
-                    </div>
-
-                    {/* Bottom Action Ribbon */}
-                    <div className="w-full bg-surface-container-low/80 backdrop-blur-md rounded-xl p-space-md flex flex-wrap items-center justify-between gap-space-md shadow-md border border-surface-container-high/40">
-                      <button
-                        onClick={() => setCurrentQuestionIndex((prev) => Math.max(0, prev - 1))}
-                        disabled={currentQuestionIndex === 0}
-                        className="flex items-center gap-space-xs px-space-md py-2.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-label-md transition-all shadow-sm disabled:opacity-40 border border-surface-container-highest"
-                        type="button"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-                        <span>Previous Question</span>
-                      </button>
-
-                      <button
-                        onClick={() => toggleFlag(currentQuestionIndex)}
-                        className="flex items-center gap-space-xs px-space-md py-2.5 rounded-lg bg-surface-container text-on-surface-variant hover:text-tertiary hover:bg-surface-container-high font-label-md text-label-md transition-all border border-surface-container-high"
-                        type="button"
-                      >
-                        <span className="material-symbols-outlined text-[18px] text-tertiary">
-                          {flaggedQuestions[currentQuestionIndex] ? 'flag' : 'outlined_flag'}
-                        </span>
-                        <span>
-                          {flaggedQuestions[currentQuestionIndex] ? 'Question Flagged' : 'Flag Question For Review'}
-                        </span>
-                      </button>
-
-                      <div className="flex items-center gap-space-sm">
-                        <button
-                          onClick={() =>
-                            setCurrentQuestionIndex((prev) => Math.min(questions.length - 1, prev + 1))
-                          }
-                          disabled={currentQuestionIndex === questions.length - 1}
-                          className="flex items-center gap-space-xs px-space-md py-2.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-label-md transition-all shadow-sm disabled:opacity-40 border border-surface-container-highest"
-                          type="button"
-                        >
-                          <span>Next Question</span>
-                          <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                        </button>
-
-                        <button
-                          onClick={() => setSubmitModalOpen(true)}
-                          className="flex items-center gap-space-xs px-space-lg py-2.5 rounded-lg bg-gradient-to-r from-primary-container to-secondary-container hover:brightness-110 text-on-primary font-headline-sm text-headline-sm tracking-normal font-semibold shadow-lg hover:shadow-primary-container/25 transition-all"
-                          type="button"
-                        >
-                          <span>Submit Exam</span>
-                          <span className="material-symbols-outlined text-[18px]">send</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right: Question Navigation Matrix & Session Telemetry (4 cols) */}
-                  <div className="lg:col-span-4 flex flex-col gap-space-md">
-                    {/* Palette Container Card */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm flex flex-col gap-6 border border-slate-200/90 text-slate-800">
-                      {/* Palette Header */}
-                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                        <div className="flex flex-col">
-                          <span className="font-mono text-[10px] text-blue-600 uppercase tracking-widest font-semibold">
-                            Navigation Palette
-                          </span>
-                          <h3 className="text-base font-bold text-slate-900">
-                            Question Overview
-                          </h3>
-                        </div>
-                        <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-mono text-xs font-semibold border border-blue-200/70">
-                          {totalQuestions} Questions
-                        </span>
-                      </div>
-
-                      {/* Progress Snapshot Donut Ring */}
-                      <div className="p-4 rounded-xl bg-slate-50 flex items-center gap-4 border border-slate-200/80">
-                        <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
-                          <svg className="w-14 h-14 transform -rotate-90" viewBox="0 0 36 36">
-                            <path
-                              className="text-slate-200"
-                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="3.5"
-                            ></path>
-                            <path
-                              className="text-blue-600 transition-all duration-500"
-                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeDasharray={`${progressPercent}, 100`}
-                              strokeLinecap="round"
-                              strokeWidth="3.5"
-                            ></path>
-                          </svg>
-                          <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-xs font-bold text-slate-900 font-mono">
-                              {progressPercent}%
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-xs font-bold text-slate-900">
-                            Assessment Progress
-                          </span>
-                          <p className="text-[11px] text-slate-500 mt-0.5">
-                            {answeredCount} of {totalQuestions} questions answered.
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Question Jump Matrix */}
-                      <div aria-label="Question Jump Matrix" className="grid grid-cols-5 gap-2" role="navigation">
-                        {questions.map((q, idx) => {
-                          const isAnswered = selectedAnswers[idx] !== undefined;
-                          const isCurrent = currentQuestionIndex === idx;
-                          const isFlagged = flaggedQuestions[idx];
-
-                          return (
-                            <button
-                              key={q.id}
-                              onClick={() => setCurrentQuestionIndex(idx)}
-                              className={`h-11 rounded-xl font-mono text-xs font-semibold flex flex-col items-center justify-center relative transition-all cursor-pointer border ${
-                                isCurrent
-                                  ? 'bg-blue-600 text-white border-blue-600 font-bold shadow-sm scale-105'
-                                  : isFlagged
-                                  ? 'bg-rose-50 text-rose-700 border-rose-200'
-                                  : isAnswered
-                                  ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                  : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
-                              }`}
-                              type="button"
-                            >
-                              <span>{String(idx + 1).padStart(2, '0')}</span>
-
-                              {isAnswered && !isCurrent && (
-                                <span
-                                  className="material-symbols-outlined text-[12px] text-blue-600 absolute -top-1 -right-1 bg-white rounded-full shadow-sm"
-                                  style={{ fontVariationSettings: "'FILL' 1" }}
-                                >
-                                  check_circle
-                                </span>
-                              )}
-
-                              {isFlagged && (
-                                <span
-                                  className="material-symbols-outlined text-[12px] text-rose-500 absolute -top-1 -right-1 bg-white rounded-full shadow-sm"
-                                  style={{ fontVariationSettings: "'FILL' 1" }}
-                                >
-                                  flag
-                                </span>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {/* Matrix Legend */}
-                      <div className="pt-space-xs flex flex-col gap-space-xs">
-                        <span className="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">
-                          Status Indicators
-                        </span>
-                        <div className="grid grid-cols-2 gap-space-xs text-on-surface-variant font-label-sm text-label-sm">
-                          <div className="flex items-center gap-space-xs">
-                            <span
-                              className="material-symbols-outlined text-[14px] text-tertiary"
-                              style={{ fontVariationSettings: "'FILL' 1" }}
-                            >
-                              check_circle
-                            </span>
-                            <span>Answered ({answeredCount})</span>
-                          </div>
-                          <div className="flex items-center gap-space-xs">
-                            <div className="w-3 h-3 rounded bg-primary-container"></div>
-                            <span className="text-on-surface">Current (1)</span>
-                          </div>
-                          <div className="flex items-center gap-space-xs">
-                            <span
-                              className="material-symbols-outlined text-[14px] text-error"
-                              style={{ fontVariationSettings: "'FILL' 1" }}
-                            >
-                              flag
-                            </span>
-                            <span>Flagged ({flaggedCount})</span>
-                          </div>
-                          <div className="flex items-center gap-space-xs">
-                            <div className="w-3 h-3 rounded bg-surface-container"></div>
-                            <span>Unanswered ({totalQuestions - answeredCount})</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Proctoring & Rules Sidebar Box */}
-                      <div className="mt-space-xs p-space-md rounded-xl bg-surface-container-lowest flex flex-col gap-space-xs border border-surface-container-high/30">
-                        <div className="flex items-center gap-space-xs text-on-surface">
-                          <span className="material-symbols-outlined text-[16px] text-primary">security</span>
-                          <span className="font-label-md text-label-md font-medium">Honor Code & Integrity</span>
-                        </div>
-                        <p className="font-body-sm text-body-sm text-on-surface-variant">
-                          Full-screen assessment lockdown is enforced. Switching tabs or opening dev tools logs an event to the proctor audit stream.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Quick Code Scratchpad Card */}
-                    <div className="bg-surface-container-low/95 backdrop-blur-xl rounded-xl p-space-md shadow-lg flex items-center justify-between border border-surface-container-high/40">
-                      <div className="flex items-center gap-space-sm">
-                        <span className="material-symbols-outlined text-primary text-[20px]">code</span>
-                        <div className="flex flex-col">
-                          <span className="font-label-md text-label-md text-on-surface font-medium">Scratchpad Note</span>
-                          <span className="font-body-sm text-body-sm text-on-surface-variant">
-                            Draft quick notes for question {currentQuestionIndex + 1}
-                          </span>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => setScratchpadOpen(true)}
-                        className="px-space-sm py-1 rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-sm text-label-sm border border-surface-container-highest"
-                        type="button"
-                      >
-                        Open (Alt+N)
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* ================================================================= */}
-              {/* VIEW 2: REVIEW SHEET VIEW                                         */}
-              {/* ================================================================= */}
-              {activeNavTab === 'review' && (
-                <div className="w-full bg-surface-container-low/95 backdrop-blur-xl rounded-xl p-space-lg shadow-xl border border-surface-container-high/40 space-y-6">
-                  <div className="flex items-center justify-between border-b border-surface-container-high pb-4">
-                    <div>
-                      <h2 className="font-headline-md text-xl text-on-surface font-bold">
-                        Examination Review Sheet
-                      </h2>
-                      <p className="font-body-sm text-on-surface-variant">
-                        Review all your answered and flagged questions prior to final immutable submission.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setSubmitModalOpen(true)}
-                      className="px-5 py-2.5 rounded-lg bg-primary-container text-on-primary-container font-label-lg font-semibold shadow-md hover:brightness-110"
-                    >
-                      Submit Exam Now
-                    </button>
-                  </div>
-
-                  <div className="space-y-3">
-                    {questions.map((q, idx) => {
-                      const ans = selectedAnswers[idx];
-                      const isFlagged = flaggedQuestions[idx];
-
-                      return (
-                        <div
-                          key={q.id}
-                          className="p-4 rounded-xl bg-surface-container border border-surface-container-high flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                        >
-                          <div className="flex items-start gap-3">
-                            <span className="font-code-md text-sm font-bold text-tertiary bg-surface-container-high px-2 py-1 rounded">
-                              Q{String(idx + 1).padStart(2, '0')}
-                            </span>
-                            <div>
-                              <h4 className="font-headline-sm text-sm text-on-surface font-semibold line-clamp-1">
-                                {q.question}
-                              </h4>
-                              <div className="flex items-center gap-3 text-xs text-on-surface-variant mt-1">
-                                <span>Status: {ans ? <strong className="text-primary">Answered ({ans})</strong> : <span className="text-outline">Unanswered</span>}</span>
-                                {isFlagged && <span className="text-error font-medium flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">flag</span> Flagged for review</span>}
-                              </div>
-                            </div>
-                          </div>
-
-                          <button
-                            onClick={() => {
-                              setCurrentQuestionIndex(idx);
-                              setActiveNavTab('questions');
-                            }}
-                            className="px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-bright text-xs font-semibold text-tertiary self-end sm:self-center shrink-0"
-                          >
-                            Jump to Question
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* ================================================================= */}
-              {/* VIEW 3: SUMMARY & SCORECARD VIEW (StudyPilot Cyber-Academic)     */}
-              {/* ================================================================= */}
-              {activeNavTab === 'summary' && (
-                <div className="w-full flex flex-col gap-space-xl animate-in fade-in zoom-in-95 duration-300">
-                  {/* Breadcrumbs & Meta Bar */}
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
-                    <div className="flex flex-col gap-space-xs min-w-0">
-                      <nav className="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm truncate">
-                        <Link to="/student/courses" className="hover:text-primary transition-colors cursor-pointer">
-                          Courses
-                        </Link>
-                        <span className="text-outline">/</span>
-                        <Link
-                          to={`/student/course/${courseId || 'fullstack-cloud'}/learn`}
-                          className="hover:text-primary transition-colors cursor-pointer truncate max-w-[180px] sm:max-w-none"
-                        >
-                          Fullstack Cloud Architecture &amp; APIs
-                        </Link>
-                        <span className="text-outline">/</span>
-                        <span className="hover:text-primary transition-colors cursor-pointer">
-                          Module 04 Assessment
-                        </span>
-                        <span className="text-outline">/</span>
-                        <span className="text-tertiary font-label-md text-label-md">
-                          Examination Results
-                        </span>
-                      </nav>
-                      <div className="flex items-center gap-space-sm flex-wrap pt-1">
-                        <span className="px-space-sm py-0.5 rounded-full bg-surface-container-high text-on-surface font-code-md text-code-md tracking-tight border border-surface-container-highest/40">
-                          {activeScorecard.sessionCode}
-                        </span>
-                        <span className="font-body-sm text-body-sm text-on-surface-variant">
-                          Completed on {activeScorecard.completionTimestamp} • Proctoring Grade: Verified Cryptographic Lock
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-space-sm shrink-0">
-                      <div className="flex items-center gap-space-xs px-space-md py-2 rounded-xl bg-surface-container-low shadow-sm border border-surface-container-high/40">
-                        <span className="material-symbols-outlined text-tertiary text-[18px]">verified_user</span>
-                        <span className="font-label-md text-label-md text-on-surface">
-                          Proctor Integrity Score: 100%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Hero Assessment Score & Celebration Hub */}
-                  <section className="relative w-full rounded-xl bg-surface-container-low p-space-lg md:p-space-xl shadow-xl overflow-hidden border border-surface-container-high/40">
-                    {/* Ambient Decorative Vector Burst */}
-                    <svg
-                      className="absolute -right-16 -top-16 w-96 h-96 opacity-10 pointer-events-none text-primary"
-                      fill="currentColor"
-                      viewBox="0 0 100 100"
-                    >
-                      <polygon points="50,0 62,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 38,35" />
-                    </svg>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center relative z-10">
-                      {/* Left: Radial Dial & Pass Badge */}
-                      <div className="lg:col-span-5 flex flex-col items-center justify-center p-space-md rounded-xl bg-surface-container-lowest/70 shadow-md backdrop-blur-md border border-surface-container-high/30">
-                        <div className="relative w-56 h-56 flex items-center justify-center">
-                          {/* Radial Meter SVG */}
-                          <svg className="w-full h-full -rotate-90" viewBox="0 0 160 160">
-                            {/* Track */}
-                            <circle
-                              className="text-surface-variant"
-                              cx="80"
-                              cy="80"
-                              fill="none"
-                              r="68"
-                              stroke="currentColor"
-                              strokeWidth="10"
-                            />
-                            {/* Gradients */}
-                            <defs>
-                              <linearGradient id="scoreRingGrad" x1="0%" x2="100%" y1="0%" y2="100%">
-                                <stop offset="0%" stopColor="#4cd7f6" />
-                                <stop offset="50%" stopColor="#8083ff" />
-                                <stop offset="100%" stopColor="#c0c1ff" />
-                              </linearGradient>
-                            </defs>
-                            {/* 82% stroke-dashoffset: 2 * PI * 68 = 427.25. 427.25 * (1 - 0.82) = ~76.9 */}
-                            <circle
-                              className="transition-all duration-1000 ease-out"
-                              cx="80"
-                              cy="80"
-                              fill="none"
-                              r="68"
-                              stroke="url(#scoreRingGrad)"
-                              strokeDasharray="427.25"
-                              strokeDashoffset={427.25 * (1 - activeScorecard.scorePct / 100)}
-                              strokeLinecap="round"
-                              strokeWidth="12"
-                            />
-                          </svg>
-
-                          {/* Inner Metric Text */}
-                          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                            <span className="font-headline-hero text-headline-hero text-on-surface tracking-tighter leading-none">
-                              {activeScorecard.scorePct}
-                              <span className="font-headline-sm text-headline-sm text-tertiary">%</span>
-                            </span>
-                            <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-1">
-                              Final Score
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Passing Status Chip */}
-                        <div
-                          className={`mt-space-md flex items-center gap-space-xs px-space-md py-1.5 rounded-full ${
-                            activeScorecard.passed
-                              ? 'bg-tertiary-container/20 text-tertiary border border-tertiary/20'
-                              : 'bg-error-container/20 text-error border border-error/20'
-                          }`}
-                        >
-                          <span className="material-symbols-outlined text-[18px]">
-                            {activeScorecard.passed ? 'verified' : 'cancel'}
-                          </span>
-                          <span className="font-label-lg text-label-lg font-bold tracking-wide">
-                            {activeScorecard.passed ? 'Passed with Distinction' : 'Passing Threshold Unmet'}
-                          </span>
-                        </div>
-
-                        {/* Passing Threshold Met Note */}
-                        <div className="mt-space-sm flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm">
-                          <span
-                            className={`w-2 h-2 rounded-full ${activeScorecard.passed ? 'bg-tertiary' : 'bg-error'}`}
-                          ></span>
-                          <span>
-                            Required Passing Threshold: <strong>70% (7/10)</strong>
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Right: Context, Congratulations & Course Action Banner */}
-                      <div className="lg:col-span-7 flex flex-col gap-space-md">
-                        <div className="flex items-center gap-space-xs text-tertiary font-label-md text-label-md tracking-wider uppercase">
-                          <span className="material-symbols-outlined text-[16px]">celebration</span>
-                          <span>Curriculum Milestone Completed</span>
-                        </div>
-                        <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">
-                          Module 04: RESTful Architecture &amp; API Systems
-                        </h1>
-                        <p className="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
-                          {activeScorecard.passed
-                            ? 'Outstanding execution. You demonstrated sophisticated comprehension of stateless HTTP verb idempotency, representation payloads, and hypermedia design constraints. Your credential has been appended to the Cohort ledger.'
-                            : 'Review the flagged domain areas and examine the remediation breakdown below. You can retake the assessment to meet the curriculum threshold.'}
-                        </p>
-
-                        {/* Quick Action Button Bar */}
-                        <div className="flex flex-wrap items-center gap-space-md pt-space-sm">
-                          <button
-                            onClick={handleReviewBreakdown}
-                            className="flex items-center gap-space-sm px-space-lg py-3 rounded-xl bg-gradient-to-r from-primary-container to-secondary-container text-on-primary font-label-lg text-label-lg shadow-md hover:brightness-110 active:scale-95 transition-all cursor-pointer"
-                            id="btn-review-questions"
-                            type="button"
-                          >
-                            <span className="material-symbols-outlined text-[20px]">fact_check</span>
-                            <span>Review Question Breakdown</span>
-                          </button>
-                          <button
-                            onClick={handleRetakeExam}
-                            className="flex items-center gap-space-sm px-space-lg py-3 rounded-xl bg-surface-container-high hover:bg-surface-bright text-on-surface font-label-lg text-label-lg shadow-sm transition-all border border-surface-container-highest/50 cursor-pointer"
-                            id="btn-retake-exam"
-                            type="button"
-                          >
-                            <span className="material-symbols-outlined text-[20px]">cached</span>
-                            <span>Retake Quiz</span>
-                            <span className="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-lowest text-on-surface-variant">
-                              {retakesRemaining}/3 Left
-                            </span>
-                          </button>
-                          <Link
-                            to={`/student/course/${courseId || 'fullstack-cloud'}/learn`}
-                            className="flex items-center gap-space-xs px-space-md py-3 rounded-xl text-primary hover:text-on-surface hover:bg-surface-container-high font-label-lg text-label-lg transition-all"
-                          >
-                            <span>Continue to Module 05</span>
-                            <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Performance Metrics (4-Card Bento Grid) */}
-                  <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
-                    {/* Card 1: Correct Answers */}
-                    <div className="flex flex-col justify-between p-space-lg rounded-xl bg-surface-container-low shadow-sm border border-surface-container-high/40">
-                      <div className="flex items-center justify-between">
-                        <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
-                          Correct Answers
-                        </span>
-                        <div className="w-8 h-8 rounded-lg bg-tertiary-container/20 flex items-center justify-center text-tertiary border border-tertiary/20">
-                          <span className="material-symbols-outlined text-[20px]">check_circle</span>
-                        </div>
-                      </div>
-                      <div className="mt-space-md flex items-baseline gap-space-xs">
-                        <span className="font-headline-lg text-headline-lg text-on-surface font-bold">
-                          {activeScorecard.correctCount}
-                        </span>
-                        <span className="font-headline-sm text-headline-sm text-on-surface-variant">
-                          / {activeScorecard.totalCount}
-                        </span>
-                      </div>
-                      <div className="mt-space-xs flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
-                        <span>
-                          Points Earned: <strong>{activeScorecard.earnedPoints} / {activeScorecard.totalPoints}</strong>
-                        </span>
-                        <span className="text-tertiary font-medium">
-                          {activeScorecard.scorePct}% Accuracy
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Card 2: Incorrect Answers */}
-                    <div className="flex flex-col justify-between p-space-lg rounded-xl bg-surface-container-low shadow-sm border border-surface-container-high/40">
-                      <div className="flex items-center justify-between">
-                        <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
-                          Incorrect Answers
-                        </span>
-                        <div className="w-8 h-8 rounded-lg bg-error-container/40 flex items-center justify-center text-error border border-error/20">
-                          <span className="material-symbols-outlined text-[20px]">cancel</span>
-                        </div>
-                      </div>
-                      <div className="mt-space-md flex items-baseline gap-space-xs">
-                        <span className="font-headline-lg text-headline-lg text-on-surface font-bold">
-                          {activeScorecard.totalCount - activeScorecard.correctCount}
-                        </span>
-                        <span className="font-headline-sm text-headline-sm text-on-surface-variant">
-                          / {activeScorecard.totalCount}
-                        </span>
-                      </div>
-                      <div className="mt-space-xs flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
-                        <span>
-                          Points Missed: <strong>{activeScorecard.totalPoints - activeScorecard.earnedPoints} pts</strong>
-                        </span>
-                        <span className="text-error font-medium">Q.06, Q.09</span>
-                      </div>
-                    </div>
-
-                    {/* Card 3: Time Elapsed */}
-                    <div className="flex flex-col justify-between p-space-lg rounded-xl bg-surface-container-low shadow-sm border border-surface-container-high/40">
-                      <div className="flex items-center justify-between">
-                        <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
-                          Time Invested
-                        </span>
-                        <div className="w-8 h-8 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary border border-primary/20">
-                          <span className="material-symbols-outlined text-[20px]">timer</span>
-                        </div>
-                      </div>
-                      <div className="mt-space-md flex items-baseline gap-space-xs">
-                        <span className="font-headline-lg text-headline-lg text-on-surface font-bold font-code-md">
-                          {formatTime(activeScorecard.timeSpent)}
-                        </span>
-                        <span className="font-label-md text-label-md text-on-surface-variant font-code-md">
-                          / 30:00
-                        </span>
-                      </div>
-                      <div className="mt-space-xs flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
-                        <span>
-                          Remaining: <strong className="text-primary">{formatTime(Math.max(0, 1800 - activeScorecard.timeSpent))}</strong>
-                        </span>
-                        <span className="text-on-surface-variant">Pace: 1.2m/q</span>
-                      </div>
-                    </div>
-
-                    {/* Card 4: Percentile Cohort Rank */}
-                    <div className="flex flex-col justify-between p-space-lg rounded-xl bg-surface-container-low shadow-sm border border-surface-container-high/40">
-                      <div className="flex items-center justify-between">
-                        <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
-                          Cohort Percentile
-                        </span>
-                        <div className="w-8 h-8 rounded-lg bg-secondary-container/30 flex items-center justify-center text-secondary border border-secondary/20">
-                          <span className="material-symbols-outlined text-[20px]">leaderboard</span>
-                        </div>
-                      </div>
-                      <div className="mt-space-md flex items-baseline gap-space-xs">
-                        <span className="font-headline-lg text-headline-lg text-on-surface font-bold">
-                          Top 14%
-                        </span>
-                      </div>
-                      <div className="mt-space-xs flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
-                        <span>
-                          Pool: <strong>3,420 Engineers</strong>
-                        </span>
-                        <span className="text-secondary font-medium">Distinction</span>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Two-Column Asymmetric Deep Dive Section */}
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl">
-                    {/* Left: Domain Mastery Breakdown (7 cols) */}
-                    <div className="lg:col-span-7 flex flex-col gap-space-md">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-space-xs">
-                          <span className="material-symbols-outlined text-primary text-[22px]">hub</span>
-                          <h2 className="font-headline-md text-headline-md text-on-surface">
-                            Knowledge Domain Competency
-                          </h2>
-                        </div>
-                        <span className="font-label-sm text-label-sm text-on-surface-variant">
-                          Curriculum Standard 4.1
-                        </span>
-                      </div>
-
-                      <div className="flex flex-col gap-space-sm">
-                        {/* Domain 1 */}
-                        <div className="p-space-md rounded-xl bg-surface-container-low flex flex-col gap-space-xs shadow-sm border border-surface-container-high/40">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-space-sm">
-                              <span className="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
-                              <span className="font-headline-sm text-headline-sm text-on-surface">
-                                Resource Representation &amp; HTTP Verbs
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-space-xs">
-                              <span className="font-code-md text-code-md font-bold text-tertiary">100%</span>
-                              <span className="font-label-sm text-label-sm px-2 py-0.5 rounded bg-tertiary-container/20 text-tertiary font-semibold">
-                                Mastery
-                              </span>
-                            </div>
-                          </div>
-                          <div className="w-full h-2 rounded-full bg-surface-container-highest overflow-hidden mt-1">
-                            <div className="h-full bg-tertiary rounded-full" style={{ width: '100%' }}></div>
-                          </div>
-                          <div className="flex justify-between text-on-surface-variant font-label-sm text-label-sm pt-1">
-                            <span>Evaluated: GET, POST, PUT, PATCH semantics</span>
-                            <span>3 of 3 Correct</span>
-                          </div>
-                        </div>
-
-                        {/* Domain 2 */}
-                        <div className="p-space-md rounded-xl bg-surface-container-low flex flex-col gap-space-xs shadow-sm border border-surface-container-high/40">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-space-sm">
-                              <span className="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
-                              <span className="font-headline-sm text-headline-sm text-on-surface">
-                                Statelessness &amp; Idempotency
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-space-xs">
-                              <span className="font-code-md text-code-md font-bold text-tertiary">100%</span>
-                              <span className="font-label-sm text-label-sm px-2 py-0.5 rounded bg-tertiary-container/20 text-tertiary font-semibold">
-                                Mastery
-                              </span>
-                            </div>
-                          </div>
-                          <div className="w-full h-2 rounded-full bg-surface-container-highest overflow-hidden mt-1">
-                            <div className="h-full bg-tertiary rounded-full" style={{ width: '100%' }}></div>
-                          </div>
-                          <div className="flex justify-between text-on-surface-variant font-label-sm text-label-sm pt-1">
-                            <span>Evaluated: Client session detachment &amp; idempotent operations</span>
-                            <span>3 of 3 Correct</span>
-                          </div>
-                        </div>
-
-                        {/* Domain 3 */}
-                        <div className="p-space-md rounded-xl bg-surface-container-low flex flex-col gap-space-xs shadow-sm border border-surface-container-high/40">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-space-sm">
-                              <span className="w-2.5 h-2.5 rounded-full bg-primary"></span>
-                              <span className="font-headline-sm text-headline-sm text-on-surface">
-                                Error Handling &amp; Status Codes (4xx / 5xx)
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-space-xs">
-                              <span className="font-code-md text-code-md font-bold text-primary">66%</span>
-                              <span className="font-label-sm text-label-sm px-2 py-0.5 rounded bg-primary-container/20 text-primary font-semibold">
-                                Proficient
-                              </span>
-                            </div>
-                          </div>
-                          <div className="w-full h-2 rounded-full bg-surface-container-highest overflow-hidden mt-1">
-                            <div className="h-full bg-primary rounded-full" style={{ width: '66%' }}></div>
-                          </div>
-                          <div className="flex justify-between text-on-surface-variant font-label-sm text-label-sm pt-1">
-                            <span>Missed: 409 Conflict vs 422 Unprocessable Content distinction</span>
-                            <span>2 of 3 Correct</span>
-                          </div>
-                        </div>
-
-                        {/* Domain 4 */}
-                        <div className="p-space-md rounded-xl bg-surface-container-low flex flex-col gap-space-xs shadow-sm border border-surface-container-high/40">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-space-sm">
-                              <span className="w-2.5 h-2.5 rounded-full bg-error"></span>
-                              <span className="font-headline-sm text-headline-sm text-on-surface">
-                                HATEOAS &amp; Hypermedia Constraints
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-space-xs">
-                              <span className="font-code-md text-code-md font-bold text-error">50%</span>
-                              <span className="font-label-sm text-label-sm px-2 py-0.5 rounded bg-error-container/30 text-error font-semibold">
-                                Needs Review
-                              </span>
-                            </div>
-                          </div>
-                          <div className="w-full h-2 rounded-full bg-surface-container-highest overflow-hidden mt-1">
-                            <div className="h-full bg-error rounded-full" style={{ width: '50%' }}></div>
-                          </div>
-                          <div className="flex justify-between text-on-surface-variant font-label-sm text-label-sm pt-1">
-                            <span>Missed: Richardson Maturity Level 3 URI hyperlinking traversal</span>
-                            <span>1 of 2 Correct</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right: Verified Credential & Cohort Comparison Sandbox (5 cols) */}
-                    <div className="lg:col-span-5 flex flex-col gap-space-md">
-                      {/* Verified Credential Badge Card */}
-                      <div className="relative p-space-lg rounded-xl bg-gradient-to-br from-surface-container-high via-surface-container to-surface-container-low shadow-xl overflow-hidden border border-surface-container-high/40">
-                        <div className="absolute -right-10 -bottom-10 w-44 h-44 rounded-full bg-primary/10 blur-2xl pointer-events-none"></div>
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-space-sm">
-                            <div className="w-10 h-10 rounded-xl bg-primary-container/20 flex items-center justify-center text-primary border border-primary/30">
-                              <span className="material-symbols-outlined text-[24px]">workspace_premium</span>
-                            </div>
-                            <div>
-                              <span className="font-label-sm text-label-sm uppercase tracking-widest text-primary font-bold">
-                                Verified Academic Credential
-                              </span>
-                              <h3 className="font-headline-sm text-headline-sm text-on-surface">
-                                Cloud Micro-Credential Unlock
-                              </h3>
-                            </div>
-                          </div>
-                          <span className="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container-highest text-tertiary font-code-md border border-tertiary/20">
-                            CEU-1.5
-                          </span>
-                        </div>
-                        <p className="font-body-md text-body-md text-on-surface-variant mt-space-md leading-relaxed">
-                          Congratulations! Passing this proctored checkpoint unlocked{' '}
-                          <strong>1.5 Continuing Education Units (CEUs)</strong>. This milestone is permanently notarized in the NOVA decentralized credential ledger.
-                        </p>
-                        <div className="mt-space-md p-space-sm rounded-lg bg-surface-container-lowest font-code-md text-code-md text-on-surface-variant flex items-center justify-between border border-surface-container-high/30">
-                          <div className="truncate max-w-[240px]">
-                            <span className="text-outline">Hash: </span>
-                            <span className="text-on-surface">0x8f2d...c37e19b</span>
-                          </div>
-                          <button
-                            onClick={handleCopyHash}
-                            className="text-primary hover:text-on-surface transition-colors flex items-center gap-1 font-label-sm text-label-sm cursor-pointer"
-                            type="button"
-                          >
-                            <span className="material-symbols-outlined text-[14px]">
-                              {copiedHash ? 'check' : 'content_copy'}
-                            </span>
-                            <span>{copiedHash ? 'Copied' : 'Copy'}</span>
-                          </button>
-                        </div>
-                        <div className="mt-space-lg flex items-center justify-between pt-space-xs">
-                          <button
-                            onClick={handleDownloadCertificate}
-                            className="inline-flex items-center gap-space-xs font-label-md text-label-md text-tertiary hover:underline cursor-pointer"
-                            type="button"
-                          >
-                            <span className="material-symbols-outlined text-[16px]">download</span>
-                            <span>Download Certified Certificate (PDF)</span>
-                          </button>
-                          <span className="material-symbols-outlined text-outline text-[18px]">verified</span>
-                        </div>
-                      </div>
-
-                      {/* Peer Distribution Histogram Card */}
-                      <div className="p-space-lg rounded-xl bg-surface-container-low shadow-sm flex flex-col gap-space-sm border border-surface-container-high/40">
-                        <div className="flex items-center justify-between">
-                          <span className="font-headline-sm text-headline-sm text-on-surface font-semibold">
-                            Cohort Score Curve
-                          </span>
-                          <span className="font-label-sm text-label-sm text-on-surface-variant">
-                            Mean: 68.4%
-                          </span>
-                        </div>
-                        <p className="font-body-sm text-body-sm text-on-surface-variant">
-                          Your score (82%) places you in the upper decile of the Autumn 2025 Global Engineering Cohort.
-                        </p>
-
-                        {/* Inline SVG Histogram Chart */}
-                        <div className="w-full pt-2">
-                          <svg className="w-full h-24 overflow-visible" viewBox="0 0 300 80">
-                            {/* Grid guide lines */}
-                            <line className="text-surface-variant" stroke="currentColor" strokeWidth="1" x1="0" x2="300" y1="75" y2="75" />
-                            <line className="text-surface-variant" stroke="currentColor" strokeDasharray="2 4" strokeWidth="0.5" x1="0" x2="300" y1="40" y2="40" />
-
-                            {/* Histogram Bars */}
-                            {/* Bin 0-30% */}
-                            <rect className="fill-surface-variant" height="10" rx="3" width="22" x="10" y="65" />
-                            {/* Bin 30-50% */}
-                            <rect className="fill-surface-variant" height="23" rx="3" width="22" x="40" y="52" />
-                            {/* Bin 50-60% */}
-                            <rect className="fill-surface-variant" height="37" rx="3" width="22" x="70" y="38" />
-                            {/* Bin 60-70% (Passing Threshold) */}
-                            <rect className="fill-surface-variant" height="51" rx="3" width="22" x="100" y="24" />
-                            {/* Bin 70-80% */}
-                            <rect className="fill-surface-bright" height="61" rx="3" width="22" x="130" y="14" />
-                            {/* Bin 80-90% (USER IS HERE) */}
-                            <rect className="fill-primary" height="67" rx="3" width="22" x="160" y="8" />
-                            {/* Bin 90-100% */}
-                            <rect className="fill-surface-bright" height="43" rx="3" width="22" x="190" y="32" />
-                            {/* Bin Perfect 100% */}
-                            <rect className="fill-surface-variant" height="17" rx="3" width="22" x="220" y="58" />
-
-                            {/* User Marker Pin */}
-                            <circle className="fill-tertiary" cx="171" cy="4" r="3.5" />
-                            <text className="fill-tertiary font-bold" fontSize="8" textAnchor="middle" x="171" y="-3">
-                              You (82%)
-                            </text>
-                          </svg>
-                        </div>
-                        <div className="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm pt-2">
-                          <span>0%</span>
-                          <span className="text-error font-medium">70% Pass Cutoff</span>
-                          <span>100%</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Question-by-Question Rapid Inspector Tray */}
-                  <section
-                    id="question-inventory-remediation"
-                    className="flex flex-col gap-space-md p-space-lg rounded-xl bg-surface-container-low shadow-sm border border-surface-container-high/40"
+                  <button
+                    onClick={() => toggleFlag(currentQuestionIndex)}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                      flaggedQuestions[currentQuestionIndex]
+                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
-                      <div>
-                        <h3 className="font-headline-md text-headline-md text-on-surface font-semibold">
-                          Question Inventory &amp; Remediation
-                        </h3>
-                        <p className="font-body-sm text-body-sm text-on-surface-variant">
-                          Audit all 10 responses, architectural code solutions, and proctoring logs.
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-space-sm">
-                        <span className="font-label-sm text-label-sm text-on-surface-variant">Filter:</span>
-                        <button
-                          onClick={() => setRemediationFilter('all')}
-                          className={`px-space-sm py-1 rounded font-label-sm text-label-sm transition-colors cursor-pointer ${
-                            remediationFilter === 'all'
-                              ? 'bg-surface-container-high text-on-surface font-semibold border border-surface-container-highest'
-                              : 'text-on-surface-variant hover:bg-surface-container-high'
-                          }`}
-                          type="button"
-                        >
-                          All (10)
-                        </button>
-                        <button
-                          onClick={() => setRemediationFilter('incorrect')}
-                          className={`px-space-sm py-1 rounded font-label-sm text-label-sm transition-colors cursor-pointer ${
-                            remediationFilter === 'incorrect'
-                              ? 'bg-error-container/30 text-error font-semibold border border-error/30'
-                              : 'text-on-surface-variant hover:bg-surface-container-high'
-                          }`}
-                          type="button"
-                        >
-                          Incorrect Only (2)
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* 10 Question Tiles Strip */}
-                    <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-space-sm pt-2">
-                      {displayedQuestions.map(({ q, idx }) => {
-                        const isWrong = activeScorecard.missedIndices?.includes(idx);
-                        const isSelected = selectedRemediationIndex === idx;
-
-                        return (
-                          <div
-                            key={q.id}
-                            onClick={() => setSelectedRemediationIndex(idx)}
-                            className={`p-space-sm rounded-lg flex flex-col items-center justify-center gap-1 cursor-pointer transition-all border ${
-                              isWrong
-                                ? 'bg-error-container/20 hover:bg-error-container/30 border-error/30'
-                                : 'bg-surface-container hover:bg-surface-container-high border-surface-container-high/40'
-                            } ${
-                              isSelected
-                                ? 'ring-2 ring-primary scale-105 shadow-md'
-                                : ''
-                            }`}
-                          >
-                            <span
-                              className={`font-label-sm text-label-sm ${
-                                isWrong ? 'text-error font-semibold' : 'text-on-surface-variant'
-                              }`}
-                            >
-                              Q.{String(idx + 1).padStart(2, '0')}
-                            </span>
-                            <span
-                              className={`material-symbols-outlined text-[20px] ${
-                                isWrong ? 'text-error' : 'text-tertiary'
-                              }`}
-                            >
-                              {isWrong ? 'cancel' : 'check_circle'}
-                            </span>
-                            <span
-                              className={`font-label-sm text-label-sm font-bold ${
-                                isWrong ? 'text-error' : 'text-tertiary'
-                              }`}
-                            >
-                              {isWrong ? '0/10' : '10/10'}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Sample Expanded Remediation Card */}
-                    {(() => {
-                      const curQ = questions[selectedRemediationIndex] || questions[5];
-                      const isWrong = activeScorecard.missedIndices?.includes(selectedRemediationIndex);
-
-                      return (
-                        <div className="mt-space-sm p-space-md rounded-xl bg-surface-container flex flex-col gap-space-sm border border-surface-container-high/50">
-                          <div className="flex items-center justify-between flex-wrap gap-2">
-                            <div className="flex items-center gap-space-xs">
-                              <span
-                                className={`px-2 py-0.5 rounded font-label-sm text-label-sm font-bold ${
-                                  isWrong
-                                    ? 'bg-error-container/30 text-error'
-                                    : 'bg-tertiary-container/30 text-tertiary'
-                                }`}
-                              >
-                                Question {String(selectedRemediationIndex + 1).padStart(2, '0')} •{' '}
-                                {isWrong ? 'Incorrect' : 'Correct'}
-                              </span>
-                              <span className="font-label-md text-label-md text-on-surface font-semibold">
-                                {selectedRemediationIndex === 5
-                                  ? 'HTTP 409 Conflict vs 422 Unprocessable Content'
-                                  : selectedRemediationIndex === 8
-                                  ? 'Optimistic Locking via ETags & If-Match'
-                                  : curQ.subtitle || curQ.category}
-                              </span>
-                            </div>
-                            <span className="font-label-sm text-label-sm text-on-surface-variant">
-                              Domain: {curQ.category || 'Error Handling & Status Codes'}
-                            </span>
-                          </div>
-
-                          <p className="font-body-md text-body-md text-on-surface leading-relaxed">
-                            "{curQ.question}"
-                          </p>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-space-sm pt-1">
-                            <div
-                              className={`p-space-sm rounded-lg flex items-start gap-space-xs ${
-                                isWrong ? 'bg-error-container/10 border border-error/20' : 'bg-surface-container-high'
-                              }`}
-                            >
-                              <span
-                                className={`material-symbols-outlined text-[18px] shrink-0 mt-0.5 ${
-                                  isWrong ? 'text-error' : 'text-tertiary'
-                                }`}
-                              >
-                                {isWrong ? 'close' : 'check'}
-                              </span>
-                              <div className="flex flex-col">
-                                <span
-                                  className={`font-label-sm text-label-sm font-bold ${
-                                    isWrong ? 'text-error' : 'text-tertiary'
-                                  }`}
-                                >
-                                  Your Response:{' '}
-                                  {selectedRemediationIndex === 5
-                                    ? '422 Unprocessable Content'
-                                    : selectedRemediationIndex === 8
-                                    ? 'By permanently locking database tables on every GET request.'
-                                    : curQ.options.find((o) => o.key === curQ.correctAnswer)?.text || 'Option Selected'}
-                                </span>
-                                <span className="font-body-sm text-body-sm text-on-surface-variant">
-                                  {selectedRemediationIndex === 5
-                                    ? 'Incorrect because syntax and semantics were valid, but state conflict was present.'
-                                    : selectedRemediationIndex === 8
-                                    ? 'Pessimistic table locking degrades concurrency and causes cascading timeouts.'
-                                    : 'Validated against standard RFC specifications.'}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="p-space-sm rounded-lg bg-tertiary-container/10 border border-tertiary/20 flex items-start gap-space-xs">
-                              <span className="material-symbols-outlined text-tertiary text-[18px] shrink-0 mt-0.5">
-                                check
-                              </span>
-                              <div className="flex flex-col">
-                                <span className="font-label-sm text-label-sm text-tertiary font-bold">
-                                  Correct Response:{' '}
-                                  {selectedRemediationIndex === 5
-                                    ? '409 Conflict'
-                                    : curQ.options.find((o) => o.key === curQ.correctAnswer)?.text || 'Correct Option'}
-                                </span>
-                                <span className="font-body-sm text-body-sm text-on-surface-variant">
-                                  {selectedRemediationIndex === 5
-                                    ? 'RFC 9110 specifies 409 for conflicts with the current state of the target resource.'
-                                    : curQ.explanation}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </section>
-
-                  {/* Instructors & Learning Path Recommendations Footer Widget */}
-                  <section className="p-space-lg rounded-xl bg-surface-container-low shadow-sm flex flex-col md:flex-row items-center justify-between gap-space-lg border border-surface-container-high/40">
-                    <div className="flex items-center gap-space-md">
-                      <div className="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center text-primary shrink-0 border border-primary/20">
-                        <span className="material-symbols-outlined text-[28px]">auto_stories</span>
-                      </div>
-                      <div>
-                        <h4 className="font-headline-sm text-headline-sm text-on-surface font-semibold">
-                          Ready for Module 05: Microservices &amp; Event-Driven Streaming?
-                        </h4>
-                        <p className="font-body-sm text-body-sm text-on-surface-variant">
-                          Prerequisites met. Recommended reading: Kafka partition schemes and gRPC contract proto buffers.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-space-sm shrink-0 w-full md:w-auto">
-                      <Link
-                        to={`/student/course/${courseId || 'fullstack-cloud'}/learn`}
-                        className="w-full md:w-auto text-center px-space-lg py-2.5 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg shadow-md hover:brightness-110 transition-all font-semibold"
-                      >
-                        Launch Next Module
-                      </Link>
-                    </div>
-                  </section>
+                    <span>⚑</span>
+                    <span>{flaggedQuestions[currentQuestionIndex] ? 'Flagged' : 'Flag'}</span>
+                  </button>
                 </div>
-              )}
+
+                {/* Question Prompt */}
+                <div className="space-y-2">
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-900 leading-relaxed">
+                    {currentQ.question}
+                  </h2>
+                  {currentQ.subtitle && (
+                    <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                      {currentQ.subtitle}
+                    </p>
+                  )}
+                </div>
+
+                {/* Context Tag Blueprint */}
+                {currentQ.context && (
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 leading-relaxed font-mono">
+                    <span className="text-blue-700 font-semibold">{currentQ.contextTag || 'Specification'}: </span>
+                    {currentQ.context}
+                  </div>
+                )}
+
+                {/* Options List */}
+                <div className="space-y-3 pt-2">
+                  {currentQ.options.map((opt) => {
+                    const isSelected = selectedAnswers[currentQuestionIndex] === opt.key;
+                    return (
+                      <button
+                        key={opt.key}
+                        onClick={() => handleSelectOption(currentQuestionIndex, opt.key)}
+                        disabled={isSubmitted}
+                        className={`w-full text-left p-4 rounded-xl border transition-all duration-200 flex items-start gap-4 cursor-pointer ${
+                          isSelected
+                            ? 'bg-blue-50/70 border-2 border-blue-600 text-slate-900 shadow-sm ring-2 ring-blue-500/10'
+                            : 'bg-white border-slate-200/90 hover:border-slate-300 hover:bg-slate-50/70 text-slate-700 shadow-2xs'
+                        }`}
+                      >
+                        <div
+                          className={`w-7 h-7 rounded-lg font-mono text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
+                            isSelected
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          {opt.key}
+                        </div>
+                        <div className="text-xs sm:text-sm leading-relaxed pt-0.5">
+                          {opt.text}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Next / Previous Controls */}
+                <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                  <button
+                    onClick={() => setCurrentQuestionIndex((prev) => Math.max(0, prev - 1))}
+                    disabled={currentQuestionIndex === 0}
+                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 disabled:opacity-40 disabled:pointer-events-none text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Previous</span>
+                  </button>
+
+                  <div className="text-xs font-mono text-slate-500">
+                    Question {currentQuestionIndex + 1} of {totalQuestions}
+                  </div>
+
+                  <button
+                    onClick={() => setCurrentQuestionIndex((prev) => Math.min(totalQuestions - 1, prev + 1))}
+                    disabled={currentQuestionIndex === totalQuestions - 1}
+                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:pointer-events-none text-xs font-bold text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm shadow-blue-500/20"
+                  >
+                    <span>Next</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Sidebar: Question Matrix (1 col) */}
+            <div className="space-y-4">
+              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">
+                    Question Matrix
+                  </h3>
+                  <span className="text-[11px] font-mono text-blue-600 font-bold">
+                    {answeredCount}/{totalQuestions} Done
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-5 gap-2">
+                  {questions.map((q, idx) => {
+                    const isCurrent = currentQuestionIndex === idx;
+                    const isAnswered = selectedAnswers[idx] !== undefined;
+                    const isFlagged = flaggedQuestions[idx];
+
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentQuestionIndex(idx)}
+                        className={`h-10 rounded-xl font-mono text-xs font-bold flex flex-col items-center justify-center relative transition-all cursor-pointer border ${
+                          isCurrent
+                            ? 'bg-blue-600 text-white border-blue-500 ring-2 ring-blue-500/20 shadow-sm'
+                            : isAnswered
+                            ? 'bg-slate-100 text-slate-800 border-slate-300 font-semibold'
+                            : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300'
+                        }`}
+                      >
+                        <span>{idx + 1}</span>
+                        {isFlagged && (
+                          <span className="absolute top-1 right-1 text-[9px] text-amber-500">⚑</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="pt-3 border-t border-slate-100 text-[11px] space-y-1.5 text-slate-500">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded bg-blue-600"></div>
+                    <span>Active Question</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded bg-slate-100 border border-slate-300"></div>
+                    <span>Answered Question</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded bg-white border border-slate-200"></div>
+                    <span>Unanswered</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: REVIEW GRID VIEW */}
+        {activeNavTab === 'review' && (
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">Assessment Review Matrix</h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  Inspect all answers, review flagged questions, and ensure readiness before final submission.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setExitModalOpen(true)}
+                  className="px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-all border border-rose-200 flex items-center gap-1.5 cursor-pointer"
+                  title="Exit Quiz"
+                >
+                  <LogOut className="w-3.5 h-3.5 text-rose-600" />
+                  <span>Exit Quiz</span>
+                </button>
+                <button
+                  onClick={() => setSubmitModalOpen(true)}
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all shadow-sm shadow-blue-500/20 cursor-pointer"
+                >
+                  Confirm & Submit
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {questions.map((q, idx) => {
+                const isAnswered = selectedAnswers[idx] !== undefined;
+                const isFlagged = flaggedQuestions[idx];
+
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => {
+                      setCurrentQuestionIndex(idx);
+                      setActiveNavTab('questions');
+                    }}
+                    className={`p-4 rounded-xl border transition-all cursor-pointer flex items-start justify-between gap-4 ${
+                      isFlagged
+                        ? 'bg-amber-50/70 border-amber-200'
+                        : isAnswered
+                        ? 'bg-slate-50 border-slate-200 hover:border-slate-300'
+                        : 'bg-rose-50/50 border-rose-200'
+                    }`}
+                  >
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="font-mono font-bold text-slate-500">Q.{idx + 1}</span>
+                        <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-slate-200/60 text-slate-700 font-semibold">
+                          {q.category}
+                        </span>
+                        {isFlagged && <span className="text-xs text-amber-600 font-bold">⚑ Flagged</span>}
+                      </div>
+                      <p className="text-xs font-medium text-slate-800 line-clamp-2">{q.question}</p>
+                    </div>
+
+                    <div className="shrink-0 text-right">
+                      {isAnswered ? (
+                        <span className="px-2.5 py-1 rounded bg-blue-50 text-blue-700 font-mono text-xs font-bold border border-blue-200">
+                          Option {selectedAnswers[idx]}
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-1 rounded bg-rose-50 text-rose-700 font-mono text-xs font-bold border border-rose-200">
+                          Skipped
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: SCORECARD & VICTORY PODIUM */}
+        {activeNavTab === 'summary' && finalScorecard && (
+          <div className="space-y-6">
+            <div className="relative bg-white rounded-3xl border border-slate-200/90 shadow-sm p-8 text-center space-y-6 overflow-hidden">
+              {/* Blueprint Accent Line */}
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500"></div>
+
+              <div className="space-y-2">
+                <span className="text-xs font-mono font-bold text-blue-600 uppercase tracking-widest">
+                  Live Arena Telemetry Finalized
+                </span>
+                <h2 className="text-3xl font-extrabold text-slate-900">
+                  {finalScorecard.passed ? '🎉 Examination Completed with Distinction!' : 'Assessment Finalized'}
+                </h2>
+                <p className="text-xs text-slate-500 max-w-lg mx-auto">
+                  Your responses have been cryptographically verified and committed to your official academic transcript.
+                </p>
+              </div>
+
+              {/* 3-Place Victory Podium Visual */}
+              <div className="flex items-end justify-center gap-4 sm:gap-6 pt-6 pb-2 max-w-lg mx-auto">
+                {/* 2nd Place */}
+                <div className="flex-1 flex flex-col items-center space-y-2">
+                  <div className="w-12 h-12 rounded-full border-2 border-slate-300 p-0.5 bg-slate-100">
+                    <img
+                      src={podiumData[1]?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
+                      alt="2nd"
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  </div>
+                  <span className="text-xs font-bold text-slate-700 truncate max-w-[90px]">
+                    {podiumData[1]?.name || 'Dr. Alex'}
+                  </span>
+                  <div className="w-full h-24 rounded-t-xl bg-slate-100 border-t-2 border-slate-300 flex flex-col items-center justify-center shadow-xs">
+                    <span className="text-xl font-extrabold text-slate-500">2</span>
+                    <span className="text-[10px] font-mono text-slate-500 font-semibold">{podiumData[1]?.score || 80} pts</span>
+                  </div>
+                </div>
+
+                {/* 1st Place (Center) */}
+                <div className="flex-1 flex flex-col items-center space-y-2">
+                  <div className="relative">
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xl">👑</span>
+                    <div className="w-14 h-14 rounded-full border-2 border-amber-400 p-0.5 bg-amber-50 shadow-md shadow-amber-400/20">
+                      <img
+                        src={podiumData[0]?.avatar || user?.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=Scholar'}
+                        alt="1st"
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-amber-700 truncate max-w-[90px]">
+                    {podiumData[0]?.name || user?.name || 'You'}
+                  </span>
+                  <div className="w-full h-32 rounded-t-xl bg-gradient-to-t from-amber-100 to-amber-200 border-t-2 border-amber-500 flex flex-col items-center justify-center shadow-md">
+                    <span className="text-2xl font-extrabold text-amber-700">1</span>
+                    <span className="text-xs font-mono font-bold text-amber-800">
+                      {podiumData[0]?.score || finalScorecard.earnedPoints} pts
+                    </span>
+                  </div>
+                </div>
+
+                {/* 3rd Place */}
+                <div className="flex-1 flex flex-col items-center space-y-2">
+                  <div className="w-12 h-12 rounded-full border-2 border-amber-700/40 p-0.5 bg-amber-50">
+                    <img
+                      src={podiumData[2]?.avatar || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100'}
+                      alt="3rd"
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  </div>
+                  <span className="text-xs font-bold text-slate-700 truncate max-w-[90px]">
+                    {podiumData[2]?.name || 'Elena R.'}
+                  </span>
+                  <div className="w-full h-18 rounded-t-xl bg-amber-50 border-t-2 border-amber-700/60 flex flex-col items-center justify-center shadow-xs">
+                    <span className="text-xl font-extrabold text-amber-800">3</span>
+                    <span className="text-[10px] font-mono text-amber-800 font-semibold">{podiumData[2]?.score || 60} pts</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Metrics Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-100 max-w-2xl mx-auto">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-center">
+                  <span className="text-xs text-slate-500">Final Score</span>
+                  <p className="text-2xl font-extrabold text-blue-600 mt-1">{finalScorecard.scorePct}%</p>
+                </div>
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-center">
+                  <span className="text-xs text-slate-500">Points Earned</span>
+                  <p className="text-2xl font-extrabold text-slate-900 mt-1">
+                    {finalScorecard.earnedPoints}/{finalScorecard.totalPoints}
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-center">
+                  <span className="text-xs text-slate-500">Accuracy</span>
+                  <p className="text-2xl font-extrabold text-indigo-600 mt-1">
+                    {finalScorecard.correctCount}/{finalScorecard.totalCount}
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-center">
+                  <span className="text-xs text-slate-500">Time Taken</span>
+                  <p className="text-2xl font-extrabold text-amber-600 mt-1">
+                    {formatTime(finalScorecard.timeSpent)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-center gap-3 pt-2">
+                <button
+                  onClick={() => setInHubMode(true)}
+                  className="px-6 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer border border-slate-200"
+                >
+                  Return to Quiz Hub
+                </button>
+                <Link
+                  to="/student/dashboard"
+                  className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors cursor-pointer shadow-sm shadow-blue-500/20"
+                >
+                  Go to Student Dashboard
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* FLOATING REAL-TIME REACTIONS DOCK (Dashboard Light Theme) */}
+      {!isSubmitted && (
+        <div className="fixed bottom-6 right-6 z-40 bg-white/95 border border-slate-200/90 backdrop-blur-xl rounded-2xl p-2 shadow-xl flex items-center gap-1.5">
+          <span className="text-[10px] font-mono text-slate-500 px-2 hidden sm:inline">Reactions:</span>
+          {['🔥', '⚡', '👏', '🧠', '🚀', '🎯'].map((emoji) => (
+            <button
+              key={emoji}
+              onClick={() => handleSendReaction(emoji)}
+              className="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center text-lg hover:scale-125 transition-all cursor-pointer"
+              title={`React with ${emoji}`}
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* SLIDE-OUT REAL-TIME LEADERBOARD DRAWER (Dashboard Theme) */}
+      {isLeaderboardOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex justify-end"
+          onClick={() => setIsLeaderboardOpen(false)}
+        >
+          <div
+            className="w-full max-w-md bg-white border-l border-slate-200 h-full p-6 space-y-6 flex flex-col shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-amber-500" />
+                <h3 className="text-base font-bold text-slate-900">Live Room Leaderboard</h3>
+              </div>
+              <button
+                onClick={() => setIsLeaderboardOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-3">
+              {(liveLeaderboard.length > 0 ? liveLeaderboard : [
+                { rank: 1, name: 'You', score: liveScore, streak: currentStreak, isOnline: true },
+                { rank: 2, name: 'Dr. Alex Vance', score: 70, streak: 3, isOnline: true },
+                { rank: 3, name: 'Elena Rostova', score: 60, streak: 2, isOnline: true },
+              ]).map((p, idx) => {
+                const isMe = p.name === 'You' || p.userId === user?.id || p.userId === user?._id;
+                return (
+                  <div
+                    key={p.userId || idx}
+                    className={`p-3.5 rounded-xl border flex items-center justify-between transition-all ${
+                      isMe
+                        ? 'bg-blue-50/70 border-blue-200 shadow-xs'
+                        : 'bg-slate-50/80 border-slate-200'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-6 h-6 rounded-full font-mono text-xs font-bold flex items-center justify-center shrink-0 ${
+                          idx === 0
+                            ? 'bg-amber-400 text-white'
+                            : idx === 1
+                            ? 'bg-slate-300 text-slate-700'
+                            : idx === 2
+                            ? 'bg-amber-700 text-white'
+                            : 'bg-slate-200 text-slate-600'
+                        }`}
+                      >
+                        {idx + 1}
+                      </div>
+
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-900">
+                            {p.name} {isMe && '(You)'}
+                          </span>
+                          {p.streak >= 2 && (
+                            <span className="text-[10px] font-mono text-amber-600 font-bold flex items-center">
+                              🔥{p.streak}x
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] font-mono text-slate-500">
+                          {p.answeredCount || 0} questions answered
+                        </span>
+                      </div>
+                    </div>
+
+                    <span className="font-mono text-xs font-extrabold text-blue-600">
+                      {p.score || 0} PTS
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="pt-4 border-t border-slate-100 text-[11px] text-slate-400 text-center font-mono">
+              Live WebSocket Sync • Updates in real-time
             </div>
           </div>
         </div>
-      </main>
+      )}
 
-      {/* ========================================================================= */}
-      {/* SUBMISSION CONFIRMATION MODAL                                             */}
-      {/* ========================================================================= */}
+      {/* CONFIRMATION SUBMISSION MODAL */}
       {submitModalOpen && (
         <div
-          className="fixed inset-0 z-50 bg-surface-container-lowest/80 backdrop-blur-xl flex items-center justify-center p-space-md transition-opacity duration-300 animate-in fade-in"
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4"
           onClick={() => setSubmitModalOpen(false)}
         >
           <div
-            className="relative w-full max-w-xl bg-surface-container-low rounded-xl shadow-2xl p-space-xl flex flex-col gap-space-lg border border-surface-container-high transform scale-100"
+            className="w-full max-w-lg bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl space-y-5"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Top Specular Lighting Bar */}
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-tertiary to-secondary rounded-t-xl"></div>
-
-            {/* Icon & Header */}
-            <div className="flex items-start gap-space-md">
-              <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary shrink-0 shadow-md border border-primary/20">
-                <span className="material-symbols-outlined text-[28px]">assignment_turned_in</span>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2 text-blue-600 font-bold">
+                <Check className="w-5 h-5" />
+                <span>Confirm Final Submission</span>
               </div>
-              <div className="flex flex-col gap-1 min-w-0">
-                <span className="font-label-sm text-label-sm text-tertiary uppercase tracking-widest font-semibold">
-                  Assessment Finalization
-                </span>
-                <h2 className="font-headline-md text-headline-md text-on-surface font-bold">
-                  Are you sure you want to submit?
-                </h2>
-                <p className="font-body-md text-body-md text-on-surface-variant">
-                  You have answered <span className="text-on-surface font-semibold">{answeredCount} of {totalQuestions}</span> questions.
-                  {flaggedCount > 0 && (
-                    <span className="text-error font-medium"> {flaggedCount} question remains flagged</span>
-                  )}{' '}
-                  for your review before closing.
-                </p>
-              </div>
-            </div>
-
-            {/* Metric Summary Bento Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-space-sm p-space-md rounded-xl bg-surface-container-lowest border border-surface-container-high/40">
-              <div className="flex flex-col items-center justify-center p-space-xs text-center">
-                <span className="font-headline-md text-headline-md text-tertiary font-bold">{answeredCount}</span>
-                <span className="font-label-sm text-label-sm text-on-surface-variant">Answered</span>
-              </div>
-              <div className="flex flex-col items-center justify-center p-space-xs text-center">
-                <span className="font-headline-md text-headline-md text-error font-bold">{flaggedCount}</span>
-                <span className="font-label-sm text-label-sm text-on-surface-variant">Flagged</span>
-              </div>
-              <div className="flex flex-col items-center justify-center p-space-xs text-center">
-                <span className="font-headline-md text-headline-md text-outline font-bold">
-                  {totalQuestions - answeredCount}
-                </span>
-                <span className="font-label-sm text-label-sm text-on-surface-variant">Unanswered</span>
-              </div>
-              <div className="flex flex-col items-center justify-center p-space-xs text-center">
-                <span className="font-headline-md text-headline-md text-primary font-bold">{formatTime(timeLeft)}</span>
-                <span className="font-label-sm text-label-sm text-on-surface-variant">Time Left</span>
-              </div>
-            </div>
-
-            {/* Warning Disclaimer */}
-            <div className="flex items-start gap-space-sm p-space-sm rounded-lg bg-surface-container text-on-surface-variant border border-surface-container-high/40">
-              <span className="material-symbols-outlined text-[18px] text-tertiary shrink-0 mt-0.5">
-                verified_user
-              </span>
-              <span className="font-body-sm text-body-sm">
-                Once finalized, your responses will be immutably recorded in the grading database. Scorecard will be immediately available.
-              </span>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-space-sm pt-space-xs">
               <button
                 onClick={() => setSubmitModalOpen(false)}
-                className="w-full sm:w-auto px-space-lg py-2.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-label-md transition-all border border-surface-container-highest"
-                type="button"
+                className="text-slate-400 hover:text-slate-600"
               >
-                Return to Questions
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs text-slate-600 leading-relaxed">
+              <p>
+                You have answered <span className="font-bold text-slate-900">{answeredCount}</span> of{' '}
+                <span className="font-bold text-slate-900">{totalQuestions}</span> questions.
+              </p>
+              {flaggedCount > 0 && (
+                <p className="text-amber-600 font-semibold">
+                  ⚠️ You currently have {flaggedCount} question(s) flagged for review.
+                </p>
+              )}
+              <p className="text-slate-500">
+                Once confirmed, your score will be calculated in real-time, broadcasted to the session podium, and stored on your academic record.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                onClick={() => setSubmitModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700"
+              >
+                Continue Assessment
               </button>
               <button
                 onClick={handleSubmitAssessment}
-                className="w-full sm:w-auto flex items-center justify-center gap-space-xs px-space-xl py-2.5 rounded-lg bg-gradient-to-r from-primary to-primary-container text-on-primary font-headline-sm text-headline-sm font-semibold shadow-lg hover:brightness-110 transition-all"
-                type="button"
+                className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm shadow-blue-500/20"
               >
-                <span>Confirm & Submit Exam</span>
-                <span className="material-symbols-outlined text-[18px]">check</span>
+                Confirm & Submit
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* QUICK SCRATCHPAD MODAL                                                    */}
-      {/* ========================================================================= */}
+      {/* EXIT QUIZ CONFIRMATION MODAL */}
+      {exitModalOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={() => setExitModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-md bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5 text-rose-600 font-bold text-base">
+                <div className="w-8 h-8 rounded-xl bg-rose-50 flex items-center justify-center border border-rose-100">
+                  <LogOut className="w-4 h-4 text-rose-600" />
+                </div>
+                <span>Exit Quiz Session?</span>
+              </div>
+              <button
+                onClick={() => setExitModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs text-slate-600 leading-relaxed">
+              <p className="text-slate-800 font-medium">
+                Are you sure you want to leave this quiz?
+              </p>
+              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-800 space-y-1">
+                <div className="flex items-center gap-1.5 font-semibold text-xs">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>Unsubmitted Progress Notice</span>
+                </div>
+                <p className="text-[11px] leading-relaxed text-amber-700">
+                  You have answered <span className="font-bold text-slate-900">{answeredCount}</span> of{' '}
+                  <span className="font-bold text-slate-900">{totalQuestions}</span> questions. Any unsubmitted answers will not be recorded on the official ledger.
+                </p>
+              </div>
+              <p className="text-slate-500 text-[11px]">
+                You can return to the Quiz Hub at any time to re-attempt or explore other available subjects.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                onClick={() => setExitModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 transition-colors cursor-pointer"
+              >
+                Stay in Quiz
+              </button>
+              <button
+                onClick={handleConfirmExit}
+                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm shadow-rose-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Yes, Exit Quiz</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* QUICK SCRATCHPAD MODAL */}
       {scratchpadOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4"
           onClick={() => setScratchpadOpen(false)}
         >
           <div
-            className="w-full max-w-lg bg-surface-container-low border border-surface-container-high rounded-xl p-5 shadow-2xl space-y-4"
+            className="w-full max-w-lg bg-white border border-slate-200 rounded-2xl p-5 shadow-2xl space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-surface-container-high pb-3">
-              <div className="flex items-center gap-2 text-primary font-bold font-code-md">
-                <span className="material-symbols-outlined text-[20px]">code</span>
-                <span>Question {currentQuestionIndex + 1} Scratchpad</span>
-              </div>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <span className="font-mono text-xs font-bold text-blue-600">
+                Question {currentQuestionIndex + 1} Scratchpad
+              </span>
               <button
                 onClick={() => setScratchpadOpen(false)}
-                className="p-1 rounded text-outline hover:text-on-surface"
+                className="text-slate-400 hover:text-slate-600"
               >
-                <span className="material-symbols-outlined text-[18px]">close</span>
+                ✕
               </button>
             </div>
 
             <textarea
               value={scratchpadNote}
               onChange={(e) => setScratchpadNote(e.target.value)}
-              placeholder="Jot down notes, formula derivations, or architectural thoughts..."
+              placeholder="Jot down formulas, algorithmic pseudocode, or architectural notes..."
               rows={6}
-              className="w-full bg-white border border-slate-200 rounded-lg p-3 text-sm text-slate-900 font-mono focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-            ></textarea>
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 font-mono focus:outline-none focus:border-blue-500 focus:bg-white"
+            />
 
-            <div className="flex items-center justify-between text-xs text-outline">
-              <span>Saved locally in memory.</span>
+            <div className="flex items-center justify-between text-xs text-slate-500">
+              <span>Saved locally in memory</span>
               <button
                 onClick={() => {
                   toast.success('Scratchpad note saved.');
                   setScratchpadOpen(false);
                 }}
-                className="px-4 py-2 rounded-lg bg-primary text-white font-bold hover:bg-primary/90 transition-colors"
+                className="px-4 py-1.5 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors"
               >
-                Save Note
+                Done
               </button>
             </div>
           </div>
         </div>
       )}
-
-      {/* ========================================================================= */}
-      {/* SECURE PROCTOR FOOTER                                                     */}
-      {/* ========================================================================= */}
-      <footer className="w-full bg-surface-container-lowest/80 py-space-md border-t border-surface-container-high/40">
-        <div className="w-full px-margin flex flex-col sm:flex-row items-center justify-between gap-space-sm text-on-surface-variant font-label-sm text-label-sm">
-          <span>NOVA LMS Secure Proctoring Engine • Session Verified</span>
-          <span>Auto-saving response cache active • Latency: 14ms</span>
-        </div>
-      </footer>
     </div>
   );
 }

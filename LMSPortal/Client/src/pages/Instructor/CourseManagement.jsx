@@ -21,8 +21,7 @@ const INITIAL_CURRICULA = [
     statusType: 'published',
     updatedAtText: '2 hours ago',
     updatedBy: 'Dr. Vance',
-    thumbnail:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAVvF8q6YkooB6jd00HigLk1xg6D6cbOsCVV0EO7gL6hILBvwIyyGmNIL7iOTKwDHBFimS2-9QKg0fEDv6QZkmSNXxDjECvJ1FBgRu9wWzRDGzQV66Yr-5NsAFizgfXmsgurau2Ne7YTCr6ibQJb3OXHdEkplqdg79L4sYpjDVxie01xTxph4Xqga6HLxcQjSSnYtZZSDvywDSqGQRrYdyBA83m1TPJ2hFHKvlD6E6tlJpPbGnPzSw',
+    thumbnail: '/assets/course-quantum.jpg',
     price: 189,
     published: true,
   },
@@ -42,8 +41,7 @@ const INITIAL_CURRICULA = [
     statusType: 'published',
     updatedAtText: 'Yesterday',
     updatedBy: 'Dr. Vance',
-    thumbnail:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuDbuXC-TvtmSqBiatMZolIgEEMfD5BKOwrGsnsQKh7UEuR1Oz2ipybFKoL_nzu78RIbbHD3Wimy17YrbiX2Cn4n0-KiEiwlyhmbwBdtHlcv6PVLTl1L7LJ6xzF8ocI5F6unxNA-X6kILGPZniWkydEqUf1osi3drtmc-DSJKQpTieTMOofGd_9n7jOzGZZuMvGyd-Dc9x_Y2kyw8TRNvgPMuDU1irP51joTSHjXuqyW5J98X7Dtrk4',
+    thumbnail: '/assets/course-cloud.jpg',
     price: 149,
     published: true,
   },
@@ -63,8 +61,7 @@ const INITIAL_CURRICULA = [
     statusType: 'published',
     updatedAtText: '3 days ago',
     updatedBy: 'Dr. Vance',
-    thumbnail:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBQFNvgnnAXUSn003dxTDKL5jlxojixscjsuB_bvvlR_tCXRwzFAw7irMhAUSLrgG8Wf446VFM-WqnojrL1XFlBmEEyXTrMWSfPcnSXgJRXI0nT8fQC3nppk1P8AFCV3H8C14hKCBGv4PIWOK-R5Gc8mlawbcurObRnE0Xxjym9vZa0o24NrpPfhMiKXi0Q6M_cTxuG_QB3Hyo7jW9OedWfKgiqD_HPlTLT2M_t_XFz79gMsSDZJVs',
+    thumbnail: '/assets/course-cyber.jpg',
     price: 219,
     published: true,
   },
@@ -84,8 +81,7 @@ const INITIAL_CURRICULA = [
     statusType: 'draft',
     updatedAtText: 'Oct 22, 2025',
     updatedBy: 'Dr. Vance',
-    thumbnail:
-      'https://lh3.googleusercontent.com/aida/AEtjO1VLCqn5wnEB6NjMW1LQuBO_r-r44pQaJ-GOblMCfDphpI0GzzJTiFdM8i5qmfRjRuasrCi2f2M3RdLyW0Pgf2iGzusgEad9nHlJkSCCD1bhY0Ph_2CILXXvbB3CYZqkgHJeGt9rRPatzB4Q88_nPJvA1AD0MsYfC2kLT2_t8vvd3hU85B4uE6n5r1TYJvvl3lZi0dIo53wMOYDSRRdB9hHpiudDqKbZ5H0BzO8ipSo4fL4C7ykbpQh6cQ',
+    thumbnail: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&auto=format&fit=crop&q=80',
     price: 199,
     published: false,
   },
@@ -96,7 +92,7 @@ const INITIAL_CURRICULA = [
     title: 'High-Performance GPU Kernel Optimization in CUDA & Triton',
     subtitle: '12 Modules • H100 Cluster Allotment • Compiler Lab',
     domain: 'Systems & HPC',
-    domainColor: 'bg-surface-container-highest text-on-surface-variant',
+    domainColor: 'bg-slate-100 text-slate-700 border border-slate-200',
     students: 980,
     studentsDelta: '+4 peer audits',
     rating: 4.95,
@@ -105,8 +101,7 @@ const INITIAL_CURRICULA = [
     statusType: 'published',
     updatedAtText: 'Oct 18, 2025',
     updatedBy: 'Peer Review Node',
-    thumbnail:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAXw97BswuTBDqMJWw4-OB_f7a1Mw1LrUtvd9IFcRBRRyP1zwgiBse8akyQ6ROyE-6YKk1A_JGxCHh3BNKnCrpdRh6Uwzmx7A0o60jUw5UuBmJNkoaVANO62GwMJQa4-whNiQ4xec9d483MH6XQW8TGn1WjEvQD3yrlQZLxjzn7Lpyb8d0VcnwP-nTdB-7OVW9PIRozS1B763Aou_OHE8UnTyifRG78PSHqRXnj4_MOEUzDBxC9buk',
+    thumbnail: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?w=800&auto=format&fit=crop&q=80',
     price: 249,
     published: true,
   },
@@ -117,7 +112,7 @@ const INITIAL_CURRICULA = [
     title: 'Legacy Distributed Consensus Protocols & Raft v1',
     subtitle: '10 Modules • Deprecated by Raft-v2 Consensus Rig',
     domain: 'Distributed Systems',
-    domainColor: 'bg-surface-container text-outline',
+    domainColor: 'bg-slate-100 text-slate-500 border border-slate-200',
     students: 1240,
     studentsDelta: 'Archived Pool',
     rating: 4.72,
@@ -126,8 +121,7 @@ const INITIAL_CURRICULA = [
     statusType: 'archived',
     updatedAtText: 'Dec 12, 2024',
     updatedBy: 'SysAdmin Archive',
-    thumbnail:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBUPufXZXLwlJYDxtkgKdhDqmR2rolDM1WjBhwQT_keqzuJPhVCUn-hmnhV4nf_EVpeFd81xlZC6FP_zaFEGsd01xbTdC5nmcuwjZ1CEwbcTnINmI-Eyj0MuOZrv3-KSJ4ioeiRtCbg6Yoawf8iIK2un5YnStXh038Dt6jMgJODmB7290A19rj0jOTFEVEel-p4VJfT_c35AONwooD99emsVuBj0Mv2lTDfXWCKTwy5pVgpZhh3Ido',
+    thumbnail: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=80',
     price: 99,
     published: false,
   },
@@ -292,7 +286,7 @@ export default function CourseManagement() {
       c.rating,
       c.reviewsCount,
       c.status,
-      `$${c.price}`,
+      'Free',
     ]);
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
     const encodedUri = encodeURI(csvContent);
@@ -390,9 +384,7 @@ export default function CourseManagement() {
         level: formData.level,
         price: Number(formData.price) || 0,
         isFree: Number(formData.price) === 0,
-        thumbnail:
-          formData.thumbnail ||
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuAVvF8q6YkooB6jd00HigLk1xg6D6cbOsCVV0EO7gL6hILBvwIyyGmNIL7iOTKwDHBFimS2-9QKg0fEDv6QZkmSNXxDjECvJ1FBgRu9wWzRDGzQV66Yr-5NsAFizgfXmsgurau2Ne7YTCr6ibQJb3OXHdEkplqdg79L4sYpjDVxie01xTxph4Xqga6HLxcQjSSnYtZZSDvywDSqGQRrYdyBA83m1TPJ2hFHKvlD6E6tlJpPbGnPzSw',
+        thumbnail: formData.thumbnail || '/assets/course-cloud.jpg',
         willLearn: formData.willLearn
           ? formData.willLearn.split(',').map((s) => s.trim()).filter(Boolean)
           : [],

@@ -233,11 +233,7 @@ const AdminCourses = () => {
                         </div>
                       </td>
                       <td className="py-3 px-4 font-semibold text-slate-900 dark:text-white">
-                        {c.isFree ? (
-                          <span className="text-emerald-600 dark:text-emerald-400 text-xs uppercase font-bold">Free</span>
-                        ) : (
-                          `$${c.price || 0}`
-                        )}
+                        <span className="text-emerald-600 dark:text-emerald-400 text-xs uppercase font-bold">Free</span>
                       </td>
                       <td className="py-3 px-4">
                         <span
@@ -350,9 +346,9 @@ const AdminCourses = () => {
                 </p>
               </div>
               <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800">
-                <span className="text-slate-400">Status & Price:</span>
+                <span className="text-slate-400">Status & Access:</span>
                 <p className="font-semibold text-slate-800 dark:text-slate-200 mt-0.5">
-                  {previewCourse.published || previewCourse.isPublished ? 'Published' : 'Draft'} • {previewCourse.isFree ? 'Free' : `$${previewCourse.price}`}
+                  {previewCourse.published || previewCourse.isPublished ? 'Published' : 'Draft'} • Free (Open Access)
                 </p>
               </div>
             </div>

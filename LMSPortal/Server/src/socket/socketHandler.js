@@ -1,5 +1,6 @@
 import Message from '../models/Message.js';
 import { socketAuthMiddleware } from './socketAuthMiddleware.js';
+import { registerQuizHandlers } from './quizSocketHandler.js';
 
 // Global map of online users: userId -> Set of active socket IDs
 const onlineUsers = new Map();
@@ -71,6 +72,9 @@ export const initSocket = (io) => {
 
     // Send current list of online users to the newly connected socket
     socket.emit('online_users', Array.from(onlineUsers.keys()));
+
+    // 2.5 Initialize Real-Time Quiz Arena & Multiplayer Events
+    registerQuizHandlers(io, socket);
 
     // 3. Direct 1-on-1 Messaging (Student ↔ Instructor)
     socket.on('send_direct_message', async (...args) => {

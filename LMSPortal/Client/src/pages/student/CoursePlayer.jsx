@@ -443,14 +443,20 @@ print(calculate_mastery(15, 20))
             className="flex items-center gap-2.5 cursor-pointer group"
           >
             <div className="relative">
-              <img
-                alt={user?.name || 'Student'}
-                className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-400/40 group-hover:ring-blue-600 transition-all shadow-sm"
-                src={
-                  user?.avatar ||
-                  'https://lh3.googleusercontent.com/aida/AEtjO1XbByWEm7GAGBdpGAqxfzCMFkFqyPMDwXR31XzQcAW_7qE0SHGe5KcOzSHZWxcw0LmYVlhtAk7GuWXJwOamtyOO7hYD8eHnfRtALEC4NQ1hJFLBj_d4fWul7LXFbzSQShCNhrcpZZIXAoIGb-LhcSZTC2vvOtdLVJ1flthUBrMubmy1MxwpgQOLAqaQFAgYcT03ym4nj3WiibxwIVLJYhXutQRm9XkDKIunk7iDXjozViMs0zGMJ1ra'
-                }
-              />
+              {user?.avatar ? (
+                <img
+                  alt={user?.name || 'Student'}
+                  className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-400/40 group-hover:ring-blue-600 transition-all shadow-sm"
+                  src={user.avatar}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-500 shadow-sm">
+                  <span className="material-symbols-outlined text-[18px]">person</span>
+                </div>
+              )}
               <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
             </div>
             <div className="hidden lg:flex flex-col text-left">
@@ -656,10 +662,11 @@ print(calculate_mastery(15, 20))
                 <img
                   alt="Lesson Visual"
                   className="absolute inset-0 w-full h-full object-cover filter brightness-[0.75] contrast-105"
-                  src={
-                    course?.thumbnail ||
-                    'https://lh3.googleusercontent.com/aida-public/AB6AXuC4qg0abCVsaJ3sjUPEFZtU10U13C2iAaoRAiNdHiPro_iOf_PUEWnLnGPStFas82s8zRJ3_nhhVWnE2ihLJAsiWwajFeCLafoRTRliekhdcx8Ma-LLH38yLNrxFvNI1UHKWDOO86cVl-3NqkT2ZGgNbAtWD2ZsFRDfEKU-skJBVsCrwnbUGtSIt-3A8F2W5CLoZ4chhl6HiBuBzmAyxWIHZhktBMyeecEIuIzi4a0PTHTMluLjJ5g'
-                  }
+                  src={course?.thumbnail || '/assets/course-cloud.jpg'}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = '/assets/course-cloud.jpg';
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-slate-950/60 pointer-events-none"></div>
 

@@ -283,7 +283,7 @@ export default function Mycourses() {
                 className="flex flex-col justify-between rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all overflow-hidden group"
               >
                 {/* Thumbnail */}
-                <div className="relative w-full h-48 bg-slate-100 overflow-hidden">
+                <Link to={`/student/course/${course.id}/learn`} className="relative w-full h-48 bg-slate-100 overflow-hidden block cursor-pointer">
                   <img
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     alt={course.title}
@@ -303,7 +303,7 @@ export default function Mycourses() {
                       IN PROGRESS
                     </span>
                   )}
-                </div>
+                </Link>
 
                 {/* Details */}
                 <div className="p-5 flex flex-col justify-between flex-1 gap-4">
@@ -311,9 +311,11 @@ export default function Mycourses() {
                     <span className="text-[11px] font-mono font-semibold uppercase text-blue-600 tracking-wider">
                       {course.category}
                     </span>
-                    <h3 className="font-bold text-base text-slate-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
-                      {course.title}
-                    </h3>
+                    <Link to={`/student/course/${course.id}/learn`}>
+                      <h3 className="font-bold text-base text-slate-900 line-clamp-1 group-hover:text-blue-600 transition-colors cursor-pointer">
+                        {course.title}
+                      </h3>
+                    </Link>
                     <p className="text-slate-500 text-xs line-clamp-2 leading-relaxed">
                       {course.description || 'Comprehensive curriculum with laboratory benchmarks.'}
                     </p>
@@ -375,9 +377,9 @@ export default function Mycourses() {
                 className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all group"
               >
                 <div className="flex items-center gap-4 min-w-0">
-                  <div className="relative w-24 h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0">
+                  <Link to={`/student/course/${course.id}/learn`} className="relative w-24 h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0 block cursor-pointer">
                     <img className="w-full h-full object-cover" alt={course.title} src={course.thumbnail} />
-                  </div>
+                  </Link>
                   <div className="flex flex-col gap-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] font-mono font-semibold uppercase text-blue-600 px-2 py-0.5 rounded bg-blue-50">
@@ -389,9 +391,11 @@ export default function Mycourses() {
                         </span>
                       )}
                     </div>
-                    <h3 className="font-bold text-sm text-slate-900 truncate group-hover:text-blue-600 transition-colors">
-                      {course.title}
-                    </h3>
+                    <Link to={`/student/course/${course.id}/learn`}>
+                      <h3 className="font-bold text-sm text-slate-900 truncate group-hover:text-blue-600 transition-colors cursor-pointer">
+                        {course.title}
+                      </h3>
+                    </Link>
                     <span className="text-xs text-slate-500">Instructor: {course.instructor}</span>
                   </div>
                 </div>

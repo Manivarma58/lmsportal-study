@@ -2,6 +2,8 @@ import express from 'express';
 import {
   createQuiz,
   getQuizById,
+  getAllQuizzes,
+  getQuizLeaderboard,
   updateQuiz,
   deleteQuiz,
   getCourseQuizzes,
@@ -28,7 +30,9 @@ router.put('/:id/questions/:questionId', roleMiddleware('instructor', 'admin'), 
 router.delete('/:id/questions/:questionId', roleMiddleware('instructor', 'admin'), deleteQuestion);
 
 // Quiz Retrieval & Submissions
+router.get('/', getAllQuizzes);
 router.get('/course/:courseId', getCourseQuizzes);
+router.get('/:id/leaderboard', getQuizLeaderboard);
 router.get('/:id', getQuizById);
 router.post('/:id/submit', submitQuiz);
 router.get('/:id/my-submissions', getMyQuizSubmissions);

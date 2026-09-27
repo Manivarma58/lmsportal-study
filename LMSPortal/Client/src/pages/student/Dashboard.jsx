@@ -99,7 +99,7 @@ const StudentDashboard = () => {
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-mono text-xs font-semibold border border-emerald-200/70">
                   <span className="material-symbols-outlined text-[15px]">verified_user</span>
-                  STUDENT LEDGER VERIFIED
+                  ENROLLED STUDENT
                 </span>
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 font-mono text-xs">
                   ROLE: {user?.role ? user.role.toUpperCase() : 'STUDENT'}
@@ -397,7 +397,7 @@ const StudentDashboard = () => {
                     key={enrollment._id}
                     className="flex flex-col justify-between rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-all overflow-hidden group"
                   >
-                    <div className="relative w-full h-44 bg-slate-100 overflow-hidden">
+                    <Link to={`/student/course/${course._id}/learn`} className="relative w-full h-44 bg-slate-100 overflow-hidden block cursor-pointer">
                       <img
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         alt={course.title}
@@ -415,16 +415,18 @@ const StudentDashboard = () => {
                           COMPLETED
                         </span>
                       )}
-                    </div>
+                    </Link>
 
                     <div className="p-5 flex flex-col justify-between flex-1 gap-4">
                       <div className="flex flex-col gap-1.5">
                         <span className="text-[11px] font-mono font-semibold uppercase text-blue-600 tracking-wider">
                           {course.category || 'General Track'}
                         </span>
-                        <h3 className="font-bold text-base text-slate-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
-                          {course.title}
-                        </h3>
+                        <Link to={`/student/course/${course._id}/learn`}>
+                          <h3 className="font-bold text-base text-slate-900 line-clamp-1 group-hover:text-blue-600 transition-colors cursor-pointer">
+                            {course.title}
+                          </h3>
+                        </Link>
                         <p className="text-slate-500 text-xs line-clamp-2 leading-relaxed">
                           {course.description || 'Hands-on curriculum modules and practical software benchmarks.'}
                         </p>
@@ -562,7 +564,7 @@ const StudentDashboard = () => {
                     className="rounded-2xl bg-white border border-slate-200/90 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group"
                   >
                     <div className="flex flex-col gap-3">
-                      <div className="relative w-full h-36 rounded-xl overflow-hidden bg-slate-100">
+                      <Link to={`/course/${course._id}`} className="relative w-full h-36 rounded-xl overflow-hidden bg-slate-100 block cursor-pointer">
                         <img
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           alt={course.title}
@@ -574,11 +576,13 @@ const StudentDashboard = () => {
                         <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-white/90 backdrop-blur-sm text-xs font-semibold text-slate-700 font-mono">
                           {course.category || 'Engineering'}
                         </span>
-                      </div>
+                      </Link>
                       <div className="flex flex-col gap-1">
-                        <h4 className="font-bold text-slate-900 text-sm line-clamp-1 group-hover:text-blue-600 transition-colors">
-                          {course.title}
-                        </h4>
+                        <Link to={`/course/${course._id}`}>
+                          <h4 className="font-bold text-slate-900 text-sm line-clamp-1 group-hover:text-blue-600 transition-colors cursor-pointer">
+                            {course.title}
+                          </h4>
+                        </Link>
                         <p className="text-slate-500 text-xs line-clamp-2 leading-relaxed">
                           {course.description || 'Comprehensive curriculum with hands-on practice.'}
                         </p>
@@ -586,8 +590,8 @@ const StudentDashboard = () => {
                     </div>
 
                     <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                      <div className="text-xs text-slate-500 font-mono">
-                        {course.price ? `$${course.price}` : 'Free'}
+                      <div className="text-xs font-bold text-emerald-600 font-mono bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                        Free
                       </div>
                       {isAlreadyEnrolled ? (
                         <Link

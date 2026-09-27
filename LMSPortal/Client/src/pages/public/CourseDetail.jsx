@@ -148,12 +148,12 @@ const CourseDetail = () => {
             <div className="flex items-baseline justify-between">
               <div>
                 <span className="text-xs text-slate-400 uppercase font-semibold">Tuition</span>
-                <p className="text-3xl font-extrabold text-slate-900 dark:text-white">
-                  {course.isFree ? 'Free' : `$${course.price}`}
+                <p className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                  Free
                 </p>
               </div>
               <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full">
-                Full Lifetime Access
+                100% Free Open Access
               </span>
             </div>
 
@@ -168,9 +168,9 @@ const CourseDetail = () => {
               <button
                 onClick={handleEnroll}
                 disabled={enrolling}
-                className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-xl shadow-indigo-600/25 transition-all transform hover:scale-102 active:scale-98 disabled:opacity-50"
+                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-xl shadow-emerald-600/25 transition-all transform hover:scale-102 active:scale-98 disabled:opacity-50 cursor-pointer"
               >
-                {enrolling ? 'Enrolling...' : 'Enroll Now'}
+                {enrolling ? 'Enrolling...' : 'Enroll Free Now'}
               </button>
             )}
 

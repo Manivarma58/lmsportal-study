@@ -20,45 +20,8 @@ const InstructorDashboard = () => {
   const [courseCategory, setCourseCategory] = useState('all');
   const [courseSearch, setCourseSearch] = useState('');
 
-  // Fallback demo courses if the instructor has no courses yet
-  const FALLBACK_COURSES = [
-    {
-      _id: 'c-demo-1',
-      code: 'CS-901',
-      category: 'AI & Machine Learning',
-      title: 'Neural Networks & Quantum Computing: Tensor Latents',
-      studentsCount: 1840,
-      rating: 4.96,
-      completionRate: 88,
-      published: true,
-      thumbnail:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuAnRS2U6MlnSu6Zw0V5aJzw71fNY1MRFNyWBaH8mMuL5jJT2WNXkrICrINWRWWVw_rMiYRbPjrLoRtQH602Jn2HkraaUUZXsQ3g2ZEg8x2QbBvf8TOkS632owl-gjdoVEaPJmXeCgE22NS_lyn4xy0CfhBdsAZRVTbcQ2z17qr0KKqH-aaTHFUYJKeyJ0xGNvGEdZeO0rYEHpnZz8VKrjprzz829JfcQu7cjXx67g',
-    },
-    {
-      _id: 'c-demo-2',
-      code: 'DEV-602',
-      category: 'Cloud & DevOps',
-      title: 'Enterprise Kubernetes Mesh & High-Throughput Microservices',
-      studentsCount: 1420,
-      rating: 4.89,
-      completionRate: 82,
-      published: true,
-      thumbnail:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuD1OU6YXKToVNMUsq2_l05zbQzDWdymsAxtt62B2azDN0-m3xX1Ud5UKqVA56UJDRL_ubt1CBTGtnJvp-nJEfumbMebZz-vtQTE7X46ZOYYLZs64Kmiir2myGapeVDWD8gm6TnSVWwPMvhXTgylz2mEixfFy5jEdCc-xjScc5f810AA1dDMd7PW8kEkIEYk_fSr19v1GXZDbFmllVf25hUhwz9IRNyjoKWn2abZLQ',
-    },
-    {
-      _id: 'c-demo-3',
-      code: 'SEC-802',
-      category: 'Cybersecurity & Crypto',
-      title: 'Advanced Cryptographic Primitives & ZK-SNARKs Protocol',
-      studentsCount: 980,
-      rating: 4.94,
-      completionRate: 79,
-      published: true,
-      thumbnail:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuAH1VlnH09jeOVNbQjTzlRPa9hGnaH7QW4pTupSQ4Ijq9gZ7kmzr0i6b7Q5sDUlEWP2p_qcy0-Uuquf83NU-VmU1bMhqjfrvNWt0XSKDdnwtRJzySLCp5Dgvimxku5P98vzehXhs6lvzM09un2-ddwE6FH7axwTbt1v0tRjdTfCSICelWEN9KPtXKIPF2Tf-x_uvcXKgKBKsk2EMILsfMPHkeJ36VDfKUcMCQfW5w',
-    },
-  ];
+  // Default empty course list if the instructor has no courses yet
+  const FALLBACK_COURSES = [];
 
   // Fetch real instructor stats & courses
   useEffect(() => {
@@ -384,10 +347,11 @@ const InstructorDashboard = () => {
                         <img
                           alt={course.title}
                           className="w-12 h-12 rounded-xl object-cover border border-slate-200 shadow-sm shrink-0"
-                          src={
-                            course.thumbnail ||
-                            'https://lh3.googleusercontent.com/aida-public/AB6AXuAnRS2U6MlnSu6Zw0V5aJzw71fNY1MRFNyWBaH8mMuL5jJT2WNXkrICrINWRWWVw_rMiYRbPjrLoRtQH602Jn2HkraaUUZXsQ3g2ZEg8x2QbBvf8TOkS632owl-gjdoVEaPJmXeCgE22NS_lyn4xy0CfhBdsAZRVTbcQ2z17qr0KKqH-aaTHFUYJKeyJ0xGNvGEdZeO0rYEHpnZz8VKrjprzz829JfcQu7cjXx67g'
-                          }
+                          src={course.thumbnail || '/assets/course-cloud.jpg'}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/assets/course-cloud.jpg';
+                          }}
                         />
                         <div className="min-w-0">
                           <p className="font-semibold text-slate-900 truncate max-w-sm">

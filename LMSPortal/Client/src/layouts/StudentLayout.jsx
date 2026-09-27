@@ -104,8 +104,7 @@ const StudentLayout = () => {
                 src="/assets/nova-logo.png"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src =
-                    'https://lh3.googleusercontent.com/aida/AEtjO1UgC3VTGpx9ax-r_6UpM35x8ax2iPF16pw-6-9F4A6rxNge9kMA45erC8H2iSBnyIy4xWEYwjhF9kdDro5CqtIjuKgMuwlLKS3cSbv-zeJ8-0U7T1fFSfFwgf7O0zSJfkCvo4x9ljzn45d17ujEfI92ox2cjYqT6y8xAefFjuqQBiOnY0w-EXB5FDtL6-jmJFUZVPigoqkbzdOf6LBjqJLorwHllR2p6rJaisk60SMmxcTsI_chQfBKOA';
+                  e.target.src = '/assets/nova-logo.png';
                 }}
               />
               <div className="flex flex-col">
@@ -115,9 +114,6 @@ const StudentLayout = () => {
                 <span className="font-label-sm text-label-sm text-primary">NOVA LMS</span>
               </div>
             </Link>
-            <span className="font-code-md text-label-sm bg-surface-container-high text-tertiary px-space-xs py-0.5 rounded">
-              v2.4.8
-            </span>
           </div>
 
           {/* Categorized Navigation List */}
@@ -157,22 +153,6 @@ const StudentLayout = () => {
           </nav>
         </div>
 
-        {/* Bottom Ledger State Telemetry Card */}
-        <div className="p-space-sm border-t border-surface-container-high/40 bg-surface-container-lowest shrink-0">
-          <div className="p-2.5 rounded-xl bg-surface-container-low/60 border border-surface-container-high/40 flex flex-col gap-1.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px] text-tertiary">verified</span>
-                <span className="font-code-md text-[11px] font-semibold text-on-surface tracking-tight">Ledger Synchronized</span>
-              </div>
-              <span className="w-2 h-2 rounded-full bg-tertiary animate-pulse shadow-[0_0_6px_#4cd7f6]"></span>
-            </div>
-            <div className="flex items-center justify-between text-[10px] font-code-md text-outline">
-              <span>Academic Cluster v4.2.8</span>
-              <span className="text-tertiary uppercase">US-EAST-1</span>
-            </div>
-          </div>
-        </div>
       </aside>
 
       {/* ================= MOBILE DRAWER ================= */}
@@ -182,18 +162,18 @@ const StudentLayout = () => {
           onClick={() => setMobileMenuOpen(false)}
         >
           <div
-            className="fixed inset-y-0 left-0 w-72 bg-surface-container-lowest shadow-2xl p-4 flex flex-col justify-between"
+            className="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl p-4 flex flex-col justify-between border-r border-slate-200"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex-1 overflow-y-auto">
-              <div className="h-16 flex items-center justify-between border-b border-surface-container-high/40 pb-2 mb-3">
+              <div className="h-16 flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
                 <div className="flex items-center gap-2">
                   <img alt="Brand logo" className="h-7 w-auto object-contain rounded" src="/assets/nova-logo.png" />
-                  <span className="font-headline-sm text-on-surface">StudyPilot</span>
+                  <span className="font-bold text-slate-900 text-base">StudyPilot</span>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-1 rounded-lg text-on-surface-variant hover:text-on-surface"
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-700"
                 >
                   <span className="material-symbols-outlined">close</span>
                 </button>
@@ -201,21 +181,21 @@ const StudentLayout = () => {
 
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <div className="px-3 py-1 font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+                  <div className="px-3 py-1 text-xs uppercase tracking-wider text-slate-400 font-semibold">
                     Core Portal
                   </div>
                   {renderNavGroup(coreNavItems, true, () => setMobileMenuOpen(false))}
                 </div>
 
                 <div className="space-y-1">
-                  <div className="px-3 py-1 font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+                  <div className="px-3 py-1 text-xs uppercase tracking-wider text-slate-400 font-semibold">
                     Communications
                   </div>
                   {renderNavGroup(commsNavItems, true, () => setMobileMenuOpen(false))}
                 </div>
 
                 <div className="space-y-1">
-                  <div className="px-3 py-1 font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+                  <div className="px-3 py-1 text-xs uppercase tracking-wider text-slate-400 font-semibold">
                     Identity & System
                   </div>
                   {renderNavGroup(systemNavItems, true, () => setMobileMenuOpen(false))}
@@ -223,10 +203,10 @@ const StudentLayout = () => {
               </div>
             </div>
 
-            <div className="border-t border-surface-container-high/40 pt-3 mt-2">
+            <div className="border-t border-slate-100 pt-3 mt-2">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-error hover:bg-error-container/20 cursor-pointer"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-rose-600 hover:bg-rose-50 cursor-pointer font-medium"
               >
                 <span className="material-symbols-outlined text-[18px]">logout</span>
                 <span>Sign Out</span>
@@ -267,11 +247,6 @@ const StudentLayout = () => {
 
           {/* Right Header Controls */}
           <div className="flex items-center gap-space-md">
-            <div className="hidden xl:flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-slate-100 text-slate-700 font-code-md text-label-sm border border-slate-200">
-              <span className="material-symbols-outlined text-[16px] text-blue-600">lan</span>
-              <span>1,824 Nodes Available</span>
-            </div>
-
             {/* Notifications Button */}
             <button
               onClick={() => setNotificationsOpen(!notificationsOpen)}
@@ -302,22 +277,28 @@ const StudentLayout = () => {
                 title="Account Menu"
               >
                 <div className="relative">
-                  <img
-                    alt="Profile"
-                    className="w-8 h-8 rounded-full object-cover shadow-[0_0_12px_rgba(192,193,255,0.2)] border border-primary/30 group-hover:scale-105 transition-transform"
-                    src={
-                      user?.avatar ||
-                      'https://lh3.googleusercontent.com/aida/AEtjO1XbByWEm7GAGBdpGAqxfzCMFkFqyPMDwXR31XzQcAW_7qE0SHGe5KcOzSHZWxcw0LmYVlhtAk7GuWXJwOamtyOO7hYD8eHnfRtALEC4NQ1hJFLBj_d4fWul7LXFbzSQShCNhrcpZZIXAoIGb-LhcSZTC2vvOtdLVJ1flthUBrMubmy1MxwpgQOLAqaQFAgYcT03ym4nj3WiibxwIVLJYhXutQRm9XkDKIunk7iDXjozViMs0zGMJ1ra'
-                    }
-                  />
-                  <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-tertiary ring-2 ring-surface"></span>
+                  {user?.avatar ? (
+                    <img
+                      alt="Profile"
+                      className="w-8 h-8 rounded-full object-cover shadow-[0_0_12px_rgba(192,193,255,0.2)] border border-primary/30 group-hover:scale-105 transition-transform"
+                      src={user.avatar}
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-500 group-hover:bg-slate-200 transition-colors shadow-sm">
+                      <span className="material-symbols-outlined text-[18px]">person</span>
+                    </div>
+                  )}
+                  <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-surface"></span>
                 </div>
                 <div className="hidden sm:flex flex-col text-left">
                   <span className="font-label-lg text-label-lg text-on-surface leading-tight">
-                    {user?.name ? (user.name.startsWith('Dr.') ? user.name : `Dr. ${user.name}`) : 'Dr. Alex R.'}
+                    {user?.name || 'Student'}
                   </span>
                   <span className="font-label-sm text-label-sm text-primary capitalize">
-                    {user?.role || 'Fellow'}
+                    {user?.role || 'Student'}
                   </span>
                 </div>
                 <span className="material-symbols-outlined text-[18px] text-outline group-hover:text-on-surface transition-colors">
@@ -333,16 +314,16 @@ const StudentLayout = () => {
                     onClick={() => setProfileMenuOpen(false)}
                   ></div>
                   <div
-                    className="absolute right-0 mt-2 w-60 rounded-xl bg-surface-container-low border border-surface-container-high/60 shadow-2xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
+                    className="absolute right-0 mt-2 w-60 rounded-2xl bg-white border border-slate-200/90 shadow-xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
                   >
-                    <div className="px-4 py-2.5 border-b border-surface-container-high/40">
-                      <p className="font-label-md font-bold text-on-surface truncate">
+                    <div className="px-4 py-2.5 border-b border-slate-100">
+                      <p className="text-sm font-bold text-slate-900 truncate">
                         {user?.name || 'Student Scholar'}
                       </p>
-                      <p className="font-code-md text-[11px] text-outline truncate">
+                      <p className="font-mono text-xs text-slate-400 truncate">
                         {user?.email || 'scholar@nova.edu'}
                       </p>
-                      <span className="inline-block mt-1 font-code-md text-[10px] px-2 py-0.5 rounded bg-surface-container text-tertiary uppercase">
+                      <span className="inline-block mt-1 font-mono text-[10px] px-2 py-0.5 rounded bg-blue-50 text-blue-700 uppercase font-semibold border border-blue-200/60">
                         NODE: {user?.role || 'STUDENT'}
                       </span>
                     </div>
@@ -351,7 +332,7 @@ const StudentLayout = () => {
                       <Link
                         to="/student/profile"
                         onClick={() => setProfileMenuOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+                        className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-colors"
                       >
                         <span className="material-symbols-outlined text-[18px]">person</span>
                         <span>My Profile</span>
@@ -360,7 +341,7 @@ const StudentLayout = () => {
                       <Link
                         to="/student/setting"
                         onClick={() => setProfileMenuOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+                        className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-colors"
                       >
                         <span className="material-symbols-outlined text-[18px]">settings</span>
                         <span>Settings</span>
@@ -369,24 +350,24 @@ const StudentLayout = () => {
                       <Link
                         to="/student/notifications"
                         onClick={() => setProfileMenuOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
+                        className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-colors"
                       >
                         <span className="material-symbols-outlined text-[18px]">notifications</span>
                         <span>Notification Center</span>
                       </Link>
                     </div>
 
-                    <div className="border-t border-surface-container-high/40 my-1"></div>
+                    <div className="border-t border-slate-100 my-1"></div>
 
                     <button
                       onClick={() => {
                         setProfileMenuOpen(false);
                         handleLogout();
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-error hover:bg-error-container/20 transition-colors cursor-pointer text-left"
+                      className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer text-left"
                     >
                       <span className="material-symbols-outlined text-[18px]">logout</span>
-                      <span className="font-semibold">Sign Out</span>
+                      <span>Sign Out</span>
                     </button>
                   </div>
                 </>

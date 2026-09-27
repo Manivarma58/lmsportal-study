@@ -355,6 +355,40 @@ export const getStudentQuizSubmissions = async (quizId, studentId) => {
   return submissions;
 };
 
+export const getAllQuizzes = async (requesterUser) => {
+  const isInstructorOrAdmin =
+    requesterUser && (requesterUser.role === 'admin' || requesterUser.role === 'instructor');
+
+  let query = Quiz.find().populate('course', 'title thumbnail category domain isFree price');
+  if (!isInstructorOrAdmin) {
+    query = query.select('-questions.correctAnswer -questions.correctAnswerIndex -questions.explanation');
+  }
+
+  const quizzes = await query.lean();
+  return quizzes;
+};
+
+export const getQuizLeaderboard = async (quizId) => {
+  const attempts = await QuizAttempt.find({ quiz: quizId })
+    .sort({ score: -1, timeSpentSeconds: 1, createdAt: 1 })
+    .limit(20)
+    .populate('student', 'name avatar role')
+    .lean();
+
+  return attempts.map((att, idx) => ({
+    rank: idx + 1,
+    studentId: att.student?._id,
+    name: att.student?.name || 'Anonymous Scholar',
+    avatar: att.student?.avatar,
+    score: att.score,
+    totalPoints: att.totalPoints,
+    percentage: att.percentage,
+    passed: att.passed,
+    timeSpentSeconds: att.timeSpentSeconds,
+    attemptedAt: att.attemptedAt,
+  }));
+};
+
 export const submitQuiz = submitQuizAttempt;
 
 export default {
@@ -362,6 +396,8 @@ export default {
   updateQuiz,
   deleteQuiz,
   getQuizById,
+  getAllQuizzes,
+  getQuizLeaderboard,
   getCourseQuizzes,
   submitQuiz,
   submitQuizAttempt,

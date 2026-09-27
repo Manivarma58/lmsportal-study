@@ -65,7 +65,7 @@ const DEFAULT_COURSES = [
     modules: 6,
     level: 'Level 4',
     icon: 'hub',
-    iconBg: 'bg-surface-container-highest text-primary-fixed-dim',
+    iconBg: 'bg-blue-50 text-blue-600 border border-blue-200',
     scholars: 1868,
     completionRate: 86.7,
     velocityTier: 'Steady',
@@ -272,80 +272,80 @@ export default function InstructorAnalytics() {
       <div className="flex flex-col w-full space-y-space-xl">
         {/* ================= DASHBOARD CONTROLS & BREADCRUMB HEADER ================= */}
         <section className="flex flex-col gap-space-md">
-          <div className="flex flex-wrap items-center justify-between gap-space-sm">
-            <div className="flex items-center gap-2 font-code-md text-code-md text-outline">
-              <Link to="/instructor/dashboard" className="hover:text-primary transition-colors cursor-pointer">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 font-mono text-xs text-slate-500">
+              <Link to="/instructor/dashboard" className="hover:text-blue-600 transition-colors cursor-pointer">
                 Instructor Portal
               </Link>
-              <span className="text-outline-variant">/</span>
-              <Link to="/instructor/courses" className="hover:text-primary transition-colors cursor-pointer">
+              <span className="text-slate-300">/</span>
+              <Link to="/instructor/courses" className="hover:text-blue-600 transition-colors cursor-pointer">
                 Curricula
               </Link>
-              <span className="text-outline-variant">/</span>
-              <span className="text-tertiary font-medium">Telemetry & Analytics</span>
+              <span className="text-slate-300">/</span>
+              <span className="text-blue-600 font-semibold">Telemetry & Analytics</span>
             </div>
 
-            <div className="flex items-center gap-space-sm bg-surface-container-lowest px-3 py-1.5 rounded-full shadow-sm border border-surface-container-high/40">
+            <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-200">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              <span className="font-code-md text-label-sm text-tertiary uppercase tracking-wider">
+              <span className="font-mono text-xs text-emerald-700 font-semibold uppercase tracking-wider">
                 Stream synced {lastSyncedTime}
               </span>
-              <span className="text-outline-variant font-code-md text-label-sm">·</span>
-              <span className="font-code-md text-label-sm text-outline">NODE_US_EAST_04</span>
+              <span className="text-slate-300 font-mono text-xs">·</span>
+              <span className="font-mono text-xs text-slate-400">NODE_US_EAST_04</span>
             </div>
           </div>
 
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-space-lg">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <div>
-              <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
                 Curricular Analytics & Telemetry
               </h1>
-              <p className="font-body-md text-body-md text-on-surface-variant max-w-3xl mt-1">
+              <p className="text-slate-500 text-sm max-w-3xl mt-1 leading-relaxed">
                 Real-time pedagogical metrics, institutional disbursement schedules, learner velocity gradients, and module-level cohort retention telemetry.
               </p>
             </div>
 
             {/* Action Cluster */}
-            <div className="flex flex-wrap items-center gap-space-sm">
+            <div className="flex flex-wrap items-center gap-3">
               <div className="relative">
                 <button
                   id="exportDropdownBtn"
                   onClick={() => setExportOpen(!exportOpen)}
-                  className="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-lg text-label-lg flex items-center gap-2 shadow-sm transition-all border border-surface-container-high/50"
+                  className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs flex items-center gap-2 shadow-sm transition-all border border-slate-200 cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-[18px] text-tertiary">download</span>
+                  <span className="material-symbols-outlined text-[18px] text-blue-600">download</span>
                   <span>Export Report</span>
-                  <span className="material-symbols-outlined text-[16px] text-outline">expand_more</span>
+                  <span className="material-symbols-outlined text-[16px] text-slate-400">expand_more</span>
                 </button>
 
                 {exportOpen && (
                   <div
                     id="exportMenu"
-                    className="absolute right-0 mt-2 w-56 rounded-xl bg-surface-container-high shadow-xl p-1.5 z-50 flex flex-col space-y-1 border border-surface-container-highest/60 backdrop-blur-md"
+                    className="absolute right-0 mt-2 w-56 rounded-xl bg-white shadow-xl p-1.5 z-50 flex flex-col space-y-1 border border-slate-200"
                   >
                     <button
                       onClick={() => handleExport('CSV')}
-                      className="w-full text-left px-3 py-2 rounded-lg text-on-surface font-body-sm text-body-sm hover:bg-surface-container-highest flex items-center justify-between transition-colors"
+                      className="w-full text-left px-3 py-2 rounded-lg text-slate-700 font-medium text-xs hover:bg-slate-50 flex items-center justify-between transition-colors cursor-pointer"
                     >
                       <span>CSV Telemetry Ledger</span>
-                      <span className="font-code-md text-label-sm text-outline">.raw</span>
+                      <span className="font-mono text-[11px] text-slate-400">.raw</span>
                     </button>
                     <button
                       onClick={() => handleExport('PDF')}
-                      className="w-full text-left px-3 py-2 rounded-lg text-on-surface font-body-sm text-body-sm hover:bg-surface-container-highest flex items-center justify-between transition-colors"
+                      className="w-full text-left px-3 py-2 rounded-lg text-slate-700 font-medium text-xs hover:bg-slate-50 flex items-center justify-between transition-colors cursor-pointer"
                     >
                       <span>Executive Brief (PDF)</span>
-                      <span className="font-code-md text-label-sm text-outline">.pdf</span>
+                      <span className="font-mono text-[11px] text-slate-400">.pdf</span>
                     </button>
                     <button
                       onClick={() => handleExport('JSON')}
-                      className="w-full text-left px-3 py-2 rounded-lg text-on-surface font-body-sm text-body-sm hover:bg-surface-container-highest flex items-center justify-between transition-colors"
+                      className="w-full text-left px-3 py-2 rounded-lg text-slate-700 font-medium text-xs hover:bg-slate-50 flex items-center justify-between transition-colors cursor-pointer"
                     >
                       <span>JSON Academic Block</span>
-                      <span className="font-code-md text-label-sm text-outline">.json</span>
+                      <span className="font-mono text-[11px] text-slate-400">.json</span>
                     </button>
                   </div>
                 )}
@@ -353,7 +353,7 @@ export default function InstructorAnalytics() {
 
               <button
                 onClick={() => setShowInsightsModal(true)}
-                className="px-4 py-2 rounded-lg bg-gradient-to-r from-primary-container to-secondary-container text-on-primary font-label-lg text-label-lg shadow-md hover:brightness-110 active:scale-[0.99] transition-all flex items-center gap-2"
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-sm transition-all flex items-center gap-2 cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[18px]">insights</span>
                 <span>Generate Insights</span>
@@ -362,9 +362,9 @@ export default function InstructorAnalytics() {
           </div>
 
           {/* Filter Bar */}
-          <div className="bg-surface-container-low p-space-sm rounded-xl flex flex-wrap items-center justify-between gap-space-md shadow-sm border border-surface-container-high/40">
+          <div className="bg-white p-3 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-sm border border-slate-200/90">
             {/* Time pill selector */}
-            <div className="flex items-center bg-surface-container-lowest p-1 rounded-lg gap-1 border border-surface-container-high/30">
+            <div className="flex items-center bg-slate-100 p-1 rounded-xl gap-1 border border-slate-200/80">
               {['7 Days', '30 Days', '90 Days', '1 Year', 'Custom'].map((pill) => (
                 <button
                   key={pill}
@@ -372,10 +372,10 @@ export default function InstructorAnalytics() {
                     setTimeRange(pill);
                     toast.info(`Time Horizon Adjusted: ${pill}`);
                   }}
-                  className={`px-3 py-1 rounded font-label-md text-label-md transition-all ${
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     timeRange === pill
-                      ? 'bg-surface-container-high text-primary shadow-sm font-semibold'
-                      : 'text-outline hover:text-on-surface'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   {pill}
@@ -383,10 +383,10 @@ export default function InstructorAnalytics() {
               ))}
             </div>
 
-            <div className="flex flex-wrap items-center gap-space-md">
+            <div className="flex flex-wrap items-center gap-3">
               {/* Date display */}
-              <div className="flex items-center gap-2 font-code-md text-code-md text-on-surface-variant bg-surface-container px-3 py-1.5 rounded-lg border border-surface-container-high/30">
-                <span className="material-symbols-outlined text-[16px] text-tertiary">calendar_today</span>
+              <div className="flex items-center gap-2 font-mono text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+                <span className="material-symbols-outlined text-[16px] text-blue-600">calendar_today</span>
                 <span>
                   {timeRange === '7 Days'
                     ? 'Oct 24, 2024 – Oct 31, 2024'
@@ -399,26 +399,26 @@ export default function InstructorAnalytics() {
               </div>
 
               {/* Curricula dropdown */}
-              <div className="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-lg border border-surface-container-high/30">
-                <span className="material-symbols-outlined text-[18px] text-secondary">school</span>
+              <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+                <span className="material-symbols-outlined text-[18px] text-blue-600">school</span>
                 <select
                   value={selectedCurriculum}
                   onChange={(e) => setSelectedCurriculum(e.target.value)}
-                  className="bg-transparent font-label-lg text-label-lg text-on-surface focus:outline-none cursor-pointer pr-2"
+                  className="bg-transparent text-xs font-semibold text-slate-900 focus:outline-none cursor-pointer pr-2"
                 >
-                  <option value="all" className="bg-surface-container-high text-on-surface">
+                  <option value="all" className="bg-white text-slate-900">
                     All Curricula (14 active)
                   </option>
-                  <option value="qpu" className="bg-surface-container-high text-on-surface">
+                  <option value="qpu" className="bg-white text-slate-900">
                     Neural Networks QPU-904
                   </option>
-                  <option value="cloud" className="bg-surface-container-high text-on-surface">
+                  <option value="cloud" className="bg-white text-slate-900">
                     Cloud Kernel Architecture CLOUD-702
                   </option>
-                  <option value="zk" className="bg-surface-container-high text-on-surface">
+                  <option value="zk" className="bg-white text-slate-900">
                     Zero-Knowledge Cryptography ZK-802
                   </option>
-                  <option value="ds" className="bg-surface-container-high text-on-surface">
+                  <option value="ds" className="bg-white text-slate-900">
                     Distributed Systems Consensus DS-601
                   </option>
                 </select>
@@ -428,178 +428,176 @@ export default function InstructorAnalytics() {
         </section>
 
         {/* ================= 6 HIGH-IMPACT METRICS CARDS ================= */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-space-md">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           {/* Card 1: Total Scholars */}
-          <div className="bg-surface-container-low rounded-xl p-space-md flex flex-col justify-between shadow-sm relative overflow-hidden group hover:bg-surface-container transition-all border border-surface-container-high/40">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="bg-white rounded-2xl p-5 flex flex-col justify-between shadow-sm relative overflow-hidden border border-slate-200/90">
             <div className="flex items-center justify-between mb-2">
-              <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline">Total Scholars</span>
-              <span className="material-symbols-outlined text-primary text-[20px]">groups</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">Total Scholars</span>
+              <span className="material-symbols-outlined text-blue-600 text-[20px]">groups</span>
             </div>
             <div>
-              <div className="font-headline-md text-headline-md text-on-surface font-bold">{totalScholars}</div>
+              <div className="text-2xl font-bold text-slate-900">{totalScholars}</div>
               <div className="flex items-center gap-1.5 mt-1">
-                <span className="px-1.5 py-0.5 rounded-full bg-tertiary-container/30 text-tertiary font-code-md text-label-sm font-semibold flex items-center gap-0.5">
+                <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-mono text-[11px] font-semibold flex items-center gap-0.5 border border-emerald-200">
                   <span className="material-symbols-outlined text-[12px]">trending_up</span> +14.2%
                 </span>
-                <span className="font-body-sm text-body-sm text-outline">vs past cycle</span>
+                <span className="text-xs text-slate-400">vs past cycle</span>
               </div>
             </div>
             {/* Mini Sparkline SVG */}
             <div className="mt-3 pt-2">
               <svg className="w-full h-8 overflow-visible" fill="none" viewBox="0 0 100 25">
-                <path className="text-primary" d="M0,20 Q15,18 28,14 T55,10 T78,6 T100,2" stroke="currentColor" strokeWidth="2"></path>
-                <path className="text-primary/10" d="M0,20 Q15,18 28,14 T55,10 T78,6 T100,2 L100,25 L0,25 Z" fill="currentColor"></path>
+                <path className="text-blue-600" d="M0,20 Q15,18 28,14 T55,10 T78,6 T100,2" stroke="currentColor" strokeWidth="2"></path>
+                <path className="text-blue-50" d="M0,20 Q15,18 28,14 T55,10 T78,6 T100,2 L100,25 L0,25 Z" fill="currentColor"></path>
               </svg>
             </div>
           </div>
 
           {/* Card 2: New Enrollments */}
-          <div className="bg-surface-container-low rounded-xl p-space-md flex flex-col justify-between shadow-sm relative overflow-hidden group hover:bg-surface-container transition-all border border-surface-container-high/40">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/5 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="bg-white rounded-2xl p-5 flex flex-col justify-between shadow-sm relative overflow-hidden border border-slate-200/90">
             <div className="flex items-center justify-between mb-2">
-              <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline">New Influx</span>
-              <span className="material-symbols-outlined text-secondary text-[20px]">person_add</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">New Influx</span>
+              <span className="material-symbols-outlined text-indigo-600 text-[20px]">person_add</span>
             </div>
             <div>
-              <div className="font-headline-md text-headline-md text-on-surface font-bold">{newInflux}</div>
+              <div className="text-2xl font-bold text-slate-900">{newInflux}</div>
               <div className="flex items-center gap-1.5 mt-1">
-                <span className="px-1.5 py-0.5 rounded-full bg-secondary-container/40 text-secondary-fixed font-code-md text-label-sm font-semibold flex items-center gap-0.5">
+                <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-mono text-[11px] font-semibold flex items-center gap-0.5 border border-indigo-200">
                   <span className="material-symbols-outlined text-[12px]">north_east</span> +22.8%
                 </span>
-                <span className="font-body-sm text-body-sm text-outline">MoM</span>
+                <span className="text-xs text-slate-400">MoM</span>
               </div>
             </div>
             <div className="mt-3 pt-2">
               <svg className="w-full h-8 overflow-visible" fill="none" viewBox="0 0 100 25">
-                <path className="text-secondary" d="M0,22 L15,18 L32,19 L48,12 L65,15 L82,8 L100,3" stroke="currentColor" strokeWidth="2"></path>
-                <path className="text-secondary/10" d="M0,22 L15,18 L32,19 L48,12 L65,15 L82,8 L100,3 L100,25 L0,25 Z" fill="currentColor"></path>
+                <path className="text-indigo-600" d="M0,22 L15,18 L32,19 L48,12 L65,15 L82,8 L100,3" stroke="currentColor" strokeWidth="2"></path>
+                <path className="text-indigo-50" d="M0,22 L15,18 L32,19 L48,12 L65,15 L82,8 L100,3 L100,25 L0,25 Z" fill="currentColor"></path>
               </svg>
             </div>
           </div>
 
           {/* Card 3: Completion Rate */}
-          <div className="bg-surface-container-low rounded-xl p-space-md flex flex-col justify-between shadow-sm relative overflow-hidden group hover:bg-surface-container transition-all border border-surface-container-high/40">
+          <div className="bg-white rounded-2xl p-5 flex flex-col justify-between shadow-sm relative overflow-hidden border border-slate-200/90">
             <div className="flex items-center justify-between mb-2">
-              <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline">Completion Rate</span>
-              <span className="material-symbols-outlined text-tertiary text-[20px]">verified</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">Completion Rate</span>
+              <span className="material-symbols-outlined text-emerald-600 text-[20px]">verified</span>
             </div>
             <div>
-              <div className="font-headline-md text-headline-md text-on-surface font-bold">84.6%</div>
+              <div className="text-2xl font-bold text-slate-900">84.6%</div>
               <div className="flex items-center gap-1.5 mt-1">
-                <span className="px-1.5 py-0.5 rounded-full bg-tertiary/10 text-tertiary font-code-md text-label-sm font-semibold">
+                <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-mono text-[11px] font-semibold border border-emerald-200">
                   +3.4% bench
                 </span>
-                <span className="font-code-md text-label-sm text-primary font-medium">Top 5% Faculty</span>
+                <span className="font-mono text-xs text-blue-600 font-medium">Top 5%</span>
               </div>
             </div>
             <div className="mt-3 pt-2">
-              <div className="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
-                <div className="bg-gradient-to-r from-primary to-tertiary h-full rounded-full" style={{ width: '84.6%' }}></div>
+              <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-600 to-emerald-500 h-full rounded-full" style={{ width: '84.6%' }}></div>
               </div>
-              <div className="flex justify-between items-center text-outline font-code-md text-label-sm mt-1">
-                <span>Global Avg: 68%</span>
-                <span className="text-tertiary">84.6%</span>
+              <div className="flex justify-between items-center text-slate-400 font-mono text-[11px] mt-1.5">
+                <span>Avg: 68%</span>
+                <span className="text-emerald-600 font-semibold">84.6%</span>
               </div>
             </div>
           </div>
 
           {/* Card 4: Average Rating */}
-          <div className="bg-surface-container-low rounded-xl p-space-md flex flex-col justify-between shadow-sm relative overflow-hidden group hover:bg-surface-container transition-all border border-surface-container-high/40">
+          <div className="bg-white rounded-2xl p-5 flex flex-col justify-between shadow-sm relative overflow-hidden border border-slate-200/90">
             <div className="flex items-center justify-between mb-2">
-              <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline">Peer Audit Rating</span>
-              <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">Peer Audit Rating</span>
+              <span className="material-symbols-outlined text-amber-500 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                 star
               </span>
             </div>
             <div>
               <div className="flex items-baseline gap-1.5">
-                <span className="font-headline-md text-headline-md text-on-surface font-bold">4.92</span>
-                <span className="font-code-md text-code-md text-outline">/ 5.0</span>
+                <span className="text-2xl font-bold text-slate-900">4.92</span>
+                <span className="font-mono text-xs text-slate-400">/ 5.0</span>
               </div>
-              <div className="flex items-center gap-1.5 mt-1">
-                <span className="font-code-md text-label-sm text-on-surface-variant">6,730 audits</span>
-                <span className="font-code-md text-label-sm text-tertiary">98.4% 5★</span>
+              <div className="flex items-center gap-1.5 mt-1 font-mono text-xs">
+                <span className="text-slate-500">6,730 audits</span>
+                <span className="text-emerald-600 font-semibold">98.4% 5★</span>
               </div>
             </div>
-            <div className="mt-3 pt-2 flex items-center gap-1 text-primary">
+            <div className="mt-3 pt-2 flex items-center gap-1 text-amber-400">
               <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
               <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
               <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
               <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
               <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>star_half</span>
-              <span className="font-code-md text-label-sm text-outline ml-auto">99.1 pct</span>
+              <span className="font-mono text-[11px] text-slate-400 ml-auto font-sans">99.1 pct</span>
             </div>
           </div>
 
           {/* Card 5: Net Tuition Revenue */}
-          <div className="bg-surface-container-low rounded-xl p-space-md flex flex-col justify-between shadow-sm relative overflow-hidden group hover:bg-surface-container transition-all border border-surface-container-high/40">
+          <div className="bg-white rounded-2xl p-5 flex flex-col justify-between shadow-sm relative overflow-hidden border border-slate-200/90">
             <div className="flex items-center justify-between mb-2">
-              <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline">Tuition Accrued</span>
-              <span className="material-symbols-outlined text-tertiary text-[20px]">payments</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">Tuition Accrued</span>
+              <span className="material-symbols-outlined text-emerald-600 text-[20px]">payments</span>
             </div>
             <div>
-              <div className="font-headline-md text-headline-md text-on-surface font-bold">{tuitionRevenue}</div>
+              <div className="text-2xl font-bold text-slate-900">{tuitionRevenue}</div>
               <div className="flex items-center gap-1.5 mt-1">
-                <span className="px-1.5 py-0.5 rounded-full bg-tertiary/10 text-tertiary font-code-md text-label-sm font-semibold flex items-center gap-0.5">
+                <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-mono text-[11px] font-semibold flex items-center gap-0.5 border border-emerald-200">
                   <span className="material-symbols-outlined text-[12px]">arrow_upward</span> +18.5%
                 </span>
-                <span className="font-body-sm text-body-sm text-outline">YoY</span>
+                <span className="text-xs text-slate-400">YoY</span>
               </div>
             </div>
-            <div className="mt-3 pt-2 flex items-center justify-between text-outline font-code-md text-label-sm">
+            <div className="mt-3 pt-2 flex items-center justify-between text-slate-400 font-mono text-[11px]">
               <span>Split: 85/15 Net</span>
-              <span className="text-secondary font-medium">Bi-weekly Auto</span>
+              <span className="text-blue-600 font-semibold">Bi-weekly Auto</span>
             </div>
           </div>
 
           {/* Card 6: Total Learning Hours */}
-          <div className="bg-surface-container-low rounded-xl p-space-md flex flex-col justify-between shadow-sm relative overflow-hidden group hover:bg-surface-container transition-all border border-surface-container-high/40">
+          <div className="bg-white rounded-2xl p-5 flex flex-col justify-between shadow-sm relative overflow-hidden border border-slate-200/90">
             <div className="flex items-center justify-between mb-2">
-              <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline">Lab & Lecture Hours</span>
-              <span className="material-symbols-outlined text-secondary text-[20px]">timelapse</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">Lab & Lecture Hours</span>
+              <span className="material-symbols-outlined text-purple-600 text-[20px]">timelapse</span>
             </div>
             <div>
-              <div className="font-headline-md text-headline-md text-on-surface font-bold">{learningHours}</div>
+              <div className="text-2xl font-bold text-slate-900">{learningHours}</div>
               <div className="flex items-center gap-1.5 mt-1">
-                <span className="px-1.5 py-0.5 rounded-full bg-secondary-container/40 text-secondary-fixed font-code-md text-label-sm font-semibold">
+                <span className="px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 font-mono text-[11px] font-semibold border border-purple-200">
                   +19.4% MoM
                 </span>
-                <span className="font-body-sm text-body-sm text-outline">Avg 38.2h/ea</span>
+                <span className="text-xs text-slate-400">Avg 38.2h</span>
               </div>
             </div>
             <div className="mt-3 pt-2">
               <svg className="w-full h-8 overflow-visible" fill="none" viewBox="0 0 100 25">
-                <path className="text-tertiary" d="M0,20 Q20,22 40,15 T70,8 T100,4" stroke="currentColor" strokeWidth="2"></path>
-                <path className="text-tertiary/10" d="M0,20 Q20,22 40,15 T70,8 T100,4 L100,25 L0,25 Z" fill="currentColor"></path>
+                <path className="text-purple-600" d="M0,20 Q20,22 40,15 T70,8 T100,4" stroke="currentColor" strokeWidth="2"></path>
+                <path className="text-purple-50" d="M0,20 Q20,22 40,15 T70,8 T100,4 L100,25 L0,25 Z" fill="currentColor"></path>
               </svg>
             </div>
           </div>
         </section>
 
         {/* ================= MAIN TELEMETRY CHARTS (2x2 GRID) ================= */}
-        <section className="grid grid-cols-1 xl:grid-cols-2 gap-space-lg">
+        <section className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {/* CHART 1: ENROLLMENT & VELOCITY TREND */}
-          <div className="bg-surface-container-low rounded-xl p-space-lg shadow-sm flex flex-col justify-between relative overflow-hidden border border-surface-container-high/40">
-            <div className="flex flex-wrap items-center justify-between gap-space-sm mb-4">
+          <div className="bg-white rounded-2xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden border border-slate-200/90">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="font-headline-sm text-headline-sm text-on-surface">Enrollment Velocity Gradients</h2>
-                  <span className="px-2 py-0.5 rounded bg-primary/10 text-primary font-code-md text-label-sm font-semibold border border-primary/20">
+                  <h2 className="text-base font-bold text-slate-900">Enrollment Velocity Gradients</h2>
+                  <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-mono text-xs font-semibold border border-blue-200">
                     DUAL SPLINE
                   </span>
                 </div>
-                <p className="font-body-sm text-body-sm text-outline mt-0.5">30-day cumulative scholar acquisition vs prior 30-day baseline</p>
+                <p className="text-xs text-slate-500 mt-0.5">30-day cumulative scholar acquisition vs prior 30-day baseline</p>
               </div>
 
-              <div className="flex items-center gap-space-md font-label-md text-label-md">
+              <div className="flex items-center gap-4 text-xs font-semibold">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-full bg-primary shadow-sm"></span>
-                  <span className="text-on-surface">Current Window (1,842)</span>
+                  <span className="w-3 h-3 rounded-full bg-blue-600 shadow-sm"></span>
+                  <span className="text-slate-900">Current Window (1,842)</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-1 rounded-full bg-outline-variant"></span>
-                  <span className="text-outline">Prior Cycle (1,500)</span>
+                  <span className="w-3 h-1 rounded-full bg-slate-300"></span>
+                  <span className="text-slate-400">Prior Cycle (1,500)</span>
                 </div>
               </div>
             </div>
@@ -609,44 +607,40 @@ export default function InstructorAnalytics() {
               <svg className="w-full h-full" fill="none" preserveAspectRatio="none" viewBox="0 0 600 220">
                 <defs>
                   <linearGradient id="areaGradient" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#c0c1ff" stopOpacity="0.35"></stop>
-                    <stop offset="100%" stopColor="#c0c1ff" stopOpacity="0.0"></stop>
-                  </linearGradient>
-                  <linearGradient id="cyanGradient" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#4cd7f6" stopOpacity="0.2"></stop>
-                    <stop offset="100%" stopColor="#4cd7f6" stopOpacity="0.0"></stop>
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.25"></stop>
+                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0"></stop>
                   </linearGradient>
                 </defs>
 
                 {/* Horizontal Grid Lines */}
-                <line className="text-surface-container-highest" stroke="currentColor" strokeDasharray="3 3" x1="0" x2="600" y1="30" y2="30"></line>
-                <line className="text-surface-container-highest" stroke="currentColor" strokeDasharray="3 3" x1="0" x2="600" y1="80" y2="80"></line>
-                <line className="text-surface-container-highest" stroke="currentColor" strokeDasharray="3 3" x1="0" x2="600" y1="130" y2="130"></line>
-                <line className="text-surface-container-highest" stroke="currentColor" strokeDasharray="3 3" x1="0" x2="600" y1="180" y2="180"></line>
+                <line className="text-slate-200" stroke="currentColor" strokeDasharray="3 3" x1="0" x2="600" y1="30" y2="30"></line>
+                <line className="text-slate-200" stroke="currentColor" strokeDasharray="3 3" x1="0" x2="600" y1="80" y2="80"></line>
+                <line className="text-slate-200" stroke="currentColor" strokeDasharray="3 3" x1="0" x2="600" y1="130" y2="130"></line>
+                <line className="text-slate-200" stroke="currentColor" strokeDasharray="3 3" x1="0" x2="600" y1="180" y2="180"></line>
 
                 {/* Prior Period (Dashed) */}
-                <path className="text-outline-variant" d="M0,175 C70,165 140,150 210,130 C280,110 350,120 420,95 C490,70 550,60 600,45" stroke="currentColor" strokeDasharray="4 4" strokeWidth="2"></path>
+                <path className="text-slate-300" d="M0,175 C70,165 140,150 210,130 C280,110 350,120 420,95 C490,70 550,60 600,45" stroke="currentColor" strokeDasharray="4 4" strokeWidth="2"></path>
 
                 {/* Current Period Filled Area */}
                 <path d="M0,160 C60,150 120,135 180,105 C240,75 300,90 360,65 C420,40 480,45 540,25 L600,18 L600,200 L0,200 Z" fill="url(#areaGradient)"></path>
 
                 {/* Current Period Line */}
-                <path className="text-primary" d="M0,160 C60,150 120,135 180,105 C240,75 300,90 360,65 C420,40 480,45 540,25 L600,18" stroke="currentColor" strokeWidth="3"></path>
+                <path className="text-blue-600" d="M0,160 C60,150 120,135 180,105 C240,75 300,90 360,65 C420,40 480,45 540,25 L600,18" stroke="currentColor" strokeWidth="3"></path>
 
                 {/* Interactive Highlight Peak Pin */}
-                <circle className="fill-surface-container-lowest stroke-tertiary cursor-pointer" cx="540" cy="25" r="5" strokeWidth="3"></circle>
-                <circle className="stroke-tertiary opacity-30 animate-ping" cx="540" cy="25" r="8" strokeWidth="2"></circle>
+                <circle className="fill-white stroke-blue-600 cursor-pointer" cx="540" cy="25" r="5" strokeWidth="3"></circle>
+                <circle className="stroke-blue-600 opacity-30 animate-ping" cx="540" cy="25" r="8" strokeWidth="2"></circle>
               </svg>
 
               {/* Peak Popover Tooltip */}
-              <div className="absolute top-2 right-12 bg-surface-container-highest text-on-surface px-3 py-1.5 rounded-lg shadow-lg font-code-md text-label-sm border border-surface-container-high/60 pointer-events-none">
-                <div className="text-tertiary font-bold">Peak Influx: Oct 28</div>
-                <div className="text-on-surface-variant text-[11px]">84 enrollments/hr (Live Sync)</div>
+              <div className="absolute top-2 right-12 bg-slate-900 text-white px-3 py-1.5 rounded-xl shadow-lg font-mono text-xs border border-slate-800 pointer-events-none">
+                <div className="text-emerald-400 font-bold">Peak Influx: Oct 28</div>
+                <div className="text-slate-300 text-[11px]">84 enrollments/hr (Live Sync)</div>
               </div>
             </div>
 
             {/* X-Axis Labels */}
-            <div className="flex justify-between items-center text-outline font-code-md text-label-sm pt-3">
+            <div className="flex justify-between items-center text-slate-400 font-mono text-xs pt-3">
               <span>Oct 01</span>
               <span>Oct 07</span>
               <span>Oct 14</span>
@@ -657,110 +651,110 @@ export default function InstructorAnalytics() {
           </div>
 
           {/* CHART 2: COURSE COMPLETION & DROP-OFF FUNNEL */}
-          <div className="bg-surface-container-low rounded-xl p-space-lg shadow-sm flex flex-col justify-between border border-surface-container-high/40">
-            <div className="flex flex-wrap items-center justify-between gap-space-sm mb-4">
+          <div className="bg-white rounded-2xl p-6 shadow-sm flex flex-col justify-between border border-slate-200/90">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="font-headline-sm text-headline-sm text-on-surface">Curricular Retention & Fall-off Funnel</h2>
-                  <span className="px-2 py-0.5 rounded bg-error/10 text-error font-code-md text-label-sm font-semibold border border-error/20">
+                  <h2 className="text-base font-bold text-slate-900">Curricular Retention & Fall-off Funnel</h2>
+                  <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-mono text-xs font-semibold border border-amber-200">
                     MOD 3 ANOMALY
                   </span>
                 </div>
-                <p className="font-body-sm text-body-sm text-outline mt-0.5">Persistence across progression gates (Module 1 through Capstone)</p>
+                <p className="text-xs text-slate-500 mt-0.5">Persistence across progression gates (Module 1 through Capstone)</p>
               </div>
-              <div className="flex items-center gap-2 bg-surface-container-highest px-2.5 py-1 rounded-lg border border-surface-container-high/40">
-                <span className="material-symbols-outlined text-tertiary text-[16px]">flag</span>
-                <span className="font-code-md text-label-sm text-on-surface">Drop Floor: 4.2%</span>
+              <div className="flex items-center gap-2 bg-slate-50 px-3 py-1 rounded-xl border border-slate-200">
+                <span className="material-symbols-outlined text-blue-600 text-[16px]">flag</span>
+                <span className="font-mono text-xs text-slate-700 font-semibold">Drop Floor: 4.2%</span>
               </div>
             </div>
 
             {/* Step Funnel Display */}
-            <div className="space-y-2.5 my-auto">
+            <div className="space-y-3 my-auto">
               {/* Step 1 */}
               <div className="space-y-1">
-                <div className="flex justify-between font-label-md text-label-md">
-                  <span className="text-on-surface font-semibold">Mod 01: Theoretical Foundations</span>
-                  <span className="font-code-md text-primary">100% · 12,480 enrolled</span>
+                <div className="flex justify-between text-xs font-medium">
+                  <span className="text-slate-900 font-semibold">Mod 01: Theoretical Foundations</span>
+                  <span className="font-mono text-blue-600 font-semibold">100% · 12,480 enrolled</span>
                 </div>
-                <div className="w-full bg-surface-container-highest h-3 rounded-full overflow-hidden">
-                  <div className="bg-primary h-full rounded-full" style={{ width: '100%' }}></div>
+                <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                  <div className="bg-blue-600 h-full rounded-full" style={{ width: '100%' }}></div>
                 </div>
               </div>
 
               {/* Step 2 */}
               <div className="space-y-1">
-                <div className="flex justify-between font-label-md text-label-md">
-                  <span className="text-on-surface font-semibold">Mod 02: Computational Kernels</span>
-                  <span className="font-code-md text-primary">97.8% · 12,205 passed</span>
+                <div className="flex justify-between text-xs font-medium">
+                  <span className="text-slate-900 font-semibold">Mod 02: Computational Kernels</span>
+                  <span className="font-mono text-blue-600 font-semibold">97.8% · 12,205 passed</span>
                 </div>
-                <div className="w-full bg-surface-container-highest h-3 rounded-full overflow-hidden">
-                  <div className="bg-primary h-full rounded-full" style={{ width: '97.8%' }}></div>
+                <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                  <div className="bg-blue-600 h-full rounded-full" style={{ width: '97.8%' }}></div>
                 </div>
               </div>
 
               {/* Step 3 (Anomaly) */}
-              <div className="space-y-1 bg-surface-container/60 p-2 rounded-lg border border-error/20">
-                <div className="flex justify-between font-label-md text-label-md">
+              <div className="space-y-1 bg-amber-50/50 p-2.5 rounded-xl border border-amber-200/80">
+                <div className="flex justify-between text-xs font-medium">
                   <div className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-error text-[16px]">warning</span>
-                    <span className="text-on-surface font-semibold">Mod 03: Distributed State Synthesis</span>
+                    <span className="material-symbols-outlined text-amber-600 text-[16px]">warning</span>
+                    <span className="text-slate-900 font-bold">Mod 03: Distributed State Synthesis</span>
                   </div>
-                  <span className="font-code-md text-error font-bold">92.6% (-5.2% fall-off)</span>
+                  <span className="font-mono text-amber-700 font-bold">92.6% (-5.2% fall-off)</span>
                 </div>
-                <div className="w-full bg-surface-container-highest h-3 rounded-full overflow-hidden">
-                  <div className="bg-gradient-to-r from-primary via-secondary to-error h-full rounded-full" style={{ width: '92.6%' }}></div>
+                <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                  <div className="bg-gradient-to-r from-blue-600 via-amber-500 to-rose-500 h-full rounded-full" style={{ width: '92.6%' }}></div>
                 </div>
               </div>
 
               {/* Step 4 */}
               <div className="space-y-1">
-                <div className="flex justify-between font-label-md text-label-md">
-                  <span className="text-on-surface font-semibold">Mod 04: Zero-Knowledge Verification</span>
-                  <span className="font-code-md text-tertiary">90.1% · 11,244 passed</span>
+                <div className="flex justify-between text-xs font-medium">
+                  <span className="text-slate-900 font-semibold">Mod 04: Zero-Knowledge Verification</span>
+                  <span className="font-mono text-emerald-600 font-semibold">90.1% · 11,244 passed</span>
                 </div>
-                <div className="w-full bg-surface-container-highest h-3 rounded-full overflow-hidden">
-                  <div className="bg-tertiary h-full rounded-full" style={{ width: '90.1%' }}></div>
+                <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: '90.1%' }}></div>
                 </div>
               </div>
 
               {/* Step 5: Final Capstone */}
               <div className="space-y-1">
-                <div className="flex justify-between font-label-md text-label-md">
-                  <span className="text-on-surface font-semibold">Mod 08: Production Hardening & Defense</span>
-                  <span className="font-code-md text-tertiary font-bold">84.6% · 10,558 certified</span>
+                <div className="flex justify-between text-xs font-medium">
+                  <span className="text-slate-900 font-semibold">Mod 08: Production Hardening & Defense</span>
+                  <span className="font-mono text-emerald-700 font-bold">84.6% · 10,558 certified</span>
                 </div>
-                <div className="w-full bg-surface-container-highest h-3 rounded-full overflow-hidden">
-                  <div className="bg-gradient-to-r from-tertiary to-primary-container h-full rounded-full" style={{ width: '84.6%' }}></div>
+                <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                  <div className="bg-gradient-to-r from-emerald-500 to-blue-600 h-full rounded-full" style={{ width: '84.6%' }}></div>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-3 font-code-md text-label-sm text-outline border-t border-surface-container-high/30 mt-2">
+            <div className="flex items-center justify-between pt-3 font-mono text-xs text-slate-500 border-t border-slate-100 mt-2">
               <span>Global Academia Attrition: 32.0%</span>
-              <span className="text-tertiary font-semibold">StudyPilot Attrition: 15.4%</span>
+              <span className="text-emerald-600 font-semibold">StudyPilot Attrition: 15.4%</span>
             </div>
           </div>
 
           {/* CHART 3: ENGAGEMENT SCRUB ACTIVITY & MODALITY BREAKDOWN */}
-          <div className="bg-surface-container-low rounded-xl p-space-lg shadow-sm flex flex-col justify-between border border-surface-container-high/40">
-            <div className="flex flex-wrap items-center justify-between gap-space-sm mb-4">
+          <div className="bg-white rounded-2xl p-6 shadow-sm flex flex-col justify-between border border-slate-200/90">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div>
-                <h2 className="font-headline-sm text-headline-sm text-on-surface">Modal Engagement Heatmap</h2>
-                <p className="font-body-sm text-body-sm text-outline mt-0.5">Interaction distribution across multimodal pedagogies</p>
+                <h2 className="text-base font-bold text-slate-900">Modal Engagement Heatmap</h2>
+                <p className="text-xs text-slate-500 mt-0.5">Interaction distribution across multimodal pedagogies</p>
               </div>
-              <div className="font-code-md text-label-sm text-outline bg-surface-container px-2.5 py-1 rounded border border-surface-container-high/30">
+              <div className="font-mono text-xs text-slate-600 bg-slate-50 px-3 py-1 rounded-xl border border-slate-200">
                 AGGREGATE: 148,620h
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-space-sm my-2">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 my-2">
               {/* Interactive Ring / Donut */}
-              <div className="col-span-1 flex flex-col items-center justify-center p-space-md bg-surface-container rounded-xl border border-surface-container-high/30">
+              <div className="col-span-1 flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
                 <div className="relative w-28 h-28 flex items-center justify-center">
                   <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                     {/* Background Ring */}
                     <path
-                      className="text-surface-container-highest"
+                      className="text-slate-200"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       fill="none"
                       stroke="currentColor"
@@ -768,7 +762,7 @@ export default function InstructorAnalytics() {
                     ></path>
                     {/* Video: 48% */}
                     <path
-                      className="text-primary"
+                      className="text-blue-600"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       fill="none"
                       stroke="currentColor"
@@ -778,7 +772,7 @@ export default function InstructorAnalytics() {
                     ></path>
                     {/* Lab Sandbox: 32% (offset 48) */}
                     <path
-                      className="text-tertiary"
+                      className="text-indigo-600"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       fill="none"
                       stroke="currentColor"
@@ -789,7 +783,7 @@ export default function InstructorAnalytics() {
                     ></path>
                     {/* Assessments: 14% (offset 80) */}
                     <path
-                      className="text-secondary"
+                      className="text-purple-600"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       fill="none"
                       stroke="currentColor"
@@ -800,88 +794,88 @@ export default function InstructorAnalytics() {
                     ></path>
                   </svg>
                   <div className="absolute flex flex-col items-center">
-                    <span className="font-headline-sm text-headline-sm text-on-surface font-bold">148k</span>
-                    <span className="font-code-md text-label-sm text-outline">HOURS</span>
+                    <span className="text-xl font-bold text-slate-900">148k</span>
+                    <span className="font-mono text-[10px] text-slate-400">HOURS</span>
                   </div>
                 </div>
-                <span className="font-label-sm text-label-sm text-tertiary mt-2">Active Cycle</span>
+                <span className="text-xs font-semibold text-blue-600 mt-2">Active Cycle</span>
               </div>
 
               {/* Breakdown List */}
               <div className="col-span-3 flex flex-col justify-between space-y-2">
-                <div className="bg-surface-container p-3 rounded-lg flex items-center justify-between border border-surface-container-high/30">
+                <div className="bg-slate-50 p-3 rounded-xl flex items-center justify-between border border-slate-200/80">
                   <div className="flex items-center gap-3">
-                    <span className="w-2.5 h-2.5 rounded-full bg-primary"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
                     <div>
-                      <div className="font-label-lg text-label-lg text-on-surface">Interactive Stream Lectures</div>
-                      <div className="font-body-sm text-body-sm text-outline">Ultra HD playback with code sync & keyframe scrub</div>
+                      <div className="font-semibold text-slate-900 text-xs">Interactive Stream Lectures</div>
+                      <div className="text-[11px] text-slate-500">Ultra HD playback with code sync & keyframe scrub</div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="font-code-md text-code-md text-primary font-bold">48%</span>
-                    <div className="font-code-md text-label-sm text-outline">71,337 hrs</div>
+                    <span className="font-mono text-xs text-blue-600 font-bold">48%</span>
+                    <div className="font-mono text-[11px] text-slate-400">71,337 hrs</div>
                   </div>
                 </div>
 
-                <div className="bg-surface-container p-3 rounded-lg flex items-center justify-between border border-surface-container-high/30">
+                <div className="bg-slate-50 p-3 rounded-xl flex items-center justify-between border border-slate-200/80">
                   <div className="flex items-center gap-3">
-                    <span className="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
                     <div>
-                      <div className="font-label-lg text-label-lg text-on-surface">Cloud Sandbox Terminals</div>
-                      <div className="font-body-sm text-body-sm text-outline">Rust, CUDA & Python compiler environments</div>
+                      <div className="font-semibold text-slate-900 text-xs">Cloud Sandbox Terminals</div>
+                      <div className="text-[11px] text-slate-500">Rust, CUDA & Python compiler environments</div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="font-code-md text-code-md text-tertiary font-bold">32%</span>
-                    <div className="font-code-md text-label-sm text-outline">47,558 hrs</div>
+                    <span className="font-mono text-xs text-indigo-600 font-bold">32%</span>
+                    <div className="font-mono text-[11px] text-slate-400">47,558 hrs</div>
                   </div>
                 </div>
 
-                <div className="bg-surface-container p-3 rounded-lg flex items-center justify-between border border-surface-container-high/30">
+                <div className="bg-slate-50 p-3 rounded-xl flex items-center justify-between border border-slate-200/80">
                   <div className="flex items-center gap-3">
-                    <span className="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
                     <div>
-                      <div className="font-label-lg text-label-lg text-on-surface">Telemetry Automated Assessments</div>
-                      <div className="font-body-sm text-body-sm text-outline">Runtime unit testing & peer code defense</div>
+                      <div className="font-semibold text-slate-900 text-xs">Telemetry Automated Assessments</div>
+                      <div className="text-[11px] text-slate-500">Runtime unit testing & peer code defense</div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="font-code-md text-code-md text-secondary font-bold">14%</span>
-                    <div className="font-code-md text-label-sm text-outline">20,806 hrs</div>
+                    <span className="font-mono text-xs text-purple-600 font-bold">14%</span>
+                    <div className="font-mono text-[11px] text-slate-400">20,806 hrs</div>
                   </div>
                 </div>
 
-                <div className="bg-surface-container p-3 rounded-lg flex items-center justify-between border border-surface-container-high/30">
+                <div className="bg-slate-50 p-3 rounded-xl flex items-center justify-between border border-slate-200/80">
                   <div className="flex items-center gap-3">
-                    <span className="w-2.5 h-2.5 rounded-full bg-outline"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
                     <div>
-                      <div className="font-label-lg text-label-lg text-on-surface">Colloquium & Async Discussions</div>
-                      <div className="font-body-sm text-body-sm text-outline">Faculty office hours & thread synthesis</div>
+                      <div className="font-semibold text-slate-900 text-xs">Colloquium & Async Discussions</div>
+                      <div className="text-[11px] text-slate-500">Faculty office hours & thread synthesis</div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="font-code-md text-code-md text-on-surface-variant font-bold">6%</span>
-                    <div className="font-code-md text-label-sm text-outline">8,917 hrs</div>
+                    <span className="font-mono text-xs text-slate-600 font-bold">6%</span>
+                    <div className="font-mono text-[11px] text-slate-400">8,917 hrs</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="font-code-md text-label-sm text-outline text-right pt-2 border-t border-surface-container-high/30 mt-1">
+            <div className="font-mono text-xs text-slate-400 text-right pt-2 border-t border-slate-100 mt-1">
               Data verified via Distributed Ledger Node #04
             </div>
           </div>
 
           {/* CHART 4: ASSESSMENT PASS RATE DISTRIBUTION */}
-          <div className="bg-surface-container-low rounded-xl p-space-lg shadow-sm flex flex-col justify-between border border-surface-container-high/40">
-            <div className="flex flex-wrap items-center justify-between gap-space-sm mb-4">
+          <div className="bg-white rounded-2xl p-6 shadow-sm flex flex-col justify-between border border-slate-200/90">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div>
-                <h2 className="font-headline-sm text-headline-sm text-on-surface">Assessment Mastery & Score Curve</h2>
-                <p className="font-body-sm text-body-sm text-outline mt-0.5">Automated grader telemetry across 48 rigorous checkpoints</p>
+                <h2 className="text-base font-bold text-slate-900">Assessment Mastery & Score Curve</h2>
+                <p className="text-xs text-slate-500 mt-0.5">Automated grader telemetry across 48 rigorous checkpoints</p>
               </div>
-              <div className="flex items-center gap-3 font-code-md text-label-sm">
-                <span className="text-tertiary">Mean: 87.4 / 100</span>
-                <span className="text-outline">Median: 24m 12s</span>
+              <div className="flex items-center gap-3 font-mono text-xs">
+                <span className="text-emerald-600 font-semibold">Mean: 87.4 / 100</span>
+                <span className="text-slate-400">Median: 24m 12s</span>
               </div>
             </div>
 
@@ -890,132 +884,132 @@ export default function InstructorAnalytics() {
               <svg className="w-full h-full" fill="none" preserveAspectRatio="none" viewBox="0 0 500 160">
                 <defs>
                   <linearGradient id="curveGradient" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#4cd7f6" stopOpacity="0.4"></stop>
-                    <stop offset="100%" stopColor="#4cd7f6" stopOpacity="0.0"></stop>
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.25"></stop>
+                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0"></stop>
                   </linearGradient>
                 </defs>
-                <line className="text-surface-container-highest" stroke="currentColor" x1="0" x2="500" y1="140" y2="140"></line>
+                <line className="text-slate-200" stroke="currentColor" x1="0" x2="500" y1="140" y2="140"></line>
                 {/* Normal Score Distribution Bell Curve */}
                 <path d="M0,140 C100,140 180,135 250,90 C320,40 370,15 410,25 C450,40 480,100 500,140 L500,140 L0,140 Z" fill="url(#curveGradient)"></path>
-                <path className="text-tertiary" d="M0,140 C100,140 180,135 250,90 C320,40 370,15 410,25 C450,40 480,100 500,140" stroke="currentColor" strokeWidth="2.5"></path>
+                <path className="text-blue-600" d="M0,140 C100,140 180,135 250,90 C320,40 370,15 410,25 C450,40 480,100 500,140" stroke="currentColor" strokeWidth="2.5"></path>
                 {/* Mean Target Marker */}
-                <line className="text-primary" stroke="currentColor" strokeDasharray="4 4" strokeWidth="2" x1="390" x2="390" y1="15" y2="140"></line>
-                <circle className="fill-primary" cx="390" cy="18" r="4"></circle>
+                <line className="text-blue-600" stroke="currentColor" strokeDasharray="4 4" strokeWidth="2" x1="390" x2="390" y1="15" y2="140"></line>
+                <circle className="fill-blue-600" cx="390" cy="18" r="4"></circle>
               </svg>
-              <div className="absolute top-2 left-2/3 bg-surface-container-highest px-2 py-1 rounded text-primary font-code-md text-label-sm shadow-md border border-surface-container-high/60">
+              <div className="absolute top-2 left-2/3 bg-slate-900 text-white px-2.5 py-1 rounded-xl text-xs font-mono shadow-md border border-slate-800">
                 Class Mean: 87.4%
               </div>
             </div>
 
             {/* Segment Pass Rate Pills */}
-            <div className="grid grid-cols-3 gap-space-sm pt-2">
-              <div className="bg-surface-container p-3 rounded-lg flex flex-col border border-surface-container-high/30">
-                <span className="font-code-md text-label-sm text-outline">First Attempt Pass</span>
-                <span className="font-headline-sm text-headline-sm text-tertiary font-bold mt-1">92.0%</span>
-                <span className="font-body-sm text-body-sm text-outline-variant mt-0.5">Threshold &gt;= 80%</span>
+            <div className="grid grid-cols-3 gap-3 pt-2">
+              <div className="bg-slate-50 p-3.5 rounded-xl flex flex-col border border-slate-200/80">
+                <span className="font-mono text-xs text-slate-500">First Attempt Pass</span>
+                <span className="text-xl text-emerald-600 font-bold mt-1">92.0%</span>
+                <span className="text-[11px] text-slate-400 mt-0.5">Threshold &gt;= 80%</span>
               </div>
-              <div className="bg-surface-container p-3 rounded-lg flex flex-col border border-surface-container-high/30">
-                <span className="font-code-md text-label-sm text-outline">After 1 Lab Retake</span>
-                <span className="font-headline-sm text-headline-sm text-primary font-bold mt-1">6.0%</span>
-                <span className="font-body-sm text-body-sm text-outline-variant mt-0.5">Algorithmic sandbox</span>
+              <div className="bg-slate-50 p-3.5 rounded-xl flex flex-col border border-slate-200/80">
+                <span className="font-mono text-xs text-slate-500">After 1 Lab Retake</span>
+                <span className="text-xl text-blue-600 font-bold mt-1">6.0%</span>
+                <span className="text-[11px] text-slate-400 mt-0.5">Algorithmic sandbox</span>
               </div>
-              <div className="bg-surface-container p-3 rounded-lg flex flex-col border border-surface-container-high/30">
-                <span className="font-code-md text-label-sm text-outline">Required Mentorship</span>
-                <span className="font-headline-sm text-headline-sm text-secondary font-bold mt-1">2.0%</span>
-                <span className="font-body-sm text-body-sm text-outline-variant mt-0.5">Faculty triage queue</span>
+              <div className="bg-slate-50 p-3.5 rounded-xl flex flex-col border border-slate-200/80">
+                <span className="font-mono text-xs text-slate-500">Required Mentorship</span>
+                <span className="text-xl text-purple-600 font-bold mt-1">2.0%</span>
+                <span className="text-[11px] text-slate-400 mt-0.5">Faculty triage queue</span>
               </div>
             </div>
           </div>
         </section>
 
         {/* ================= SECTION 4: COURSE-LEVEL PERFORMANCE MATRIX TABLE ================= */}
-        <section className="bg-surface-container-low rounded-xl p-space-lg shadow-sm flex flex-col space-y-space-md border border-surface-container-high/40">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+        <section className="bg-white rounded-2xl p-6 shadow-sm flex flex-col space-y-4 border border-slate-200/90">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h2 className="font-headline-sm text-headline-sm text-on-surface">Curriculum-Level Performance Matrix</h2>
-              <p className="font-body-sm text-body-sm text-outline mt-0.5">Real-time audit across all active instruction nodes and revenue pipelines</p>
+              <h2 className="text-base font-bold text-slate-900">Curriculum-Level Performance Matrix</h2>
+              <p className="text-xs text-slate-500 mt-0.5">Real-time audit across all active instruction nodes and revenue pipelines</p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-space-sm">
+            <div className="flex flex-wrap items-center gap-3">
               <div className="relative">
                 <input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-surface-container-lowest text-on-surface placeholder:text-outline font-body-sm text-body-sm rounded-lg px-3 py-2 pl-9 focus:outline-none focus:ring-1 focus:ring-primary w-64 border border-surface-container-high/30"
+                  className="bg-slate-50 text-slate-900 placeholder:text-slate-400 text-xs rounded-xl px-3 py-2 pl-9 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 w-64 border border-slate-200"
                   placeholder="Filter courses, nodes, or tags..."
                   type="text"
                 />
-                <span className="material-symbols-outlined text-[18px] text-outline absolute left-2.5 top-2.5">search</span>
+                <span className="material-symbols-outlined text-[18px] text-slate-400 absolute left-2.5 top-2">search</span>
               </div>
               <button
                 onClick={() => toast.info('Column Filters toggled', { description: 'Telemetry metrics, scholars count, and earnings columns enabled.' })}
-                className="px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors border border-surface-container-high/40"
+                className="px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold text-xs flex items-center gap-1.5 transition-colors border border-slate-200 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[18px] text-secondary">tune</span>
+                <span className="material-symbols-outlined text-[18px] text-blue-600">tune</span>
                 <span>Column Filters</span>
               </button>
             </div>
           </div>
 
           {/* Responsive Table Wrapper */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-left font-body-sm text-body-sm">
+          <div className="overflow-x-auto rounded-xl border border-slate-100">
+            <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-surface-container text-outline font-label-sm text-label-sm uppercase tracking-wider border-b border-surface-container-high/30">
-                  <th className="p-space-md rounded-l-lg">Course Title & Code</th>
-                  <th className="p-space-md">Scholars</th>
-                  <th className="p-space-md">Completion Velocity</th>
-                  <th className="p-space-md">Audits</th>
-                  <th className="p-space-md">Total Hours</th>
-                  <th className="p-space-md">Revenue (USD)</th>
-                  <th className="p-space-md">Momentum</th>
-                  <th className="p-space-md rounded-r-lg text-right">Action</th>
+                <tr className="bg-slate-50/80 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200 text-[11px]">
+                  <th className="p-3.5">Course Title & Code</th>
+                  <th className="p-3.5">Scholars</th>
+                  <th className="p-3.5">Completion Velocity</th>
+                  <th className="p-3.5">Audits</th>
+                  <th className="p-3.5">Total Hours</th>
+                  <th className="p-3.5">Revenue (USD)</th>
+                  <th className="p-3.5">Momentum</th>
+                  <th className="p-3.5 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-surface-container-lowest">
+              <tbody className="divide-y divide-slate-100 font-sans">
                 {filteredCourses.length === 0 ? (
                   <tr>
-                    <td colSpan="8" className="text-center py-8 text-outline font-body-md">
+                    <td colSpan="8" className="text-center py-8 text-slate-400">
                       No matching curricula found for query "{searchQuery}".
                     </td>
                   </tr>
                 ) : (
                   filteredCourses.map((course) => (
-                    <tr key={course.id} className="hover:bg-surface-container transition-colors group">
-                      <td className="p-space-md">
+                    <tr key={course.id} className="hover:bg-slate-50/80 transition-colors group">
+                      <td className="p-3.5">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-lg ${course.iconBg} flex items-center justify-center font-bold`}>
-                            <span className="material-symbols-outlined">{course.icon}</span>
+                          <div className={`w-9 h-9 rounded-xl ${course.iconBg} flex items-center justify-center font-bold shadow-sm`}>
+                            <span className="material-symbols-outlined text-[18px]">{course.icon}</span>
                           </div>
                           <div>
-                            <div className="font-label-lg text-label-lg text-on-surface font-semibold group-hover:text-primary transition-colors">
+                            <div className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                               {course.title}
                             </div>
-                            <div className="font-code-md text-label-sm text-outline">
+                            <div className="font-mono text-[11px] text-slate-400">
                               CODE: {course.code} · {course.modules} Modules · {course.level}
                             </div>
                           </div>
                         </div>
                       </td>
 
-                      <td className="p-space-md font-code-md text-on-surface">{course.scholars.toLocaleString()}</td>
+                      <td className="p-3.5 font-mono text-slate-700 font-medium">{course.scholars.toLocaleString()}</td>
 
-                      <td className="p-space-md">
+                      <td className="p-3.5">
                         <div className="w-36">
-                          <div className="flex justify-between font-code-md text-label-sm mb-1">
-                            <span className={course.momentumType === 'error' ? 'text-error' : course.momentumType === 'tertiary' ? 'text-tertiary' : 'text-primary'}>
+                          <div className="flex justify-between font-mono text-[11px] mb-1">
+                            <span className={course.momentumType === 'error' ? 'text-rose-600 font-bold' : course.momentumType === 'tertiary' ? 'text-emerald-600 font-bold' : 'text-blue-600 font-bold'}>
                               {course.completionRate}%
                             </span>
-                            <span className="text-outline">{course.velocityTier}</span>
+                            <span className="text-slate-400">{course.velocityTier}</span>
                           </div>
-                          <div className="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
+                          <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
                             <div
                               className={`h-full rounded-full ${
                                 course.momentumType === 'error'
-                                  ? 'bg-error'
+                                  ? 'bg-rose-500'
                                   : course.momentumType === 'tertiary'
-                                  ? 'bg-tertiary'
-                                  : 'bg-primary'
+                                  ? 'bg-emerald-500'
+                                  : 'bg-blue-600'
                               }`}
                               style={{ width: `${course.completionRate}%` }}
                             ></div>
@@ -1023,30 +1017,30 @@ export default function InstructorAnalytics() {
                         </div>
                       </td>
 
-                      <td className="p-space-md">
-                        <div className="flex items-center gap-1 text-on-surface">
-                          <span className="font-code-md font-bold">{course.rating}</span>
-                          <span className="material-symbols-outlined text-[14px] text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
+                      <td className="p-3.5">
+                        <div className="flex items-center gap-1 text-slate-800">
+                          <span className="font-mono font-bold">{course.rating}</span>
+                          <span className="material-symbols-outlined text-[14px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>
                             star
                           </span>
-                          <span className="text-outline text-label-sm">({course.auditCount})</span>
+                          <span className="text-slate-400 text-[11px]">({course.auditCount})</span>
                         </div>
                       </td>
 
-                      <td className="p-space-md font-code-md text-on-surface">{course.hours}</td>
+                      <td className="p-3.5 font-mono text-slate-600">{course.hours}</td>
 
-                      <td className="p-space-md font-code-md text-primary font-semibold">
+                      <td className="p-3.5 font-mono text-blue-600 font-bold">
                         ${course.revenue.toLocaleString()}
                       </td>
 
-                      <td className="p-space-md">
+                      <td className="p-3.5">
                         <span
-                          className={`px-2 py-0.5 rounded-full font-code-md text-label-sm font-semibold inline-flex items-center gap-1 ${
+                          className={`px-2.5 py-0.5 rounded-full font-mono text-[11px] font-semibold inline-flex items-center gap-1 ${
                             course.momentumType === 'error'
-                              ? 'bg-error-container/40 text-error'
+                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
                               : course.momentumType === 'tertiary'
-                              ? 'bg-tertiary/10 text-tertiary'
-                              : 'bg-secondary-container/40 text-secondary'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-blue-50 text-blue-700 border border-blue-200'
                           }`}
                         >
                           <span className="material-symbols-outlined text-[12px]">
@@ -1060,10 +1054,10 @@ export default function InstructorAnalytics() {
                         </span>
                       </td>
 
-                      <td className="p-space-md text-right">
+                      <td className="p-3.5 text-right">
                         <button
                           onClick={() => setInspectModalCourse(course)}
-                          className="px-3 py-1 rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-code-md text-label-sm transition-colors border border-surface-container-highest/60"
+                          className="px-3 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors border border-slate-200 cursor-pointer"
                         >
                           Inspect
                         </button>
@@ -1075,20 +1069,20 @@ export default function InstructorAnalytics() {
             </table>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between text-outline font-body-sm text-body-sm pt-2 border-t border-surface-container-high/30">
-            <div className="font-code-md text-label-sm">
+          <div className="flex flex-wrap items-center justify-between text-slate-500 text-xs pt-2 border-t border-slate-100">
+            <div className="font-mono text-[11px]">
               Displaying {filteredCourses.length} of 14 active academic curricula
             </div>
             <div className="flex items-center gap-2">
               <button
-                className="px-3 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors disabled:opacity-50"
+                className="px-3 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors disabled:opacity-40 border border-slate-200"
                 disabled
               >
                 Previous
               </button>
               <button
                 onClick={() => toast.info('Navigating to secondary page of academic curriculum')}
-                className="px-3 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors"
+                className="px-3 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors border border-slate-200 cursor-pointer"
               >
                 Next
               </button>
@@ -1097,92 +1091,92 @@ export default function InstructorAnalytics() {
         </section>
 
         {/* ================= SECTION 5: COHORT RETENTION TELEMETRY & AT-RISK SCHOLAR PIPELINE ================= */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-space-lg">
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left 2 Cols: Cohort Engagement Table */}
-          <div className="lg:col-span-2 bg-surface-container-low rounded-xl p-space-lg shadow-sm flex flex-col space-y-space-md border border-surface-container-high/40">
+          <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm flex flex-col space-y-4 border border-slate-200/90">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="font-headline-sm text-headline-sm text-on-surface">Cohort Engagement & Retention Telemetry</h2>
-                <p className="font-body-sm text-body-sm text-outline mt-0.5">Real-time scrutiny of section completion, lab output, and automated alerts</p>
+                <h2 className="text-base font-bold text-slate-900">Cohort Engagement & Retention Telemetry</h2>
+                <p className="text-xs text-slate-500 mt-0.5">Real-time scrutiny of section completion, lab output, and automated alerts</p>
               </div>
               <button
                 onClick={() => {
                   setLastSyncedTime('1s ago');
                   toast.success('Telemetry Feed Refreshed', { description: 'All active cohort webhooks synchronised.' });
                 }}
-                className="px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-tertiary font-label-md text-label-md flex items-center gap-1 transition-colors border border-surface-container-high/30"
+                className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-blue-600 font-semibold text-xs flex items-center gap-1 transition-colors border border-slate-200 cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[16px]">sync</span>
                 <span>Refresh Feed</span>
               </button>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left font-body-sm text-body-sm">
+            <div className="overflow-x-auto rounded-xl border border-slate-100">
+              <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="bg-surface-container text-outline font-label-sm text-label-sm uppercase tracking-wider border-b border-surface-container-high/30">
-                    <th className="p-space-sm rounded-l-lg">Cohort Section</th>
-                    <th className="p-space-sm">Size</th>
-                    <th className="p-space-sm">Scrub Velocity</th>
-                    <th className="p-space-sm">Lab Submits</th>
-                    <th className="p-space-sm">Pass %</th>
-                    <th className="p-space-sm">At-Risk State</th>
-                    <th className="p-space-sm rounded-r-lg text-right">Intervention</th>
+                  <tr className="bg-slate-50/80 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200 text-[11px]">
+                    <th className="p-3">Cohort Section</th>
+                    <th className="p-3">Size</th>
+                    <th className="p-3">Scrub Velocity</th>
+                    <th className="p-3">Lab Submits</th>
+                    <th className="p-3">Pass %</th>
+                    <th className="p-3">At-Risk State</th>
+                    <th className="p-3 text-right">Intervention</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-surface-container-lowest font-code-md text-label-sm">
+                <tbody className="divide-y divide-slate-100 font-mono text-xs">
                   {DEFAULT_COHORTS.map((cohort) => (
-                    <tr key={cohort.id} className="hover:bg-surface-container transition-colors">
-                      <td className="p-space-sm">
-                        <div className="font-label-md text-on-surface font-semibold">{cohort.code} · {cohort.section}</div>
-                        <div className="text-outline text-[11px]">{cohort.startDate}</div>
+                    <tr key={cohort.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="p-3 font-sans">
+                        <div className="font-semibold text-slate-900">{cohort.code} · {cohort.section}</div>
+                        <div className="text-slate-400 text-[11px] font-mono">{cohort.startDate}</div>
                       </td>
 
-                      <td className="p-space-sm text-on-surface">{cohort.size} scholars</td>
+                      <td className="p-3 text-slate-700">{cohort.size} scholars</td>
 
-                      <td className="p-space-sm text-tertiary">{cohort.watchRate} watch</td>
+                      <td className="p-3 text-blue-600 font-semibold">{cohort.watchRate} watch</td>
 
-                      <td className="p-space-sm text-on-surface">{cohort.submits}</td>
+                      <td className="p-3 text-slate-700">{cohort.submits}</td>
 
-                      <td className={`p-space-sm font-bold ${cohort.status === 'error' ? 'text-secondary' : 'text-primary'}`}>
+                      <td className={`p-3 font-bold ${cohort.status === 'error' ? 'text-amber-600' : 'text-emerald-600'}`}>
                         {cohort.passRate}
                       </td>
 
-                      <td className="p-space-sm">
+                      <td className="p-3 font-sans">
                         {cohort.flaggedCount === 0 ? (
-                          <span className="px-2 py-0.5 rounded bg-tertiary/10 text-tertiary text-[11px] font-semibold border border-tertiary/20">
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-200">
                             0 Flagged
                           </span>
                         ) : cohort.status === 'error' ? (
-                          <span className="px-2 py-0.5 rounded bg-error-container/30 text-error text-[11px] font-semibold flex items-center gap-1 w-fit border border-error/20">
+                          <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-semibold flex items-center gap-1 w-fit border border-rose-200">
                             <span className="material-symbols-outlined text-[12px]">error</span> {cohort.flaggedText}
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded bg-error-container/30 text-error text-[11px] font-semibold flex items-center gap-1 w-fit border border-error/20">
+                          <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[11px] font-semibold flex items-center gap-1 w-fit border border-amber-200">
                             <span className="material-symbols-outlined text-[12px]">warning</span> {cohort.flaggedText}
                           </span>
                         )}
                       </td>
 
-                      <td className="p-space-sm text-right">
+                      <td className="p-3 text-right font-sans">
                         {cohort.flaggedCount === 0 ? (
                           <button
                             onClick={() => setRosterModalCohort(cohort)}
-                            className="px-2.5 py-1 rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface text-[11px] transition-colors border border-surface-container-highest/60"
+                            className="px-3 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] transition-colors border border-slate-200 cursor-pointer"
                           >
                             View Roster
                           </button>
                         ) : cohort.status === 'warning' ? (
                           <button
                             onClick={() => handleNudgeCohort(cohort)}
-                            className="px-2.5 py-1 rounded bg-primary-container text-on-primary text-[11px] font-bold shadow-sm hover:brightness-110 transition-all"
+                            className="px-3 py-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[11px] shadow-sm transition-all cursor-pointer"
                           >
                             Nudge Cohort
                           </button>
                         ) : (
                           <button
                             onClick={() => handleTriageReview(cohort)}
-                            className="px-2.5 py-1 rounded bg-secondary-container text-on-secondary-container text-[11px] font-bold shadow-sm hover:brightness-110 transition-all"
+                            className="px-3 py-1 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-[11px] shadow-sm transition-all cursor-pointer"
                           >
                             Triage Review
                           </button>
@@ -1196,34 +1190,34 @@ export default function InstructorAnalytics() {
           </div>
 
           {/* Right 1 Col: AI Pedagogical Intelligence & Ledger Summary */}
-          <div className="flex flex-col space-y-space-md">
+          <div className="flex flex-col space-y-4">
             {/* AI Insight Card */}
-            <div className="bg-surface-container-low rounded-xl p-space-md shadow-sm relative overflow-hidden flex flex-col justify-between border border-surface-container-high/40">
+            <div className="bg-white rounded-2xl p-5 shadow-sm relative overflow-hidden flex flex-col justify-between border border-slate-200/90">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-secondary text-[20px]">psychology</span>
-                  <span className="font-headline-sm text-headline-sm text-on-surface">Pedagogical AI Synthesis</span>
+                  <span className="material-symbols-outlined text-indigo-600 text-[20px]">psychology</span>
+                  <span className="font-bold text-slate-900 text-sm">Pedagogical AI Synthesis</span>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-secondary-container/40 text-secondary font-code-md text-label-sm font-bold border border-secondary/20">
+                <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-mono text-[11px] font-bold border border-indigo-200">
                   LIVE ADVICE
                 </span>
               </div>
 
-              <div className="space-y-space-sm">
+              <div className="space-y-3">
                 {/* Alert 1 */}
-                <div className="bg-surface-container p-3 rounded-lg space-y-1 border border-surface-container-high/30">
-                  <div className="flex items-center gap-1.5 text-error font-label-md text-label-md">
+                <div className="bg-rose-50/60 p-3.5 rounded-xl space-y-1 border border-rose-100">
+                  <div className="flex items-center gap-1.5 text-rose-700 font-semibold text-xs">
                     <span className="material-symbols-outlined text-[16px]">priority_high</span>
                     <span>Module 3 Quiz Bottleneck</span>
                   </div>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant">
+                  <p className="text-xs text-slate-600 leading-relaxed">
                     Zero-Knowledge (ZK-802) Module 3 shows an abrupt 6.2% dip in first-time pass velocity. Scholars spend 2.4x expected scrub time on Lesson 3.4.
                   </p>
                   <div className="pt-1 flex items-center justify-between">
-                    <span className="font-code-md text-[11px] text-tertiary">Rec: Add 1 visual schema</span>
+                    <span className="font-mono text-[11px] text-emerald-700 font-medium">Rec: Add 1 visual schema</span>
                     <button
                       onClick={handleInjectAsset}
-                      className="text-primary hover:underline font-label-sm text-label-sm font-bold"
+                      className="text-blue-600 hover:underline text-xs font-bold cursor-pointer"
                     >
                       Inject Asset
                     </button>
@@ -1231,12 +1225,12 @@ export default function InstructorAnalytics() {
                 </div>
 
                 {/* Alert 2 */}
-                <div className="bg-surface-container p-3 rounded-lg space-y-1 border border-surface-container-high/30">
-                  <div className="flex items-center gap-1.5 text-tertiary font-label-md text-label-md">
+                <div className="bg-emerald-50/60 p-3.5 rounded-xl space-y-1 border border-emerald-100">
+                  <div className="flex items-center gap-1.5 text-emerald-700 font-semibold text-xs">
                     <span className="material-symbols-outlined text-[16px]">verified</span>
                     <span>Top Module Velocity</span>
                   </div>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant">
+                  <p className="text-xs text-slate-600 leading-relaxed">
                     Tensor Kernels (QPU-904) Module 2 has achieved a 99.4% satisfaction score and 0 recorded retakes across 4,800 scholars.
                   </p>
                 </div>
@@ -1244,49 +1238,49 @@ export default function InstructorAnalytics() {
             </div>
 
             {/* Payout Ledger Dock */}
-            <div className="bg-surface-container-low rounded-xl p-space-md shadow-sm flex flex-col justify-between border border-surface-container-high/40">
+            <div className="bg-white rounded-2xl p-5 shadow-sm flex flex-col justify-between border border-slate-200/90">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-tertiary text-[20px]">account_balance_wallet</span>
-                  <span className="font-headline-sm text-headline-sm text-on-surface">Faculty Disbursement</span>
+                  <span className="material-symbols-outlined text-emerald-600 text-[20px]">account_balance_wallet</span>
+                  <span className="font-bold text-slate-900 text-sm">Faculty Disbursement</span>
                 </div>
-                <span className="font-code-md text-label-sm text-tertiary">NOV 01 EXP.</span>
+                <span className="font-mono text-[11px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">NOV 01 EXP.</span>
               </div>
 
-              <div className="bg-surface-container p-space-sm rounded-lg flex items-center justify-between mb-3 border border-surface-container-high/30">
+              <div className="bg-slate-50 p-3.5 rounded-xl flex items-center justify-between mb-3 border border-slate-200/80">
                 <div>
-                  <span className="font-body-sm text-body-sm text-outline">Next Scheduled Payout</span>
-                  <div className="font-headline-md text-headline-md text-on-surface font-bold mt-0.5">$48,290.00</div>
+                  <span className="text-xs text-slate-400">Next Scheduled Payout</span>
+                  <div className="text-xl font-bold text-slate-900 mt-0.5">$48,290.00</div>
                 </div>
-                <span className="px-2.5 py-1 rounded bg-tertiary/10 text-tertiary font-code-md text-label-sm font-semibold border border-tertiary/20">
+                <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-mono text-xs font-semibold border border-emerald-200">
                   ACH / WIRE READY
                 </span>
               </div>
 
-              <div className="space-y-1.5 font-code-md text-label-sm text-outline">
+              <div className="space-y-1.5 font-mono text-xs text-slate-500">
                 <div className="flex justify-between">
                   <span>Gross Curricula Sales:</span>
-                  <span className="text-on-surface">$568,117.64</span>
+                  <span className="text-slate-800 font-semibold">$568,117.64</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Protocol Institutional Fee (15%):</span>
-                  <span className="text-on-surface">-$85,217.64</span>
+                  <span className="text-rose-600 font-semibold">-$85,217.64</span>
                 </div>
-                <div className="flex justify-between font-bold text-on-surface pt-1 border-t border-surface-container-high/30">
+                <div className="flex justify-between font-bold text-slate-900 pt-1 border-t border-slate-200">
                   <span>Faculty Net Retained:</span>
-                  <span className="text-tertiary">$482,900.00</span>
+                  <span className="text-emerald-600 font-bold">$482,900.00</span>
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 flex items-center justify-between border-t border-surface-container-high/30">
+              <div className="mt-4 pt-3 flex items-center justify-between border-t border-slate-100">
                 <button
                   onClick={() => setShowLedgerModal(true)}
-                  className="font-label-md text-label-md text-primary hover:underline flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   <span>View Complete Ledger</span>
                   <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
                 </button>
-                <span className="font-code-md text-[11px] text-outline">TLS 1.3 Audit Verified</span>
+                <span className="font-mono text-[11px] text-slate-400">TLS 1.3 Verified</span>
               </div>
             </div>
           </div>
@@ -1295,72 +1289,72 @@ export default function InstructorAnalytics() {
 
       {/* ================= MODAL: INSPECT COURSE TELEMETRY ================= */}
       {inspectModalCourse && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-fadeIn">
-          <div className="bg-surface-container-low border border-surface-container-high rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-surface-container-high pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl ${inspectModalCourse.iconBg} flex items-center justify-center`}>
+                <div className={`w-10 h-10 rounded-xl ${inspectModalCourse.iconBg} flex items-center justify-center shadow-sm`}>
                   <span className="material-symbols-outlined">{inspectModalCourse.icon}</span>
                 </div>
                 <div>
-                  <h3 className="font-headline-sm text-on-surface font-bold">{inspectModalCourse.title}</h3>
-                  <p className="font-code-md text-outline text-xs">
+                  <h3 className="font-bold text-slate-900 text-base">{inspectModalCourse.title}</h3>
+                  <p className="font-mono text-slate-400 text-xs">
                     CODE: {inspectModalCourse.code} · {inspectModalCourse.modules} Modules · {inspectModalCourse.level}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setInspectModalCourse(null)}
-                className="p-1 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 font-code-md">
-              <div className="bg-surface-container p-3 rounded-xl">
-                <span className="text-xs text-outline">Active Scholars</span>
-                <p className="text-lg font-bold text-on-surface mt-1">{inspectModalCourse.scholars.toLocaleString()}</p>
+            <div className="grid grid-cols-3 gap-3 font-mono">
+              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+                <span className="text-xs text-slate-400 font-sans">Active Scholars</span>
+                <p className="text-lg font-bold text-slate-900 mt-1">{inspectModalCourse.scholars.toLocaleString()}</p>
               </div>
-              <div className="bg-surface-container p-3 rounded-xl">
-                <span className="text-xs text-outline">Total Revenue</span>
-                <p className="text-lg font-bold text-primary mt-1">${inspectModalCourse.revenue.toLocaleString()}</p>
+              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+                <span className="text-xs text-slate-400 font-sans">Total Revenue</span>
+                <p className="text-lg font-bold text-blue-600 mt-1">${inspectModalCourse.revenue.toLocaleString()}</p>
               </div>
-              <div className="bg-surface-container p-3 rounded-xl">
-                <span className="text-xs text-outline">Avg Velocity</span>
-                <p className="text-lg font-bold text-tertiary mt-1">{inspectModalCourse.completionRate}%</p>
+              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+                <span className="text-xs text-slate-400 font-sans">Avg Velocity</span>
+                <p className="text-lg font-bold text-emerald-600 mt-1">{inspectModalCourse.completionRate}%</p>
               </div>
             </div>
 
             <div className="space-y-2">
-              <h4 className="font-label-lg text-on-surface">Module Scrutiny & Friction Points</h4>
-              <div className="space-y-1.5 text-xs font-code-md">
-                <div className="bg-surface-container/60 p-2 rounded-lg flex items-center justify-between">
-                  <span>Mod 01: Core Architecture Theory</span>
-                  <span className="text-tertiary">99.1% pass · 18m avg</span>
+              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Module Scrutiny & Friction Points</h4>
+              <div className="space-y-1.5 text-xs font-mono">
+                <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 flex items-center justify-between text-slate-700">
+                  <span className="font-medium">Mod 01: Core Architecture Theory</span>
+                  <span className="text-emerald-600 font-semibold">99.1% pass · 18m avg</span>
                 </div>
-                <div className="bg-surface-container/60 p-2 rounded-lg flex items-center justify-between">
-                  <span>Mod 02: Pipeline Memory Buffers</span>
-                  <span className="text-tertiary">97.4% pass · 28m avg</span>
+                <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 flex items-center justify-between text-slate-700">
+                  <span className="font-medium">Mod 02: Pipeline Memory Buffers</span>
+                  <span className="text-emerald-600 font-semibold">97.4% pass · 28m avg</span>
                 </div>
-                <div className="bg-surface-container/60 p-2 rounded-lg flex items-center justify-between text-error bg-error-container/10">
-                  <span>Mod 03: Fault-Tolerant Consensus Checkpoint</span>
-                  <span>92.6% pass · 54m avg (Friction!)</span>
+                <div className="bg-rose-50/70 p-2.5 rounded-xl border border-rose-200/80 flex items-center justify-between text-rose-700">
+                  <span className="font-bold">Mod 03: Fault-Tolerant Consensus Checkpoint</span>
+                  <span className="font-bold">92.6% pass · 54m avg (Friction!)</span>
                 </div>
-                <div className="bg-surface-container/60 p-2 rounded-lg flex items-center justify-between">
-                  <span>Mod 04: Production Hardening Deployment</span>
-                  <span className="text-primary">89.2% pass · 35m avg</span>
+                <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 flex items-center justify-between text-slate-700">
+                  <span className="font-medium">Mod 04: Production Hardening Deployment</span>
+                  <span className="text-blue-600 font-semibold">89.2% pass · 35m avg</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-surface-container-high">
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
               <button
                 onClick={() => {
                   setInspectModalCourse(null);
                   navigate('/instructor/courses');
                 }}
-                className="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-xs transition-colors"
+                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors cursor-pointer"
               >
                 Open in Curriculum Manager
               </button>
@@ -1369,7 +1363,7 @@ export default function InstructorAnalytics() {
                   toast.success(`Telemetry diagnostic report exported for ${inspectModalCourse.code}`);
                   setInspectModalCourse(null);
                 }}
-                className="px-4 py-2 rounded-xl bg-primary-container text-on-primary font-label-md text-xs font-bold transition-all shadow-md"
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-all shadow-sm cursor-pointer"
               >
                 Export Trace Log
               </button>
@@ -1380,65 +1374,65 @@ export default function InstructorAnalytics() {
 
       {/* ================= MODAL: VIEW COHORT ROSTER ================= */}
       {rosterModalCohort && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-fadeIn">
-          <div className="bg-surface-container-low border border-surface-container-high rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-surface-container-high pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
-                <h3 className="font-headline-sm text-on-surface font-bold">
+                <h3 className="font-bold text-slate-900 text-base">
                   {rosterModalCohort.code} · {rosterModalCohort.section} Roster
                 </h3>
-                <p className="font-code-md text-outline text-xs">
+                <p className="font-mono text-slate-400 text-xs">
                   {rosterModalCohort.size} Scholars · {rosterModalCohort.startDate} · {rosterModalCohort.passRate} Pass Rate
                 </p>
               </div>
               <button
                 onClick={() => setRosterModalCohort(null)}
-                className="p-1 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
-            <div className="overflow-x-auto max-h-72">
-              <table className="w-full text-left font-body-sm text-xs">
+            <div className="overflow-x-auto max-h-72 rounded-xl border border-slate-100">
+              <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="bg-surface-container text-outline font-code-md uppercase">
-                    <th className="p-2.5 rounded-l-lg">Scholar</th>
-                    <th className="p-2.5">Progress</th>
-                    <th className="p-2.5">Score</th>
-                    <th className="p-2.5">Status</th>
-                    <th className="p-2.5 rounded-r-lg text-right">Action</th>
+                  <tr className="bg-slate-50 text-slate-500 font-mono uppercase text-[11px]">
+                    <th className="p-3">Scholar</th>
+                    <th className="p-3">Progress</th>
+                    <th className="p-3">Score</th>
+                    <th className="p-3">Status</th>
+                    <th className="p-3 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-surface-container-lowest font-code-md">
+                <tbody className="divide-y divide-slate-100 font-sans">
                   {MOCK_STUDENTS_ROSTER.map((student) => (
-                    <tr key={student.id} className="hover:bg-surface-container">
-                      <td className="p-2.5">
-                        <div className="font-semibold text-on-surface">{student.name}</div>
-                        <div className="text-outline text-[11px]">{student.email}</div>
+                    <tr key={student.id} className="hover:bg-slate-50/80">
+                      <td className="p-3">
+                        <div className="font-semibold text-slate-900">{student.name}</div>
+                        <div className="text-slate-400 font-mono text-[11px]">{student.email}</div>
                       </td>
-                      <td className="p-2.5">
-                        <div className="w-20 bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
-                          <div className="bg-tertiary h-full rounded-full" style={{ width: `${student.progress}%` }}></div>
+                      <td className="p-3 font-mono">
+                        <div className="w-20 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                          <div className="bg-blue-600 h-full rounded-full" style={{ width: `${student.progress}%` }}></div>
                         </div>
-                        <span className="text-[10px] text-outline mt-0.5 block">{student.progress}%</span>
+                        <span className="text-[10px] text-slate-400 mt-0.5 block">{student.progress}%</span>
                       </td>
-                      <td className="p-2.5 text-primary font-bold">{student.score}</td>
-                      <td className="p-2.5">
+                      <td className="p-3 font-mono text-blue-600 font-bold">{student.score}</td>
+                      <td className="p-3">
                         <span
-                          className={`px-2 py-0.5 rounded text-[10px] ${
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                             student.status.includes('Stalled') || student.status.includes('Inactive')
-                              ? 'bg-error/20 text-error'
-                              : 'bg-tertiary/20 text-tertiary'
+                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                           }`}
                         >
                           {student.status}
                         </span>
                       </td>
-                      <td className="p-2.5 text-right">
+                      <td className="p-3 text-right">
                         <button
                           onClick={() => toast.success(`Pinging ${student.name} with mentor assistance message.`)}
-                          className="px-2 py-0.5 rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-[11px]"
+                          className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] cursor-pointer"
                         >
                           Ping
                         </button>
@@ -1449,11 +1443,11 @@ export default function InstructorAnalytics() {
               </table>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-surface-container-high">
-              <span className="text-outline font-code-md text-xs">Section Health Index: 96.4/100</span>
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+              <span className="text-slate-400 font-mono text-xs">Section Health Index: 96.4/100</span>
               <button
                 onClick={() => setRosterModalCohort(null)}
-                className="px-4 py-2 rounded-xl bg-surface-container-high text-on-surface font-label-md text-xs font-semibold"
+                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs cursor-pointer"
               >
                 Close Roster
               </button>
@@ -1464,75 +1458,75 @@ export default function InstructorAnalytics() {
 
       {/* ================= MODAL: CRYPTOGRAPHIC DISBURSEMENT LEDGER ================= */}
       {showLedgerModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-fadeIn">
-          <div className="bg-surface-container-low border border-surface-container-high rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-surface-container-high pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-tertiary/10 text-tertiary flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200">
                   <span className="material-symbols-outlined">account_balance</span>
                 </div>
                 <div>
-                  <h3 className="font-headline-sm text-on-surface font-bold">Academic Settlement Ledger</h3>
-                  <p className="font-code-md text-outline text-xs">TLS 1.3 End-to-End Cryptographic Audit Trail</p>
+                  <h3 className="font-bold text-slate-900 text-base">Academic Settlement Ledger</h3>
+                  <p className="font-mono text-slate-400 text-xs">TLS 1.3 End-to-End Cryptographic Audit Trail</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowLedgerModal(false)}
-                className="p-1 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
-            <div className="space-y-3 font-code-md text-xs">
-              <div className="bg-surface-container p-3.5 rounded-xl space-y-1.5 border border-surface-container-high/40">
-                <div className="flex justify-between text-on-surface font-bold text-sm">
+            <div className="space-y-3 font-mono text-xs">
+              <div className="bg-slate-50 p-4 rounded-xl space-y-1.5 border border-slate-200">
+                <div className="flex justify-between text-slate-900 font-bold text-sm">
                   <span>Settlement Cycle: October 2024</span>
-                  <span className="text-tertiary">$48,290.00</span>
+                  <span className="text-emerald-600 font-bold">$48,290.00</span>
                 </div>
-                <div className="text-outline text-[11px]">Contract Address: 0x932f...81eB // Arbitrum Nova</div>
-                <div className="flex justify-between pt-1 text-on-surface-variant">
+                <div className="text-slate-400 text-[11px]">Contract Address: 0x932f...81eB // Arbitrum Nova</div>
+                <div className="flex justify-between pt-1 text-slate-600">
                   <span>Status: Scheduled for Disbursement (ACH / Wire)</span>
-                  <span className="text-primary font-bold">NOV 01, 2024</span>
+                  <span className="text-blue-600 font-bold">NOV 01, 2024</span>
                 </div>
               </div>
 
-              <div className="bg-surface-container/60 p-3 rounded-xl space-y-1 border border-surface-container-high/30">
-                <div className="flex justify-between text-on-surface">
+              <div className="bg-slate-50/70 p-3 rounded-xl space-y-1 border border-slate-200/80">
+                <div className="flex justify-between text-slate-800">
                   <span>Prior Settlement: September 2024</span>
-                  <span className="text-on-surface font-bold">$41,850.00</span>
+                  <span className="font-bold text-slate-900">$41,850.00</span>
                 </div>
-                <div className="flex justify-between text-outline text-[11px]">
+                <div className="flex justify-between text-slate-400 text-[11px]">
                   <span>Tx Hash: 0x8a12f4...d901b3</span>
-                  <span className="text-tertiary">Disbursed via Chase Direct</span>
+                  <span className="text-emerald-600 font-medium">Disbursed via Chase Direct</span>
                 </div>
               </div>
 
-              <div className="bg-surface-container/60 p-3 rounded-xl space-y-1 border border-surface-container-high/30">
-                <div className="flex justify-between text-on-surface">
+              <div className="bg-slate-50/70 p-3 rounded-xl space-y-1 border border-slate-200/80">
+                <div className="flex justify-between text-slate-800">
                   <span>Prior Settlement: August 2024</span>
-                  <span className="text-on-surface font-bold">$38,120.00</span>
+                  <span className="font-bold text-slate-900">$38,120.00</span>
                 </div>
-                <div className="flex justify-between text-outline text-[11px]">
+                <div className="flex justify-between text-slate-400 text-[11px]">
                   <span>Tx Hash: 0x3c990a...4fa211</span>
-                  <span className="text-tertiary">Disbursed via Chase Direct</span>
+                  <span className="text-emerald-600 font-medium">Disbursed via Chase Direct</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-surface-container-high">
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
               <button
                 onClick={() => {
                   toast.success('Downloaded complete cryptographic tax documentation (.csv)');
                   setShowLedgerModal(false);
                 }}
-                className="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-xs transition-colors"
+                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors cursor-pointer"
               >
                 Download Form 1099-K / Tax Pack
               </button>
               <button
                 onClick={() => setShowLedgerModal(false)}
-                className="px-4 py-2 rounded-xl bg-primary-container text-on-primary font-label-md text-xs font-bold"
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs cursor-pointer"
               >
                 Done
               </button>
@@ -1543,71 +1537,71 @@ export default function InstructorAnalytics() {
 
       {/* ================= MODAL: AI INSIGHTS SYNTHESIS ================= */}
       {showInsightsModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-fadeIn">
-          <div className="bg-surface-container-low border border-surface-container-high rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-surface-container-high pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary-container to-secondary-container text-on-primary flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center">
                   <span className="material-symbols-outlined">psychology</span>
                 </div>
                 <div>
-                  <h3 className="font-headline-sm text-on-surface font-bold">StudyPilot Neural Intelligence Synthesis</h3>
-                  <p className="font-code-md text-outline text-xs">Dynamic pedagogical evaluation generated across 12,480 scholars</p>
+                  <h3 className="font-bold text-slate-900 text-base">StudyPilot Neural Intelligence Synthesis</h3>
+                  <p className="font-mono text-slate-400 text-xs">Dynamic pedagogical evaluation generated across 12,480 scholars</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowInsightsModal(false)}
-                className="p-1 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
-            <div className="space-y-3 font-body-sm text-xs">
-              <div className="bg-surface-container p-3.5 rounded-xl space-y-1.5 border border-primary/20">
-                <div className="flex items-center gap-2 text-primary font-bold">
+            <div className="space-y-3 text-xs">
+              <div className="bg-blue-50/60 p-3.5 rounded-xl space-y-1.5 border border-blue-200/80">
+                <div className="flex items-center gap-2 text-blue-700 font-bold">
                   <span className="material-symbols-outlined text-sm">auto_graph</span>
                   <span>Highest Value Intervention: Module 3 Diagram</span>
                 </div>
-                <p className="text-on-surface-variant">
+                <p className="text-slate-600 leading-relaxed">
                   Adding an interactive circuit flow schematic to Lesson 3.4 will recover an estimated <strong>84 scholars/month</strong> from dropping out before the midterm checkpoint.
                 </p>
               </div>
 
-              <div className="bg-surface-container p-3.5 rounded-xl space-y-1.5 border border-tertiary/20">
-                <div className="flex items-center gap-2 text-tertiary font-bold">
+              <div className="bg-emerald-50/60 p-3.5 rounded-xl space-y-1.5 border border-emerald-200/80">
+                <div className="flex items-center gap-2 text-emerald-700 font-bold">
                   <span className="material-symbols-outlined text-sm">schedule</span>
                   <span>Optimal Office Hours Schedule</span>
                 </div>
-                <p className="text-on-surface-variant">
+                <p className="text-slate-600 leading-relaxed">
                   Learners from European and Asian academic nodes peak between <strong>14:00 UTC and 18:00 UTC</strong>. Scheduling an async discussion session at 15:30 UTC correlates with a <strong>+18% pass lift</strong>.
                 </p>
               </div>
 
-              <div className="bg-surface-container p-3.5 rounded-xl space-y-1.5 border border-secondary/20">
-                <div className="flex items-center gap-2 text-secondary font-bold">
+              <div className="bg-purple-50/60 p-3.5 rounded-xl space-y-1.5 border border-purple-200/80">
+                <div className="flex items-center gap-2 text-purple-700 font-bold">
                   <span className="material-symbols-outlined text-sm">emoji_events</span>
                   <span>Credential Claim Velocity</span>
                 </div>
-                <p className="text-on-surface-variant">
+                <p className="text-slate-600 leading-relaxed">
                   Scholars certified in QPU-904 have shared <strong>1,420 LinkedIn credentials</strong> with verified cryptographic hashes, driving 340 organic peer enrollments.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-surface-container-high">
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
               <button
                 onClick={() => {
                   toast.success('Applied automated remediation optimizations to active syllabi.');
                   setShowInsightsModal(false);
                 }}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-primary-container to-secondary-container text-on-primary font-label-md text-xs font-bold shadow-md"
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-sm cursor-pointer"
               >
                 Apply AI Recommendations
               </button>
               <button
                 onClick={() => setShowInsightsModal(false)}
-                className="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-xs"
+                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs cursor-pointer"
               >
                 Dismiss
               </button>

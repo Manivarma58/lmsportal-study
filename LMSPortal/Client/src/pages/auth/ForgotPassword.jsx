@@ -165,8 +165,7 @@ const ForgotPassword = () => {
                 src="/assets/nova-logo.png"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src =
-                    'https://lh3.googleusercontent.com/aida/AEtjO1UgC3VTGpx9ax-r_6UpM35x8ax2iPF16pw-6-9F4A6rxNge9kMA45erC8H2iSBnyIy4xWEYwjhF9kdDro5CqtIjuKgMuwlLKS3cSbv-zeJ8-0U7T1fFSfFwgf7O0zSJfkCvo4x9ljzn45d17ujEfI92ox2cjYqT6y8xAefFjuqQBiOnY0w-EXB5FDtL6-jmJFUZVPigoqkbzdOf6LBjqJLorwHllR2p6rJaisk60SMmxcTsI_chQfBKOA';
+                  e.target.src = '/assets/nova-logo.png';
                 }}
               />
             </div>

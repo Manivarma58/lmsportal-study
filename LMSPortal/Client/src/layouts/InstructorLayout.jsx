@@ -213,24 +213,6 @@ const InstructorLayout = () => {
             </div>
           </nav>
         </div>
-
-        {/* Bottom Status Card */}
-        <div className="p-3.5 bg-slate-50 m-3 rounded-2xl border border-slate-200/90 shadow-sm">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span className="font-mono text-[11px] font-bold text-emerald-700 uppercase tracking-wider">
-              FACULTY SERVER SYNCED
-            </span>
-          </div>
-          <div className="font-mono text-[10px] text-slate-500 leading-tight">
-            NODE #FACULTY-01
-            <br />
-            SOCKETS REALTIME ACTIVE
-          </div>
-        </div>
       </aside>
 
       {/* ================= CONTENT CONTAINER WITH HEADER ================= */}
@@ -266,11 +248,6 @@ const InstructorLayout = () => {
           {/* Right: Telemetry Badges & Profile */}
           <div className="flex items-center gap-4">
             <div className="hidden xl:flex items-center gap-2 font-mono text-xs">
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-slate-200/90 shadow-sm text-slate-700">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>US-EAST-01</span>
-                <span className="text-blue-600 font-semibold">// 18ms</span>
-              </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 font-medium border border-blue-200/80">
                 <span className="material-symbols-outlined text-[16px]">verified</span>
                 <span>INSTRUCTOR ACTIVE</span>
@@ -301,14 +278,20 @@ const InstructorLayout = () => {
                 </span>
               </div>
               <div className="relative flex-shrink-0">
-                <img
-                  alt={user?.name || 'Instructor Profile'}
-                  className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-400/40 group-hover:ring-blue-600 transition-all shadow-sm"
-                  src={
-                    user?.avatar ||
-                    'https://lh3.googleusercontent.com/aida/AEtjO1XbByWEm7GAGBdpGAqxfzCMFkFqyPMDwXR31XzQcAW_7qE0SHGe5KcOzSHZWxcw0LmYVlhtAk7GuWXJwOamtyOO7hYD8eHnfRtALEC4NQ1hJFLBj_d4fWul7LXFbzSQShCNhrcpZZIXAoIGb-LhcSZTC2vvOtdLVJ1flthUBrMubmy1MxwpgQOLAqaQFAgYcT03ym4nj3WiibxwIVLJYhXutQRm9XkDKIunk7iDXjozViMs0zGMJ1ra'
-                  }
-                />
+                {user?.avatar ? (
+                  <img
+                    alt={user?.name || 'Instructor Profile'}
+                    className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-400/40 group-hover:ring-blue-600 transition-all shadow-sm"
+                    src={user.avatar}
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-500 shadow-sm">
+                    <span className="material-symbols-outlined text-[18px]">person</span>
+                  </div>
+                )}
                 <span
                   className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"
                   title="Active"

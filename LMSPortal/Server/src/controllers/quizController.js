@@ -192,9 +192,39 @@ export const deleteQuestion = asyncHandler(async (req, res) => {
   res.status(200).json(result);
 });
 
+/**
+ * @desc    Get all quizzes available across all domains
+ * @route   GET /api/quizzes
+ * @access  Private
+ */
+export const getAllQuizzes = asyncHandler(async (req, res) => {
+  const quizzes = await quizService.getAllQuizzes(req.user);
+  res.status(200).json({
+    success: true,
+    count: quizzes.length,
+    quizzes,
+  });
+});
+
+/**
+ * @desc    Get top persistent leaderboard for a quiz
+ * @route   GET /api/quizzes/:id/leaderboard
+ * @access  Private
+ */
+export const getQuizLeaderboard = asyncHandler(async (req, res) => {
+  const leaderboard = await quizService.getQuizLeaderboard(req.params.id);
+  res.status(200).json({
+    success: true,
+    count: leaderboard.length,
+    leaderboard,
+  });
+});
+
 export default {
   createQuiz,
   getQuizById,
+  getAllQuizzes,
+  getQuizLeaderboard,
   updateQuiz,
   deleteQuiz,
   getCourseQuizzes,

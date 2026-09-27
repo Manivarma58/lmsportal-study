@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchFeaturedCourses, fetchCategories } from '../../store/slices/courseSlice';
+import API from '../../services/api';
 import * as THREE from 'three';
 import { toast } from 'sonner';
 import NeuralBackground from '../../components/NeuralBackground';
@@ -18,9 +19,20 @@ const Home = () => {
 
   const heroThreeContainerRef = useRef(null);
 
+  const [realFeaturedCourses, setRealFeaturedCourses] = useState([]);
+
   useEffect(() => {
     dispatch(fetchFeaturedCourses());
     dispatch(fetchCategories());
+    API.get('/courses', { params: { limit: 12 } })
+      .then((res) => {
+        if (res.data?.courses?.length > 0) {
+          setRealFeaturedCourses(res.data.courses);
+        }
+      })
+      .catch((err) => {
+        console.warn('Home featured courses fetch notice:', err.message);
+      });
   }, [dispatch]);
 
   // -------------------------------------------------------------
@@ -315,144 +327,191 @@ const Home = () => {
     return '/student/dashboard';
   };
 
-  // 4 Featured Industry & Research Courses
-  const featuredCoursesList = [
-    {
-      id: 'course-llm-fine-tuning',
-      title: 'Advanced LLM Fine-Tuning & Agentic Architectures',
-      category: 'DEEP LEARNING',
-      categorySlug: 'ai',
-      level: 'ADVANCED',
-      rating: '4.98',
-      learners: '3,420',
-      duration: '12 Weeks • 48 Labs',
-      progress: 42,
-      instructor: {
-        name: 'Dr. Sarah Chen',
-        role: 'AI Lead at DeepScale',
-        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAiZ_NCv5INw6ZMgNhKo_yA1K5I9-4RzPskx5-vVzQy69aMavBQnexZnNxZxPadySM8bByLz0DMKdV9G8TTjiix9aYowQ769_l84Cn4sDDepYDhQbSODVsaKX0exg60XuGMrmlNtp0x4ptIOKBynGXIiEXo3iBe5E_Kwfi7ZcihOnFvgrWYISxf6vVaE0jZwYKpf6XjUWb-zwsliv672nY4VFpgibMRvvrGKHj5B7KB6rYdBxBRvT58',
+  // Map real database courses into featured courses representation
+  const categorySlugMap = {
+    'AI & Machine Learning': 'ai',
+    'Cloud Architecture & DevOps': 'cloud',
+    'Web Development': 'web',
+    'Cybersecurity & Crypto': 'security',
+    'Data Engineering': 'data',
+    'Systems & Rust': 'systems',
+    'Mobile Development': 'mobile',
+    'Blockchain & Web3': 'web3',
+    'UI/UX & Design Systems': 'design',
+    'Quantum & Emerging Tech': 'quantum',
+  };
+
+  const activeFeaturedCourses = useMemo(() => {
+    if (realFeaturedCourses && realFeaturedCourses.length > 0) {
+      return realFeaturedCourses.map((c) => ({
+        id: c._id,
+        _id: c._id,
+        title: c.title,
+        category: c.category.toUpperCase(),
+        categoryName: c.category,
+        categorySlug: categorySlugMap[c.category] || 'other',
+        level: (c.level || 'ADVANCED').toUpperCase(),
+        rating: (c.rating || 4.95).toFixed(2),
+        learners: (c.enrollmentCount || 2400).toLocaleString(),
+        duration: c.level === 'Advanced' ? '10 Weeks • 40 Labs' : '8 Weeks • 32 Labs',
+        progressStatus: c.isFree ? 'Free Open Access' : 'Cohort Enrolling Active',
+        progressWidth: '85%',
+        instructor: {
+          name: c.instructor?.name || 'Prof. Alex Rivera',
+          role: c.instructor?.headline || 'Senior Fellow & Lead Architect',
+          avatar: c.instructor?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+        },
+        image: c.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80',
+        fallbackImage: '/assets/course-quantum.jpg',
+      }));
+    }
+    return [
+      {
+        id: 'real-course-1',
+        title: 'Agentic AI & Multi-Agent Workflows with LangGraph',
+        category: 'AI & MACHINE LEARNING',
+        categorySlug: 'ai',
+        level: 'ADVANCED',
+        rating: '4.98',
+        learners: '3,820',
+        duration: '10 Weeks • 40 Labs',
+        progressStatus: 'Active Cohort Enrolling',
+        progressWidth: '82%',
+        instructor: {
+          name: 'Dr. Elena Vance',
+          role: 'Stanford AI Fellow',
+          avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&auto=format&fit=crop&q=80',
+        },
+        image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?w=800&auto=format&fit=crop&q=80',
+        fallbackImage: '/assets/course-quantum.jpg',
       },
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBHY2uGqghKUHcLLzJYh8xbgZHfd4rTQMGqdHrMzn6s13rRaO1GfOzUlNyyt-qIYlBeINSzJVFIlN7V24kkox01HOko_CKHun4TFQnLO6TOgfPWmo2eVGpPsV0LEWigDuGvpUkkX-UT95CWs5ak5jPedenBAmtLOolKs5TY68CFrGGeS6LUNemRnzPTjJqz1-DXyDPJNZ8G-LoyAVv4u7hEsbwfEEYOE6dkW9iZye8eJeWrvpO4VU4m',
-      fallbackImage: '/assets/course-quantum.jpg',
-    },
-    {
-      id: 'course-cloud-kubernetes',
-      title: 'Cloud Infrastructure & Distributed Kubernetes',
-      category: 'CLOUD ARCHITECTURE',
-      categorySlug: 'cloud',
-      level: 'ADVANCED',
-      rating: '4.95',
-      learners: '2,810',
-      duration: '10 Weeks • 36 Labs',
-      progressStatus: 'Cohort Starting Nov 15',
-      progressWidth: '15%',
-      instructor: {
-        name: 'Alex Rivera',
-        role: 'Principal Architect at CloudMesh',
-        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAnZbzoATgDsAm1z-s13L25-D3WuDrsdyVdx0A3pSfoeWaYlX7Z7XcmTHksj6b_UqjC9-bP4qGgEY0ta-TTiTwP1V2mlhQNZt8n26mxxaS_ZqSS4Ag_wPlXtub5oEqeUCDdo9PCeem2eYKE5cH7iBgbtwVsBivlGAZt391bX8_jRattwXRyGJbVuv4Fwr09pyH6gWomTlJwtEADde3_56lQ8q00GNzwdqNymBI0Jen_at4L_0GmZc9V',
+      {
+        id: 'real-course-2',
+        title: 'Production Kubernetes & Istio Service Mesh on AWS EKS',
+        category: 'CLOUD ARCHITECTURE & DEVOPS',
+        categorySlug: 'cloud',
+        level: 'ADVANCED',
+        rating: '4.98',
+        learners: '5,120',
+        duration: '10 Weeks • 36 Labs',
+        progressStatus: 'Active Cohort Enrolling',
+        progressWidth: '75%',
+        instructor: {
+          name: 'Prof. Alex Rivera',
+          role: 'Principal Full-Stack Architect',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+        },
+        image: 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=800&auto=format&fit=crop&q=80',
+        fallbackImage: '/assets/course-cloud.jpg',
       },
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCPetx5TUJLKfdZLIkbe9R6efAdhsGB6LPPlYW1lvm0l8tUVxxvcQevHc7xfpOo2T6Mrg1FnoYOE3VjD78FS7VnMlUqHQI9Ecy0wgoswkHmzUYoJ6EZzc3Tlm_49tEWELGdX70tAj2QGFXHh_RORyl4hFtJiH8-JDmh_xUwb7cZ_QpHIKB56JH_1ZQQ02JzfEM0qxenFZfbVvAfjJo9tNAMLQxm_9otfHIwi8uZ7iauJdFCo44gg4X5',
-      fallbackImage: '/assets/course-cloud.jpg',
-    },
-    {
-      id: 'course-cyber-defense',
-      title: 'Zero-Trust Cyber Defense & Penetration Testing',
-      category: 'CYBER DEFENSE',
-      categorySlug: 'security',
-      level: 'INTERMEDIATE',
-      rating: '4.99',
-      learners: '4,190',
-      duration: '8 Weeks • 52 Labs',
-      progressStatus: 'Enrolled (88% spots filled)',
-      progressWidth: '88%',
-      instructor: {
-        name: 'Marcus Vance',
-        role: 'Chief Security Fellow',
-        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDFUfy9CJ4KGoYg5ZM6an_7yKFUM8shNMpAE320axNnMLvuefM_ne6IWfhKQrUkxmWfPQyGf-d1BB2sYCpr3zflOqvIkZmFHn2sLvIv3VR9ze3_2gEqBUryXlCzwPrrv8iUXf3lSHvwEJQu1PoyX8KuAEqca-sNH7Vt6RmYHwGBOdKuuuTnO3mE6o27RrtP7UB8WTxVkRUlCMh9SJ4a11VmYzSGwnqyasr4oJq91G1hgp5-_w3GUg4s',
+      {
+        id: 'real-course-3',
+        title: 'Zero-Trust Enterprise Security Architecture & SPIFFE/SPIRE',
+        category: 'CYBERSECURITY & CRYPTO',
+        categorySlug: 'security',
+        level: 'ADVANCED',
+        rating: '4.96',
+        learners: '3,820',
+        duration: '8 Weeks • 32 Labs',
+        progressStatus: 'Active Cohort Enrolling',
+        progressWidth: '88%',
+        instructor: {
+          name: 'Marcus Lin, CISSP',
+          role: 'Senior Infosec Director',
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
+        },
+        image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80',
+        fallbackImage: '/assets/course-cyber.jpg',
       },
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCpW8hEWoa_a9ARkLfsnLm0Kw0Svjrj8dKALKHr4TNkfDE9pPdSk7nI-sqM_u8cIxJQcQNh11Gmshz20Dnb1CmKKuKHszve84q1lXjgwDP7-H83ALeKaxBOt3NsS4LolBMUzzTEh_mWs_yX0HopfIFNiNMgH3q45ktBSslNhKavABmYiMuag-d5fUP92z8ouWXCPw6FpwLX0ubRodvvDYJUuTCJxid2miAlxaJLwba-vhamOX-_J6Wa',
-      fallbackImage: '/assets/course-cyber.jpg',
-    },
-    {
-      id: 'course-embedded-rust',
-      title: 'Autonomous Systems & Embedded WebGL Shaders',
-      category: 'EMBEDDED RUST',
-      categorySlug: 'systems',
-      level: 'ADVANCED',
-      rating: '4.92',
-      learners: '1,640',
-      duration: '14 Weeks • 60 Labs',
-      progressStatus: 'Self-Paced Active',
-      progressWidth: '20%',
-      instructor: {
-        name: 'Elena Rostov',
-        role: 'Graphics Engineer',
-        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAOBR1gasA7tuRT3tiFuOzyezzhqP43WmDNqqh9CxluwPwm0Jw4L4nBz7OsT_cPfzwuVBNDsNDeKudXSR3t3K_KT5EkoDdjUhj1wZc1WvViSZg9fwPn137zteccwzqCiiMn1icS3qbFv_xIBJReG6VTzuKSW9wuj8-HMqddxyTbGPa3sxtfY4CdT-CaNHnQiPptMMbd6RSJGub4EgwbW91atW1y9YytOW67ZU6Ty1v4zqAfFiyUQQ1A',
+      {
+        id: 'real-course-4',
+        title: 'Full-Stack Next.js 15 & React 19 with Server Actions',
+        category: 'WEB DEVELOPMENT',
+        categorySlug: 'web',
+        level: 'INTERMEDIATE',
+        rating: '4.99',
+        learners: '6,840',
+        duration: '8 Weeks • 30 Labs',
+        progressStatus: 'Free Lifetime Access',
+        progressWidth: '92%',
+        instructor: {
+          name: 'Prof. Alex Rivera',
+          role: 'Principal Full-Stack Architect',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+        },
+        image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&auto=format&fit=crop&q=80',
+        fallbackImage: '/assets/course-embedded.jpg',
       },
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAciwX-okBh4ymJZHa4hquSO4Od5UFMnOJNHmUYMvMj6XGJtB4BPkDTJyoWwTGzLxA8nDmtzEgA6oY5GNxvHctXHA0Z-N0PBytty2ufNOqiREcC09uJ-SsSC_GgQw7FJyE_19USN32xwinBiVT4A_4UiHPx26i2IRWSZJpS9g5mrsu5qtgZ1-0uTPbxdfHUQf3ocoKYmwKyHoWaTBq0iruan4KoqGKM-SNIL0AI0UWMD2TZOGL6kJiM',
-      fallbackImage: '/assets/course-embedded.jpg',
-    },
-  ];
+    ];
+  }, [realFeaturedCourses]);
 
   const filteredCourses = activeCategoryFilter === 'all'
-    ? featuredCoursesList
-    : featuredCoursesList.filter((c) => c.categorySlug === activeCategoryFilter);
+    ? activeFeaturedCourses
+    : activeFeaturedCourses.filter((c) => c.categorySlug === activeCategoryFilter || c.categoryName?.toLowerCase().includes(activeCategoryFilter));
 
-  // 7 Specialized Disciplines
+  // 8 Specialized Disciplines matching real database categories
   const disciplines = [
     {
-      slug: 'development',
-      title: 'Development',
-      desc: 'Fullstack, Rust, Go, Distributed Microservices, High-throughput systems.',
-      count: '48 Courses',
+      slug: 'Web Development',
+      title: 'Full-Stack & Web',
+      desc: 'Next.js 15, React 19, TypeScript, Golang Microservices & GraphQL.',
+      count: '5 Courses',
       icon: 'terminal',
       color: 'text-primary bg-primary-fixed',
     },
     {
-      slug: 'data-science',
-      title: 'Data Science',
-      desc: 'Big Data, Pandas, Statistical Inference, Time-series analysis & telemetry.',
-      count: '36 Courses',
+      slug: 'Data Engineering',
+      title: 'Data & Streaming',
+      desc: 'Apache Kafka, Apache Flink, Snowflake, dbt & Big Data Lakehouses.',
+      count: '4 Courses',
       icon: 'analytics',
       color: 'text-secondary bg-secondary-fixed',
     },
     {
-      slug: 'ai-ml',
+      slug: 'AI & Machine Learning',
       title: 'AI & Machine Learning',
-      desc: 'LLMs, Diffusion Models, Transformers, PyTorch, Agentic frameworks.',
-      count: '54 Courses',
+      desc: 'Agentic AI, LangGraph, RAG, PyTorch 2.x & LLM LoRA Fine-Tuning.',
+      count: '5 Courses',
       icon: 'neurology',
       color: 'text-tertiary bg-tertiary-fixed',
     },
     {
-      slug: 'cloud',
-      title: 'Cloud Computing',
-      desc: 'AWS, GCP, Multi-region Terraform, Serverless runtimes & Kubernetes.',
-      count: '42 Courses',
+      slug: 'Cloud Architecture & DevOps',
+      title: 'Cloud & DevOps',
+      desc: 'Kubernetes EKS, Istio Mesh, Terraform IaC, Serverless & OpenTelemetry.',
+      count: '5 Courses',
       icon: 'cloud_sync',
       color: 'text-primary bg-primary-fixed',
     },
     {
-      slug: 'security',
-      title: 'Cybersecurity',
-      desc: 'Zero-Trust architecture, Reverse Engineering, Cryptography & Threat ops.',
-      count: '30 Courses',
+      slug: 'Cybersecurity & Crypto',
+      title: 'Cybersecurity & Zero-Trust',
+      desc: 'SPIFFE/SPIRE, Penetration Testing, CSPM, Cryptography & SIEM.',
+      count: '5 Courses',
       icon: 'security',
       color: 'text-secondary bg-secondary-fixed',
     },
     {
-      slug: 'business',
-      title: 'Business & Strategy',
-      desc: 'Product Strategy, Tech Leadership, SaaS Financial Models & Executive Ops.',
-      count: '25 Courses',
-      icon: 'business_center',
+      slug: 'Systems & Rust',
+      title: 'Systems & Rust',
+      desc: 'Modern Rust, WebAssembly WASI, Linux Kernel eBPF & GPU Triton.',
+      count: '4 Courses',
+      icon: 'memory',
       color: 'text-on-surface bg-surface-container-highest',
     },
     {
-      slug: 'design',
-      title: 'Design & Spatial Systems',
-      desc: 'Design Systems architecture, Three.js shaders, WebXR, and human-computer interaction heuristics.',
-      count: '29 Courses',
+      slug: 'Mobile Development',
+      title: 'Mobile Engineering',
+      desc: 'Flutter 3, React Native New Architecture, Swift 6 & Jetpack Compose.',
+      count: '4 Courses',
+      icon: 'phone_iphone',
+      color: 'text-primary bg-primary-fixed',
+    },
+    {
+      slug: 'Quantum & Emerging Tech',
+      title: 'Quantum & Emerging Tech',
+      desc: 'IBM Qiskit Quantum Circuits, TinyML Edge AI, and Spatial Three.js.',
+      count: '4 Courses',
       icon: 'polyline',
       color: 'text-tertiary bg-tertiary-fixed',
       spanCol: true,
@@ -788,10 +847,12 @@ const Home = () => {
               <div className="flex flex-wrap items-center gap-2 pb-10">
                 {[
                   { id: 'all', label: 'All Courses' },
-                  { id: 'ai', label: 'AI & Neural Systems' },
+                  { id: 'ai', label: 'AI & GenAI' },
                   { id: 'cloud', label: 'Cloud & DevOps' },
+                  { id: 'web', label: 'Full-Stack Web' },
                   { id: 'security', label: 'Cybersecurity' },
-                  { id: 'systems', label: 'Web3 & Systems' },
+                  { id: 'systems', label: 'Rust & Systems' },
+                  { id: 'data', label: 'Data & Streaming' },
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -808,14 +869,14 @@ const Home = () => {
                 ))}
               </div>
 
-              {/* 4 Featured Course Cards Grid */}
+              {/* Featured Course Cards Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {filteredCourses.map((c) => (
                   <div
                     key={c.id}
                     className="group flex flex-col rounded-2xl bg-surface-container-lowest shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden border border-slate-200/80"
                   >
-                    <div className="relative w-full h-48 overflow-hidden bg-surface-container">
+                    <Link to={`/course/${c._id || c.id}`} className="relative w-full h-48 overflow-hidden bg-surface-container block">
                       <img
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         alt={c.title}
@@ -831,7 +892,7 @@ const Home = () => {
                       <div className="absolute top-3 right-3 px-2 py-0.5 rounded bg-surface-container-high/90 text-on-surface font-label-sm text-label-sm font-semibold">
                         {c.level}
                       </div>
-                    </div>
+                    </Link>
 
                     <div className="flex flex-col flex-1 p-5 gap-3">
                       <div className="flex items-center gap-1 text-amber-500 font-label-sm text-label-sm font-semibold">
@@ -842,9 +903,11 @@ const Home = () => {
                         <span className="text-on-surface-variant font-normal">({c.learners} learners)</span>
                       </div>
 
-                      <h3 className="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors leading-snug line-clamp-2">
-                        {c.title}
-                      </h3>
+                      <Link to={`/course/${c._id || c.id}`}>
+                        <h3 className="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors leading-snug line-clamp-2">
+                          {c.title}
+                        </h3>
+                      </Link>
 
                       {/* Instructor Info */}
                       <div className="flex items-center gap-2.5 pt-1">
@@ -879,12 +942,17 @@ const Home = () => {
 
                       {/* Card Footer Metrics & Action */}
                       <div className="mt-auto pt-3 flex items-center justify-between border-t border-surface-container-high">
-                        <span className="font-label-sm text-label-sm text-on-surface-variant">{c.duration}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-label-sm text-label-sm text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                            Free
+                          </span>
+                          <span className="font-label-sm text-label-sm text-on-surface-variant">{c.duration}</span>
+                        </div>
                         <Link
-                          to="/courses"
+                          to={`/course/${c._id || c.id}`}
                           className="inline-flex items-center gap-1 font-headline-sm text-body-sm text-primary hover:text-primary-container font-semibold"
                         >
-                          <span>Enroll Now</span>
+                          <span>Enroll Free</span>
                           <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
                         </Link>
                       </div>
@@ -1087,7 +1155,7 @@ const Home = () => {
                     <img
                       className="w-full h-[480px] object-cover"
                       alt="High-tech university studio lab with an educator presenting software architecture diagrams"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6rD7er50ZRd7LRPydm_L4HXNN24MrEfeBCDU9I2xWa6opW_M1r9ndbq0Jw0bX8kQhi-KlM0oFjgypmRmHZX7-k0OW71DgzEw-dMa7UcerO1jPuHYn7un__1s0-YsmpH4IGnC0XTEJaI5NLw_H9FOydd2FcA6g2-z03Mxk6-kn_htyfjzw4aieLeH6XUA4XuJbIN03evf4JifNXxrmeWWBD_2OV66YSij-MQ0muvpliCcrTQ3Rnpk1"
+                      src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&auto=format&fit=crop&q=80"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = '/assets/instructor-elena.jpg';
@@ -1234,7 +1302,7 @@ const Home = () => {
                     <img
                       className="w-11 h-11 rounded-full object-cover border border-slate-200"
                       alt="Portrait of David Zhao"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuDADfav8zg1iV_6WYySV_aiEzrIZcsdCgrsRsPCpjcXWlA4nRmBLR_H3jnCt7271oyXIrzv0hLrifSNnrbFlAStDZklDPNzg3ETU2lXfTUixaufJLWuwbUy4s6Aj201qxhEcXfTkjFCAVsJFSkY1XpWnpQD-_LlEbmsnpK4CYBc6uzzAX4iNpA8Tt0QAOf3C8EYjYiiqCHve2qlr_3qb1CQx1844cXQ73UIOc5nHLEfgW43-clKYM5n"
+                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = '/assets/instructor-elena.jpg';
@@ -1265,7 +1333,7 @@ const Home = () => {
                     <img
                       className="w-11 h-11 rounded-full object-cover border border-slate-200"
                       alt="Portrait of Maria Lindqvist"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYAUyO2EMY3q2Q9A8NjE-PgHa1QIkJLRjjZLLOcDHCZvbeDt_qGuMGKrD5HjMLIIzFNnmbFLmE2F-ko_gn57XXwx8FDgiQnY9JAv_y4ULU-3-dj1INBamExz_CP8zaWnSY842oJXGwra2syYgelHQmgy8v-dDfOmY7Fv_e4DKL6XAH889LmLdMLWxgdAYj71Rvtd5_jZa3J55-c3sg83aJPYIeZC7g954d8zGpkfOUDO3HElJD8zdJ"
+                      src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = '/assets/instructor-elena.jpg';
@@ -1296,7 +1364,7 @@ const Home = () => {
                     <img
                       className="w-11 h-11 rounded-full object-cover border border-slate-200"
                       alt="Portrait of Karan Patel"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMundAtw5jj3vVA-Bq8djW-YtIp3LyISfn7PTth5VqLN4MP_hj6xqmm6CG5uI18TAOSIxsxXD-KFgJg1VIEjNQrq8gO5YoPYnp7LUTT6nkL4ds9_uyN9PtSFe_yC9XJ1N993iqGpU9OSuHHBmSp2qruCWoR87vDjBfXyT8ydhBkz0VK1En_7ALRMb7XbBFYIUNY7HiLktxN1y8LO7XYQ9bgGxahhhK6ZygeoiYysfDcgnfIKMh_duR"
+                      src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = '/assets/instructor-elena.jpg';
@@ -1409,7 +1477,7 @@ const Home = () => {
                   <li onClick={() => navigate('/courses')} className="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface cursor-pointer">Courses</li>
                   <li onClick={() => navigate('/courses')} className="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface cursor-pointer">Interactive Labs</li>
                   <li onClick={() => navigate('/about')} className="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface cursor-pointer">Enterprise</li>
-                  <li onClick={() => navigate('/verify/demo')} className="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface cursor-pointer">Certifications</li>
+                  <li onClick={() => navigate('/verify/CERT-LMS-2026-DEMO')} className="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface cursor-pointer">Certifications</li>
                   <li onClick={() => navigate('/about')} className="font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface cursor-pointer">LMS Kernel</li>
                 </ul>
               </div>

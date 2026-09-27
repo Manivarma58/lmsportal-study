@@ -39,7 +39,7 @@ const ResetPassword = () => {
         navigate('/login');
       }, 2000);
     } catch (err) {
-      toast.error(err.message || 'Failed to reset password. Token may be invalid or expired.');
+      toast.error(err.response?.data?.message || err.message || 'Failed to reset password. Token may be invalid or expired.');
     } finally {
       setLoading(false);
     }

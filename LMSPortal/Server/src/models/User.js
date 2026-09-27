@@ -70,6 +70,7 @@ const userSchema = new mongoose.Schema(
       default: true,
     },
     resetPasswordToken: String,
+    resetPasswordCode: String,
     resetPasswordExpire: Date,
   },
   {

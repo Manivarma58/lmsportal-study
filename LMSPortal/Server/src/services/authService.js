@@ -144,11 +144,16 @@ export const forgotPassword = async (email) => {
   // Store SHA-256 hash in database to prevent plaintext token leaks
   const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
 
+  // Generate 6-digit numeric OTP code (for user convenience / verification step)
+  const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+  const hashedCode = crypto.createHash('sha256').update(resetCode).digest('hex');
+
   user.resetPasswordToken = hashedToken;
+  user.resetPasswordCode = hashedCode;
   user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
   await user.save({ validateBeforeSave: false });
 
-  return { resetToken: rawToken };
+  return { resetToken: rawToken, resetCode };
 };
 
 export const resetPassword = async (resetToken, newPassword) => {
@@ -162,11 +167,15 @@ export const resetPassword = async (resetToken, newPassword) => {
     throw new ErrorResponse('Password cannot exceed 128 characters.', 400);
   }
 
-  // Hash incoming raw token to compare with stored SHA-256 hash
-  const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  // Hash incoming raw token or 6-digit code to compare with stored SHA-256 hash
+  const tokenString = String(resetToken).trim();
+  const hashedInput = crypto.createHash('sha256').update(tokenString).digest('hex');
 
   const user = await User.findOne({
-    resetPasswordToken: hashedToken,
+    $or: [
+      { resetPasswordToken: hashedInput },
+      { resetPasswordCode: hashedInput },
+    ],
     resetPasswordExpire: { $gt: Date.now() },
   });
 
@@ -176,6 +185,7 @@ export const resetPassword = async (resetToken, newPassword) => {
 
   user.password = newPassword;
   user.resetPasswordToken = undefined;
+  user.resetPasswordCode = undefined;
   user.resetPasswordExpire = undefined;
   await user.save();
 

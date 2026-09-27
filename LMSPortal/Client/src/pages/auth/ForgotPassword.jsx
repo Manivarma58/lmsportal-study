@@ -11,12 +11,13 @@ const ForgotPassword = () => {
   const [currentStep, setCurrentStep] = useState(1);
 
   // Form States
-  const [email, setEmail] = useState('alex.rivera@stanford.edu');
-  const [otpCode, setOtpCode] = useState(['8', '4', '9', '2', '0', '1']);
+  const [email, setEmail] = useState('');
+  const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [resetToken, setResetToken] = useState('');
+  const [resetCode, setResetCode] = useState('');
 
   // UI state
   const [loading, setLoading] = useState(false);
@@ -60,14 +61,21 @@ const ForgotPassword = () => {
       const res = await authService.forgotPassword(email.trim());
       if (res?.resetToken) {
         setResetToken(res.resetToken);
-      } else {
-        setResetToken('nova-auth-' + Math.random().toString(36).substring(2, 10));
       }
-      toast.success('Security code dispatched to your academic inbox');
+      if (res?.resetCode) {
+        const codeStr = String(res.resetCode);
+        setResetCode(codeStr);
+        setOtpCode(codeStr.split('').slice(0, 6));
+      } else if (res?.resetToken) {
+        // Fallback: derive 6 digits from hex token if needed
+        const fallbackDigits = res.resetToken.replace(/\D/g, '').padEnd(6, '7').slice(0, 6).split('');
+        setOtpCode(fallbackDigits);
+      }
+      toast.success(res?.message || 'Security code generated and dispatched!');
       setCurrentStep(2);
       setCountdown(180);
     } catch (err) {
-      toast.error(err.message || 'Failed to dispatch security instructions');
+      toast.error(err.response?.data?.message || err.message || 'Failed to dispatch security instructions');
     } finally {
       setLoading(false);
     }
@@ -125,16 +133,23 @@ const ForgotPassword = () => {
       return;
     }
 
+    const activeToken = (resetToken || resetCode || otpCode.join('')).trim();
+    if (!activeToken) {
+      toast.error('Reset session token missing. Please request a new code.');
+      setCurrentStep(1);
+      return;
+    }
+
     try {
       setLoading(true);
       await authService.resetPassword({
-        resetToken: resetToken || 'token-' + Date.now(),
+        resetToken: activeToken,
         newPassword,
       });
       toast.success('Credentials re-encrypted and synchronized successfully!');
       setCurrentStep(4);
     } catch (err) {
-      toast.error(err.message || 'Failed to re-encrypt password');
+      toast.error(err.response?.data?.message || err.message || 'Failed to re-encrypt password');
     } finally {
       setLoading(false);
     }
@@ -367,17 +382,17 @@ const ForgotPassword = () => {
                     <span className="font-code-md text-label-sm text-outline">Quick fill:</span>
                     <button
                       type="button"
-                      onClick={() => setEmail('alex.rivera@stanford.edu')}
-                      className="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-primary hover:text-white font-code-md text-label-sm transition-all border border-surface-container-highest/50"
+                      onClick={() => setEmail('student@lms.com')}
+                      className="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-tertiary hover:text-white font-code-md text-label-sm transition-all border border-surface-container-highest/50 cursor-pointer"
                     >
-                      alex.rivera@stanford.edu
+                      student@lms.com
                     </button>
                     <button
                       type="button"
-                      onClick={() => setEmail('student@lms.com')}
-                      className="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-tertiary hover:text-white font-code-md text-label-sm transition-all border border-surface-container-highest/50"
+                      onClick={() => setEmail('instructor@lms.com')}
+                      className="px-2.5 py-1 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-primary hover:text-white font-code-md text-label-sm transition-all border border-surface-container-highest/50 cursor-pointer"
                     >
-                      student@lms.com
+                      instructor@lms.com
                     </button>
                   </div>
 
@@ -396,7 +411,7 @@ const ForgotPassword = () => {
             {/* ================= STEP 2: VERIFY OTP CODE ================= */}
             {currentStep === 2 && (
               <div className="animate-in fade-in slide-in-from-bottom-2 duration-200">
-                <div className="text-center mb-6">
+                <div className="text-center mb-5">
                   <div className="w-13 h-13 rounded-2xl bg-gradient-to-br from-surface-container-high to-surface-container-highest border border-white/10 flex items-center justify-center text-tertiary mx-auto mb-3.5 shadow-inner">
                     <span className="material-symbols-outlined text-[26px]">mark_email_read</span>
                   </div>
@@ -407,6 +422,27 @@ const ForgotPassword = () => {
                     We've transmitted a 6-digit security key to <code className="font-code-md text-primary font-bold">{email}</code>.
                   </p>
                 </div>
+
+                {resetCode && (
+                  <div className="mb-4 p-3 bg-blue-50/80 border border-blue-200/90 rounded-2xl flex items-center justify-between text-xs text-blue-900 shadow-sm animate-in fade-in duration-300">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-blue-600 text-base">vpn_key</span>
+                      <span>
+                        Security Key: <strong className="font-mono text-sm tracking-widest text-blue-700 font-bold">{resetCode}</strong>
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOtpCode(resetCode.split('').slice(0, 6));
+                        toast.success('Security code auto-applied');
+                      }}
+                      className="px-2 py-0.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium text-[11px] transition-colors cursor-pointer"
+                    >
+                      Fill Code
+                    </button>
+                  </div>
+                )}
 
                 <form onSubmit={handleVerifyOtp} className="space-y-4">
                   {/* 6 Digit Input Boxes */}
@@ -433,11 +469,26 @@ const ForgotPassword = () => {
                     </span>
                     <button
                       type="button"
-                      onClick={() => {
-                        setCountdown(180);
-                        toast.info('New verification code re-dispatched');
+                      disabled={loading}
+                      onClick={async () => {
+                        try {
+                          setLoading(true);
+                          const res = await authService.forgotPassword(email.trim());
+                          if (res?.resetToken) setResetToken(res.resetToken);
+                          if (res?.resetCode) {
+                            const codeStr = String(res.resetCode);
+                            setResetCode(codeStr);
+                            setOtpCode(codeStr.split('').slice(0, 6));
+                          }
+                          setCountdown(180);
+                          toast.info('New verification code dispatched');
+                        } catch (err) {
+                          toast.error(err.response?.data?.message || err.message || 'Failed to re-dispatch code');
+                        } finally {
+                          setLoading(false);
+                        }
                       }}
-                      className="text-primary hover:underline cursor-pointer"
+                      className="text-primary hover:underline cursor-pointer disabled:opacity-50"
                     >
                       Resend code
                     </button>

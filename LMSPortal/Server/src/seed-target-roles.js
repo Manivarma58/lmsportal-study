@@ -6,10 +6,7 @@ import User from './models/User.js';
 export const seedTargetRoles = async () => {
   try {
     const existingCount = await TargetRole.countDocuments();
-    if (existingCount > 0) {
-      console.log(`[Seed TargetRoles] ${existingCount} target roles already exist. Skipping.`);
-      return;
-    }
+    console.log(`[Seed TargetRoles] Current target roles count: ${existingCount}. Verifying default roles...`);
 
     const admin = await User.findOne({ role: 'admin' });
     const adminId = admin ? admin._id : null;
@@ -136,11 +133,22 @@ export const seedTargetRoles = async () => {
     ];
 
     for (const r of defaultRoles) {
-      await TargetRole.create(r);
-      console.log(`[Seed TargetRoles] Created role: ${r.name}`);
+      const existing = await TargetRole.findOne({ $or: [{ slug: r.slug }, { name: r.name }] });
+      if (!existing) {
+        await TargetRole.create(r);
+        console.log(`[Seed TargetRoles] Created role: ${r.name}`);
+      } else {
+        existing.requiredSkills = r.requiredSkills;
+        existing.careerOutlook = r.careerOutlook;
+        existing.description = r.description;
+        existing.category = r.category;
+        existing.isPublished = true;
+        await existing.save();
+        console.log(`[Seed TargetRoles] Verified/Updated role: ${r.name}`);
+      }
     }
 
-    console.log('[Seed TargetRoles] Successfully seeded target roles catalog.');
+    console.log('[Seed TargetRoles] Successfully seeded and verified target roles catalog.');
   } catch (error) {
     console.error('[Seed TargetRoles] Error seeding target roles:', error.message);
   }

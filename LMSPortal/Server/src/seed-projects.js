@@ -284,9 +284,25 @@ export const REAL_WORLD_PROJECTS = [
 export const seedProjects = async () => {
   console.log('[Seed Projects] Starting real-world projects seeding...');
 
-  const instructor = await User.findOne({ role: { $in: ['instructor', 'admin'] } });
+  let instructor = await User.findOne({ role: { $in: ['instructor', 'admin'] } });
   if (!instructor) {
-    console.warn('[Seed Projects] No instructor found. Skipping project seed.');
+    instructor = await User.findOne({});
+  }
+  if (!instructor) {
+    try {
+      instructor = await User.create({
+        name: 'Prof. Alex Rivera',
+        email: 'instructor@lms.com',
+        password: 'Password123!',
+        role: 'instructor',
+        headline: 'Principal Full-Stack Architect',
+      });
+    } catch (_) {
+      instructor = await User.findOne({});
+    }
+  }
+  if (!instructor) {
+    console.warn('[Seed Projects] No user available for instructor assignment. Skipping project seed.');
     return;
   }
 

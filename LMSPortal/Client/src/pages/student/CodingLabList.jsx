@@ -46,10 +46,19 @@ export const CodingLabList = () => {
             search: search.trim() || undefined,
           },
         });
+        let list = res.data?.challenges || [];
+        if (list.length === 0 && selectedDifficulty === 'All' && selectedCategory === 'All' && !search) {
+          try {
+            await API.get('/system/auto-seed');
+            const retryRes = await API.get('/challenges');
+            list = retryRes.data?.challenges || [];
+          } catch (e) {
+            // ignore retry failure
+          }
+        }
         if (isMounted) {
-          const list = res.data?.challenges || [];
           setChallenges(list);
-          if (selectedDifficulty === 'All' && selectedCategory === 'All' && !search) {
+          if (selectedDifficulty === 'All' && selectedCategory === 'All' && !search && list.length > 0) {
             setCache('student_challenges', list);
           }
         }

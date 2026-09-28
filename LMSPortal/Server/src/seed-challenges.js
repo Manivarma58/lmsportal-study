@@ -465,7 +465,28 @@ ORDER BY arrival_time ASC;
 export const seedChallenges = async () => {
   console.log('[Seed Challenges] Initializing Coding Challenges...');
 
-  const instructor = await User.findOne({ role: 'instructor' }) || await User.findOne({});
+  const skillCount = await Skill.countDocuments();
+  if (skillCount === 0) {
+    try {
+      const { seedSkills } = await import('./seed-skills.js');
+      await seedSkills();
+    } catch (_) {}
+  }
+
+  let instructor = await User.findOne({ role: 'instructor' }) || await User.findOne({});
+  if (!instructor) {
+    try {
+      instructor = await User.create({
+        name: 'Prof. Alex Rivera',
+        email: 'instructor@lms.com',
+        password: 'Password123!',
+        role: 'instructor',
+        headline: 'Principal Full-Stack Architect',
+      });
+    } catch (_) {
+      instructor = await User.findOne({});
+    }
+  }
   const creatorId = instructor?._id;
 
   for (const cData of INITIAL_CHALLENGES) {

@@ -57,10 +57,19 @@ const JobSimulationList = () => {
       if (searchQuery.trim()) params.search = searchQuery.trim();
 
       const res = await API.get('/simulations', { params });
-      const list = res.data.simulations || [];
+      let list = res.data.simulations || [];
+      if (list.length === 0 && selectedType === 'All' && selectedDifficulty === 'All' && !searchQuery.trim()) {
+        try {
+          await API.get('/system/auto-seed');
+          const retryRes = await API.get('/simulations');
+          list = retryRes.data.simulations || [];
+        } catch (e) {
+          // ignore retry failure
+        }
+      }
       setSimulations(list);
 
-      if (selectedType === 'All' && selectedDifficulty === 'All' && !searchQuery.trim()) {
+      if (selectedType === 'All' && selectedDifficulty === 'All' && !searchQuery.trim() && list.length > 0) {
         setCache('job_simulations_all', list);
       }
     } catch (err) {

@@ -41,26 +41,66 @@ import portfolioRoutes from './routes/portfolioRoutes.js';
 // Load environment variables
 dotenv.config();
 
-// Connect to MongoDB
-connectDB().then(async () => {
+// Catalog bootstrapper function to ensure all collections are seeded on startup
+export const bootstrapDatabaseCatalogs = async () => {
+  console.log('[LMS Server] Running database catalog verification & self-healing checks...');
+
+  // 1. Core Users and Courses
   try {
     const User = (await import('./models/User.js')).default;
     const userCount = await User.countDocuments();
-    if (userCount === 0) {
-      console.log('[LMS Server] No users detected in database. Seeding demo accounts...');
+    const Course = (await import('./models/Course.js')).default;
+    const courseCount = await Course.countDocuments();
+    if (userCount === 0 || courseCount === 0) {
+      console.log('[LMS Server] Seeding core platform users and courses...');
       const { seedDatabase } = await import('./seed.js');
       await seedDatabase();
-      console.log('[LMS Server] Auto-seed completed successfully.');
     }
+  } catch (err) {
+    console.warn('[LMS Server] Users/Courses seed notice:', err.message);
+  }
 
-    const Assignment = (await import('./models/Assignment.js')).default;
-    const assignmentCount = await Assignment.countDocuments();
-    if (assignmentCount === 0) {
-      console.log('[LMS Server] Seeding practical assignments catalog...');
-      const { seedAssignments } = await import('./seed-assignments.js');
-      await seedAssignments();
+  // 2. Skills Taxonomy
+  try {
+    const Skill = (await import('./models/Skill.js')).default;
+    const skillCount = await Skill.countDocuments();
+    if (skillCount === 0) {
+      console.log('[LMS Server] Seeding core skills taxonomy...');
+      const { seedSkills } = await import('./seed-skills.js');
+      await seedSkills();
     }
+  } catch (err) {
+    console.warn('[LMS Server] Skills seed notice:', err.message);
+  }
 
+  // 3. Target Roles Catalog
+  try {
+    const TargetRole = (await import('./models/TargetRole.js')).default;
+    const targetRoleCount = await TargetRole.countDocuments();
+    if (targetRoleCount < 3) {
+      console.log('[LMS Server] Seeding target roles catalog...');
+      const { seedTargetRoles } = await import('./seed-target-roles.js');
+      await seedTargetRoles();
+    }
+  } catch (err) {
+    console.warn('[LMS Server] Target roles seed notice:', err.message);
+  }
+
+  // 4. Coding Laboratory Challenges
+  try {
+    const CodingChallenge = (await import('./models/CodingChallenge.js')).default;
+    const challengeCount = await CodingChallenge.countDocuments();
+    if (challengeCount === 0) {
+      console.log('[LMS Server] Seeding coding laboratory challenges...');
+      const { seedChallenges } = await import('./seed-challenges.js');
+      await seedChallenges();
+    }
+  } catch (err) {
+    console.warn('[LMS Server] Coding challenges seed notice:', err.message);
+  }
+
+  // 5. Real-World Practical Projects
+  try {
     const Project = (await import('./models/Project.js')).default;
     const projectCount = await Project.countDocuments();
     if (projectCount === 0) {
@@ -68,15 +108,25 @@ connectDB().then(async () => {
       const { seedProjects } = await import('./seed-projects.js');
       await seedProjects();
     }
+  } catch (err) {
+    console.warn('[LMS Server] Projects seed notice:', err.message);
+  }
 
-    const TargetRole = (await import('./models/TargetRole.js')).default;
-    const targetRoleCount = await TargetRole.countDocuments();
-    if (targetRoleCount === 0) {
-      console.log('[LMS Server] Seeding target roles catalog...');
-      const { seedTargetRoles } = await import('./seed-target-roles.js');
-      await seedTargetRoles();
+  // 6. Practical Assignments
+  try {
+    const Assignment = (await import('./models/Assignment.js')).default;
+    const assignmentCount = await Assignment.countDocuments();
+    if (assignmentCount === 0) {
+      console.log('[LMS Server] Seeding practical assignments catalog...');
+      const { seedAssignments } = await import('./seed-assignments.js');
+      await seedAssignments();
     }
+  } catch (err) {
+    console.warn('[LMS Server] Assignments seed notice:', err.message);
+  }
 
+  // 7. Job Simulations
+  try {
     const JobSimulation = (await import('./models/JobSimulation.js')).default;
     const simCount = await JobSimulation.countDocuments();
     if (simCount === 0) {
@@ -84,15 +134,31 @@ connectDB().then(async () => {
       const { seedJobSimulations } = await import('./services/jobSimulationService.js');
       await seedJobSimulations();
     }
+  } catch (err) {
+    console.warn('[LMS Server] Job simulations seed notice:', err.message);
+  }
 
+  // 8. Cohorts and Student Evidence
+  try {
     const { seedInstructorIntelligenceCohort } = await import('./seed-instructor-intelligence.js');
     await seedInstructorIntelligenceCohort();
+  } catch (err) {
+    console.warn('[LMS Server] Instructor intelligence notice:', err.message);
+  }
 
+  try {
     const { seedPortfolioEvidenceForStudent } = await import('./seed-portfolio-evidence.js');
     await seedPortfolioEvidenceForStudent();
-  } catch (seedErr) {
-    console.warn('[LMS Server] Auto-seed check notice:', seedErr.message);
+  } catch (err) {
+    console.warn('[LMS Server] Portfolio evidence notice:', err.message);
   }
+
+  console.log('[LMS Server] Catalog verification complete.');
+};
+
+// Connect to MongoDB
+connectDB().then(async () => {
+  await bootstrapDatabaseCatalogs();
 });
 
 const app = express();
@@ -206,6 +272,29 @@ app.get(['/api/health', '/health'], (req, res) => {
     message: 'LMS Portal REST API & Socket.IO Server is online.',
     timestamp: new Date().toISOString(),
   });
+});
+
+// Self-healing catalog seeding & status trigger
+app.all(['/api/system/auto-seed', '/system/auto-seed'], async (req, res) => {
+  try {
+    await bootstrapDatabaseCatalogs();
+    const [skills, roles, challenges, projects, assignments, courses] = await Promise.all([
+      (await import('./models/Skill.js')).default.countDocuments(),
+      (await import('./models/TargetRole.js')).default.countDocuments(),
+      (await import('./models/CodingChallenge.js')).default.countDocuments(),
+      (await import('./models/Project.js')).default.countDocuments(),
+      (await import('./models/Assignment.js')).default.countDocuments(),
+      (await import('./models/Course.js')).default.countDocuments(),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: 'Platform catalogs verified and seeded successfully.',
+      counts: { skills, targetRoles: roles, codingChallenges: challenges, projects, assignments, courses },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // Helper to mount routes on both /api and root paths

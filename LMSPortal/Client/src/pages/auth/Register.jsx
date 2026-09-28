@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../../store/slices/authSlice';
-import * as THREE from 'three';
 import {
   Eye,
   EyeOff,
@@ -57,14 +56,20 @@ const Register = () => {
   }, []);
 
   // -------------------------------------------------------------
-  // LEFT PANEL: Interactive 3D Workstation (Three.js)
+  // LEFT PANEL: Interactive 3D Workstation (Three.js - Async Lazy Load)
   // -------------------------------------------------------------
   useEffect(() => {
     const containerEl = leftCanvasRef.current;
-    if (!containerEl) return;
+    if (!containerEl || window.innerWidth < 1024) return;
 
-    const width = containerEl.clientWidth || 800;
-    const height = containerEl.clientHeight || 900;
+    let isCancelled = false;
+    let cleanup = null;
+
+    import('three').then((THREE) => {
+      if (isCancelled || !leftCanvasRef.current) return;
+
+      const width = containerEl.clientWidth || 800;
+      const height = containerEl.clientHeight || 900;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
@@ -305,26 +310,38 @@ const Register = () => {
     }
     animate();
 
+      cleanup = () => {
+        cancelAnimationFrame(animId);
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('resize', handleResize);
+        renderer.dispose();
+        if (containerEl && renderer.domElement) {
+          containerEl.removeChild(renderer.domElement);
+        }
+      };
+    }).catch(() => {});
+
     return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', handleResize);
-      renderer.dispose();
-      if (containerEl && renderer.domElement) {
-        containerEl.removeChild(renderer.domElement);
-      }
+      isCancelled = true;
+      if (cleanup) cleanup();
     };
   }, []);
 
   // -------------------------------------------------------------
-  // RIGHT PANEL: Ambient 3D Geometric Ecosystem (Three.js)
+  // RIGHT PANEL: Ambient 3D Geometric Ecosystem (Three.js - Async Lazy Load)
   // -------------------------------------------------------------
   useEffect(() => {
     const containerEl = rightCanvasRef.current;
-    if (!containerEl) return;
+    if (!containerEl || window.innerWidth < 1024) return;
 
-    const width = containerEl.clientWidth || 800;
-    const height = containerEl.clientHeight || 900;
+    let isCancelled = false;
+    let cleanup = null;
+
+    import('three').then((THREE) => {
+      if (isCancelled || !rightCanvasRef.current) return;
+
+      const width = containerEl.clientWidth || 800;
+      const height = containerEl.clientHeight || 900;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
@@ -497,14 +514,20 @@ const Register = () => {
     }
     animate();
 
+      cleanup = () => {
+        cancelAnimationFrame(animId);
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('resize', handleResize);
+        renderer.dispose();
+        if (containerEl && renderer.domElement) {
+          containerEl.removeChild(renderer.domElement);
+        }
+      };
+    }).catch(() => {});
+
     return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', handleResize);
-      renderer.dispose();
-      if (containerEl && renderer.domElement) {
-        containerEl.removeChild(renderer.domElement);
-      }
+      isCancelled = true;
+      if (cleanup) cleanup();
     };
   }, []);
 

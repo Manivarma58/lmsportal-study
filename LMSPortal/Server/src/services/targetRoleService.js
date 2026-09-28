@@ -37,12 +37,28 @@ export const getAllTargetRoles = async (filterOptions = {}) => {
     query.isPublished = true;
   }
 
-  const roles = await TargetRole.find(query)
+  let roles = await TargetRole.find(query)
     .populate({
       path: 'requiredSkills.skill',
       select: 'name slug category difficulty icon',
     })
     .sort({ name: 1 });
+
+  // Self-healing: if no target roles exist in database, auto-seed immediately
+  if (roles.length === 0 && !filterOptions.search && (!filterOptions.category || filterOptions.category === 'all')) {
+    try {
+      const { seedTargetRoles } = await import('../seed-target-roles.js');
+      await seedTargetRoles();
+      roles = await TargetRole.find(query)
+        .populate({
+          path: 'requiredSkills.skill',
+          select: 'name slug category difficulty icon',
+        })
+        .sort({ name: 1 });
+    } catch (seedErr) {
+      console.warn('[TargetRoleService] Auto-seed on query notice:', seedErr.message);
+    }
+  }
 
   return roles;
 };
@@ -261,6 +277,19 @@ export const analyzeSkillGap = async (userId, specificRoleId = null) => {
         })
         .sort({ createdAt: 1 });
     }
+  }
+
+  if (!targetRole) {
+    try {
+      const { seedTargetRoles } = await import('../seed-target-roles.js');
+      await seedTargetRoles();
+      targetRole = await TargetRole.findOne({ isPublished: true })
+        .populate({
+          path: 'requiredSkills.skill',
+          select: 'name slug category difficulty icon',
+        })
+        .sort({ createdAt: 1 });
+    } catch (_) {}
   }
 
   if (!targetRole) {

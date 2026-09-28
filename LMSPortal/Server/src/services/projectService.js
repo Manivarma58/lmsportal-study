@@ -40,7 +40,7 @@ export const getProjects = async (query = {}, userId = null, userRole = 'student
   const limitNum = parseInt(limit, 10) || 20;
   const skip = (pageNum - 1) * limitNum;
 
-  const [projects, total] = await Promise.all([
+  let [projects, total] = await Promise.all([
     Project.find(filter)
       .populate('requiredSkills', 'name slug category difficulty')
       .populate('instructor', 'name email avatar')
@@ -51,6 +51,28 @@ export const getProjects = async (query = {}, userId = null, userRole = 'student
       .lean(),
     Project.countDocuments(filter),
   ]);
+
+  // Self-healing: if no projects exist in database, auto-seed immediately
+  if (total === 0 && !search && (!difficulty || difficulty === 'all') && (!courseId || courseId === 'all') && !instructorId) {
+    try {
+      const { seedProjects } = await import('../seed-projects.js');
+      await seedProjects();
+      const refreshedProjects = await Project.find(filter)
+        .populate('requiredSkills', 'name slug category difficulty')
+        .populate('instructor', 'name email avatar')
+        .populate('course', 'title thumbnail slug')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean();
+      if (refreshedProjects.length > 0) {
+        projects = refreshedProjects;
+        total = await Project.countDocuments(filter);
+      }
+    } catch (seedErr) {
+      console.warn('[ProjectService] Auto-seed on query notice:', seedErr.message);
+    }
+  }
 
   const projectIds = projects.map((p) => p._id);
 

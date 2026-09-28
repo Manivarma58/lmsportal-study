@@ -16,9 +16,19 @@ export default function ProjectList() {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const res = await API.get('/projects');
-      if (res.data?.success && Array.isArray(res.data.projects)) {
-        setProjects(res.data.projects);
+      let res = await API.get('/projects');
+      let list = res.data?.projects || [];
+      if (list.length === 0) {
+        try {
+          await API.get('/system/auto-seed');
+          const retryRes = await API.get('/projects');
+          list = retryRes.data?.projects || [];
+        } catch (e) {
+          // ignore retry failure
+        }
+      }
+      if (Array.isArray(list)) {
+        setProjects(list);
       }
     } catch (err) {
       console.error('Failed to load projects catalog:', err);

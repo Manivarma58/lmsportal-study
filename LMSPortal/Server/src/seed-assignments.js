@@ -234,14 +234,37 @@ export const seedAssignments = async () => {
   console.log('[Seed Assignments] Starting practical assignments seeding...');
 
   // Find instructor or admin user
-  const instructor = await User.findOne({ role: { $in: ['instructor', 'admin'] } });
+  let instructor = await User.findOne({ role: { $in: ['instructor', 'admin'] } });
+  if (!instructor) {
+    instructor = await User.findOne({});
+  }
+  if (!instructor) {
+    try {
+      instructor = await User.create({
+        name: 'Prof. Alex Rivera',
+        email: 'instructor@lms.com',
+        password: 'Password123!',
+        role: 'instructor',
+        headline: 'Principal Full-Stack Architect',
+      });
+    } catch (_) {
+      instructor = await User.findOne({});
+    }
+  }
   if (!instructor) {
     console.warn('[Seed Assignments] No instructor found. Skipping assignments seed.');
     return;
   }
 
   // Find existing courses
-  const courses = await Course.find();
+  let courses = await Course.find();
+  if (courses.length === 0) {
+    try {
+      const { seedDatabase } = await import('./seed.js');
+      await seedDatabase();
+      courses = await Course.find();
+    } catch (_) {}
+  }
   if (courses.length === 0) {
     console.warn('[Seed Assignments] No courses found. Skipping assignments seed.');
     return;

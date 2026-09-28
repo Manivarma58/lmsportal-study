@@ -31,7 +31,7 @@ export const getChallenges = async (query = {}, userId = null) => {
   const limitNum = parseInt(limit, 10) || 20;
   const skip = (pageNum - 1) * limitNum;
 
-  const [challenges, total] = await Promise.all([
+  let [challenges, total] = await Promise.all([
     CodingChallenge.find(filter)
       .populate('skills', 'name slug category difficulty')
       .populate('createdBy', 'name email')
@@ -41,6 +41,27 @@ export const getChallenges = async (query = {}, userId = null) => {
       .lean(),
     CodingChallenge.countDocuments(filter),
   ]);
+
+  // Self-healing: if no challenges exist at all, auto-seed immediately
+  if (total === 0 && !search && (!difficulty || difficulty === 'All') && (!category || category === 'All') && (!skillId || skillId === 'All')) {
+    try {
+      const { seedChallenges } = await import('../seed-challenges.js');
+      await seedChallenges();
+      const refreshedChallenges = await CodingChallenge.find(filter)
+        .populate('skills', 'name slug category difficulty')
+        .populate('createdBy', 'name email')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean();
+      if (refreshedChallenges.length > 0) {
+        challenges = refreshedChallenges;
+        total = await CodingChallenge.countDocuments(filter);
+      }
+    } catch (seedErr) {
+      console.warn('[ChallengeService] Auto-seed on query notice:', seedErr.message);
+    }
+  }
 
   // Sanitize test cases and attach user submission status
   let userSubmissionsMap = {};

@@ -11,15 +11,11 @@ const getApiBaseUrl = () => {
     const hostname = window.location.hostname;
     const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0';
     if (isLocal) {
-      const envUrl = import.meta.env.VITE_API_BASE_URL;
-      if (envUrl && (envUrl.includes('localhost') || envUrl.includes('127.0.0.1'))) {
-        return ensureApiSuffix(envUrl);
-      }
-      return 'http://localhost:5000/api';
+      // Use Vite's native proxy '/api' locally to eliminate CORS preflight OPTIONS latency
+      return '/api';
     }
 
     // When running on a deployed domain (Vercel, Render, etc.):
-    // Never use a localhost URL even if baked in by .env
     const envUrl = import.meta.env.VITE_API_BASE_URL;
     if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
       return ensureApiSuffix(envUrl);
@@ -34,7 +30,7 @@ const getApiBaseUrl = () => {
 
   return import.meta.env.PROD
     ? 'https://lmsportal-study.onrender.com/api'
-    : 'http://localhost:5000/api';
+    : '/api';
 };
 
 const API = axios.create({
@@ -42,12 +38,13 @@ const API = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 20000,
 });
 
 // Cache & in-flight request tracking maps
 const inFlightRequests = new Map();
 const responseCache = new Map();
-const CACHE_TTL_MS = 20 * 1000; // 20-second short TTL for idempotent reads
+const CACHE_TTL_MS = 30 * 1000; // 30-second TTL for idempotent reads for instantaneous snappy navigation
 
 const buildRequestKey = (config) => {
   const method = (config.method || 'get').toLowerCase();
@@ -56,7 +53,54 @@ const buildRequestKey = (config) => {
   return `${method}:${url}?${params}`;
 };
 
-// Request interceptor: attach JWT token & check in-flight/cached queries
+export const clearApiCache = () => {
+  responseCache.clear();
+};
+
+const isSafeReadRequest = (config) => {
+  const method = (config.method || 'get').toLowerCase();
+  if (method !== 'get') return false;
+  if (config.forceRefresh || config.cache === false) return false;
+
+  const url = config.url || '';
+  if (url.includes('/auth/verify') || url.includes('/auth/logout')) return false;
+
+  return (
+    config.cache === true ||
+    url.includes('/enrollments') ||
+    url.includes('/certificates') ||
+    url.includes('/courses') ||
+    url.includes('/skills') ||
+    url.includes('/challenges') ||
+    url.includes('/projects') ||
+    url.includes('/recommendations') ||
+    url.includes('/target-roles') ||
+    url.includes('/categories') ||
+    url.includes('/featured') ||
+    url.includes('/assignments') ||
+    url.includes('/schedules')
+  );
+};
+
+// Wrap API.request for deduplicating simultaneous in-flight GET requests
+const rawRequest = API.request.bind(API);
+API.request = function (config) {
+  const method = (config.method || 'get').toLowerCase();
+  if (method === 'get') {
+    const key = buildRequestKey(config);
+    if (inFlightRequests.has(key) && !config.forceRefresh) {
+      return inFlightRequests.get(key);
+    }
+    const promise = rawRequest(config).finally(() => {
+      inFlightRequests.delete(key);
+    });
+    inFlightRequests.set(key, promise);
+    return promise;
+  }
+  return rawRequest(config);
+};
+
+// Request interceptor: attach JWT token & check in-memory cache
 API.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -64,22 +108,16 @@ API.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Invalidate cache on mutations
+    // Invalidate cache immediately on mutations (POST, PUT, DELETE, PATCH)
     const method = (config.method || 'get').toLowerCase();
     if (method !== 'get') {
       responseCache.clear();
       return config;
     }
 
-    // Check if caching is enabled (defaults to true for categories & featured courses, or if config.cache is set)
-    const isCacheable =
-      config.cache === true ||
-      config.url?.includes('/categories') ||
-      config.url?.includes('/featured');
-
-    const key = buildRequestKey(config);
-
-    if (isCacheable && !config.forceRefresh) {
+    // Check if valid cached response exists
+    if (isSafeReadRequest(config)) {
+      const key = buildRequestKey(config);
       const cached = responseCache.get(key);
       if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
         config.adapter = () =>
@@ -95,13 +133,6 @@ API.interceptors.request.use(
       }
     }
 
-    // Deduplicate identical in-flight GET requests
-    if (inFlightRequests.has(key) && !config.forceRefresh) {
-      const existingPromise = inFlightRequests.get(key);
-      config.adapter = () => existingPromise;
-      return config;
-    }
-
     return config;
   },
   (error) => Promise.reject(error)
@@ -113,12 +144,7 @@ API.interceptors.response.use(
     const key = buildRequestKey(response.config);
     inFlightRequests.delete(key);
 
-    const isCacheable =
-      response.config.cache === true ||
-      response.config.url?.includes('/categories') ||
-      response.config.url?.includes('/featured');
-
-    if (isCacheable) {
+    if (isSafeReadRequest(response.config)) {
       responseCache.set(key, {
         data: response.data,
         headers: response.headers,
@@ -154,5 +180,12 @@ API.interceptors.response.use(
     return Promise.reject(customError);
   }
 );
+
+// Non-blocking early wake-up ping for deployed Render servers
+if (typeof window !== 'undefined' && import.meta.env.PROD) {
+  setTimeout(() => {
+    fetch('https://lmsportal-study.onrender.com/api/health', { method: 'GET', mode: 'no-cors' }).catch(() => {});
+  }, 1000);
+}
 
 export default API;

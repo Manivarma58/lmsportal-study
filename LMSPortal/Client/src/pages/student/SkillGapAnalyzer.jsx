@@ -168,7 +168,49 @@ const SkillGapAnalyzer = () => {
     }
   };
 
-  // Set Active Target Role
+  // Open Goal Modal with current values
+  const handleOpenGoalModal = () => {
+    const lg = analysisData?.learnerTargetRole;
+    if (lg) {
+      if (lg.targetDate) {
+        try {
+          setTargetDate(new Date(lg.targetDate).toISOString().slice(0, 10));
+        } catch (_) {}
+      }
+      if (lg.targetPace) setTargetPace(lg.targetPace);
+      if (lg.notes) setGoalNotes(lg.notes);
+    }
+    setIsGoalModalOpen(true);
+  };
+
+  // Quick preset days setter for goal timeline
+  const setPresetDays = (days) => {
+    const d = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+    setTargetDate(d.toISOString().slice(0, 10));
+  };
+
+  // 1-Click Fast Goal Activation
+  const handleQuickSetGoal = async () => {
+    if (!selectedRoleId || settingGoal) return;
+    setSettingGoal(true);
+    try {
+      await API.post('/target-roles/learner/select', {
+        targetRoleId: selectedRoleId,
+        targetDate,
+        targetPace,
+        notes: goalNotes || '',
+      });
+      const roleName = analysisData?.targetRole?.name || 'Target role';
+      toast.success(`${roleName} activated as your career goal!`);
+      await runSkillGapAnalysis(selectedRoleId);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to activate target role.');
+    } finally {
+      setSettingGoal(false);
+    }
+  };
+
+  // Set / Update Active Target Role with Timeline Customization
   const handleSaveLearnerGoal = async (e) => {
     e.preventDefault();
     if (!selectedRoleId) return;
@@ -180,9 +222,10 @@ const SkillGapAnalyzer = () => {
         targetPace,
         notes: goalNotes,
       });
-      toast.success('Target role & career timeline activated!');
+      const roleName = analysisData?.targetRole?.name || 'Target role';
+      toast.success(`${roleName} goal timeline updated!`);
       setIsGoalModalOpen(false);
-      runSkillGapAnalysis(selectedRoleId);
+      await runSkillGapAnalysis(selectedRoleId);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to set target role.');
     } finally {
@@ -309,79 +352,106 @@ const SkillGapAnalyzer = () => {
   return (
     <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8 min-h-screen text-slate-800">
       {/* 1. TOP HEADER & TARGET ROLE SELECTION */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white via-blue-50/40 to-indigo-50/30 border border-slate-200/90 p-6 md:p-8 shadow-sm backdrop-blur-sm">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
-        <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-mono uppercase tracking-wider font-semibold">
-              <span className="material-symbols-outlined text-[16px] text-blue-600">insights</span>
-              Nova Skill Gap Analyzer
+      <div className="relative overflow-hidden rounded-2xl bg-white border border-slate-200/90 p-6 md:p-8 shadow-sm">
+        <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+          <div className="space-y-2.5 flex-1 min-w-0 max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold">
+              <span className="material-symbols-outlined text-[15px] text-indigo-600">insights</span>
+              Skill Gap Analyzer
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight flex flex-wrap items-center gap-3">
-              <span>Target Role:</span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600">
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+              <span className="text-slate-400 font-medium mr-2">Target Role:</span>
+              <span className="text-slate-900 font-extrabold">
                 {role?.name || 'Select a Role'}
               </span>
             </h1>
-            <p className="text-slate-600 text-sm leading-relaxed">
+            <p className="text-slate-500 text-sm leading-relaxed">
               {role?.description ||
                 'Compare your actual demonstrated skills against industry role benchmarks to uncover targeted learning recommendations.'}
             </p>
 
-            {/* Career Outlook Stats */}
-            {role?.careerOutlook && (
-              <div className="flex flex-wrap items-center gap-3 pt-2 text-xs font-mono">
-                <span className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 shadow-xs flex items-center gap-1.5 font-medium">
-                  <span className="material-symbols-outlined text-[14px] text-emerald-600">payments</span>
-                  {role.careerOutlook.averageSalary}
+            {learnerGoal?.isActive && (
+              <div className="pt-1 flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-xs font-semibold whitespace-nowrap">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Target in {learnerGoal.daysRemaining || 90} days ({learnerGoal.targetPace || 'standard'} pace)
                 </span>
-                <span className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 shadow-xs flex items-center gap-1.5 font-medium">
-                  <span className="material-symbols-outlined text-[14px] text-blue-600">trending_up</span>
-                  Demand: {role.careerOutlook.demandLevel} ({role.careerOutlook.marketGrowth})
-                </span>
-                {learnerGoal && (
-                  <span className="px-2.5 py-1 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center gap-1.5 font-semibold">
-                    <span className="material-symbols-outlined text-[14px] text-indigo-600">flag</span>
-                    Target in {learnerGoal.daysRemaining} days ({learnerGoal.targetPace} pace)
-                  </span>
-                )}
               </div>
             )}
           </div>
 
           {/* Role Switching & Goal Actions */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <div className="relative">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start xl:self-center">
+            <div className="relative min-w-[200px] max-w-[260px]">
               <select
                 value={selectedRoleId}
                 onChange={(e) => handleRoleChange(e.target.value)}
-                className="w-full sm:w-64 px-4 py-2.5 bg-white border border-slate-300 hover:border-blue-400 rounded-xl text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-xs transition-all cursor-pointer"
+                className="w-full px-3.5 py-2 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 hover:border-slate-300 rounded-xl text-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-xs transition-all cursor-pointer truncate"
               >
                 {(roles || []).map((r) => (
                   <option key={r._id} value={r._id} className="text-slate-800">
-                    {r.name} ({r.category})
+                    {r.name}
                   </option>
                 ))}
               </select>
             </div>
 
-            <button
-              onClick={() => setIsGoalModalOpen(true)}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm shadow-sm transition-all flex items-center justify-center gap-2 active:scale-95"
-            >
-              <span className="material-symbols-outlined text-[18px]">track_changes</span>
-              {learnerGoal ? 'Adjust Timeline' : 'Set as My Goal'}
-            </button>
+            {learnerGoal?.isActive ? (
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold shadow-xs whitespace-nowrap">
+                  <span className="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
+                  Active Goal
+                </div>
+                <button
+                  type="button"
+                  onClick={handleOpenGoalModal}
+                  title="Adjust target completion date and pace"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 text-xs font-semibold shadow-xs transition-all whitespace-nowrap shrink-0 active:scale-95"
+                >
+                  <span className="material-symbols-outlined text-[16px] text-indigo-600">edit_calendar</span>
+                  Adjust Timeline
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleQuickSetGoal}
+                  disabled={settingGoal}
+                  title="Set as your active career target role"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all whitespace-nowrap shrink-0 active:scale-95 disabled:opacity-75"
+                >
+                  {settingGoal ? (
+                    <>
+                      <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                      <span>Activating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-[18px]">flag</span>
+                      <span>Set as My Goal</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOpenGoalModal}
+                  title="Customize timeline and pace before saving"
+                  className="p-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-indigo-600 shadow-xs transition-all shrink-0 active:scale-95"
+                >
+                  <span className="material-symbols-outlined text-[18px]">tune</span>
+                </button>
+              </div>
+            )}
 
             <button
+              type="button"
               onClick={() => setIsCreateRoleModalOpen(true)}
               title="Add a custom target role dynamically without code changes"
-              className="px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 font-medium text-sm shadow-xs transition-all flex items-center justify-center gap-1.5"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 font-semibold text-xs sm:text-sm shadow-xs transition-all whitespace-nowrap shrink-0 active:scale-95"
             >
-              <span className="material-symbols-outlined text-[18px] text-blue-600">add</span>
-              <span className="hidden md:inline">Custom Role</span>
+              <span className="material-symbols-outlined text-[18px] text-indigo-600">add</span>
+              <span>Custom Role</span>
             </button>
           </div>
         </div>
@@ -859,15 +929,41 @@ const SkillGapAnalyzer = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase font-mono mb-1.5">
-              Target Completion Date
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 uppercase font-mono">
+                Target Completion Milestone
+              </label>
+              <span className="text-[11px] text-slate-500">Quick Presets</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2 mb-2">
+              <button
+                type="button"
+                onClick={() => setPresetDays(90)}
+                className="py-1.5 px-2 text-xs rounded-lg border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 font-medium text-slate-700 transition-colors"
+              >
+                3 Months
+              </button>
+              <button
+                type="button"
+                onClick={() => setPresetDays(180)}
+                className="py-1.5 px-2 text-xs rounded-lg border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 font-medium text-slate-700 transition-colors"
+              >
+                6 Months
+              </button>
+              <button
+                type="button"
+                onClick={() => setPresetDays(365)}
+                className="py-1.5 px-2 text-xs rounded-lg border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 font-medium text-slate-700 transition-colors"
+              >
+                1 Year
+              </button>
+            </div>
             <input
               type="date"
               required
               value={targetDate}
               onChange={(e) => setTargetDate(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-800 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-800 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             />
           </div>
 
@@ -875,15 +971,28 @@ const SkillGapAnalyzer = () => {
             <label className="block text-xs font-semibold text-slate-700 uppercase font-mono mb-1.5">
               Commitment Pace
             </label>
-            <select
-              value={targetPace}
-              onChange={(e) => setTargetPace(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-800 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="relaxed">Relaxed (3-5 hours / week)</option>
-              <option value="standard">Standard (8-12 hours / week)</option>
-              <option value="intensive">Intensive Bootcamp (20+ hours / week)</option>
-            </select>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {[
+                { id: 'relaxed', label: 'Relaxed', time: '3-5 hrs/wk', desc: 'Self-paced' },
+                { id: 'standard', label: 'Standard', time: '8-12 hrs/wk', desc: 'Recommended' },
+                { id: 'intensive', label: 'Intensive', time: '20+ hrs/wk', desc: 'Bootcamp' },
+              ].map((pace) => (
+                <button
+                  key={pace.id}
+                  type="button"
+                  onClick={() => setTargetPace(pace.id)}
+                  className={`p-3 rounded-xl border text-left transition-all ${
+                    targetPace === pace.id
+                      ? 'border-indigo-500 bg-indigo-50/60 ring-2 ring-indigo-500/20'
+                      : 'border-slate-200 hover:border-slate-300 bg-white'
+                  }`}
+                >
+                  <div className="text-xs font-bold text-slate-900">{pace.label}</div>
+                  <div className="text-[11px] font-semibold text-indigo-600 font-mono">{pace.time}</div>
+                  <div className="text-[10px] text-slate-500 mt-0.5">{pace.desc}</div>
+                </button>
+              ))}
+            </div>
           </div>
 
           <div>
@@ -894,8 +1003,8 @@ const SkillGapAnalyzer = () => {
               rows={3}
               value={goalNotes}
               onChange={(e) => setGoalNotes(e.target.value)}
-              placeholder="e.g. Aiming for Senior Full Stack Engineer role before annual performance reviews"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-800 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
+              placeholder="e.g. Aiming for Senior AI & Data Systems Engineer before quarterly reviews"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-800 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 resize-none"
             />
           </div>
 
@@ -910,7 +1019,7 @@ const SkillGapAnalyzer = () => {
             <button
               type="submit"
               disabled={settingGoal}
-              className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-sm transition-all flex items-center gap-2"
+              className="px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm shadow-sm transition-all flex items-center gap-2"
             >
               {settingGoal && <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />}
               Save Target Goal

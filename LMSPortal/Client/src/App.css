@@ -6,14 +6,14 @@
 
 :root {
   /* ============ Color Palette ============ */
-  /* Primary Colors */
-  --primary-blue: #3b82f6;
-  --primary-blue-light: #60a5fa;
-  --primary-blue-dark: #2563eb;
-  --primary-purple: #8b5cf6;
-  --primary-purple-light: #a78bfa;
-  --primary-cyan: #06b6d4;
-  --primary-cyan-light: #22d3ee;
+  /* Primary Colors - Modern Premium SaaS Indigo & Violet */
+  --primary-blue: #4f46e5;
+  --primary-blue-light: #6366f1;
+  --primary-blue-dark: #4338ca;
+  --primary-purple: #7c3aed;
+  --primary-purple-light: #8b5cf6;
+  --primary-cyan: #0284c7;
+  --primary-cyan-light: #38bdf8;
   
   /* Gray Scale */
   --gray-50: #f9fafb;

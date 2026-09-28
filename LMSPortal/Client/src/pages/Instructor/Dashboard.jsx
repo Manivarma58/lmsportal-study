@@ -201,7 +201,7 @@ export default function InstructorDashboard() {
                 onClick={() => setActiveTab('intelligence')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeTab === 'intelligence'
-                    ? 'bg-white text-blue-700 shadow-sm'
+                    ? 'bg-white text-indigo-700 font-semibold shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -212,7 +212,7 @@ export default function InstructorDashboard() {
                 onClick={() => setActiveTab('courses')}
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeTab === 'courses'
-                    ? 'bg-white text-blue-700 shadow-sm'
+                    ? 'bg-white text-indigo-700 font-semibold shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -223,15 +223,15 @@ export default function InstructorDashboard() {
 
             <button
               onClick={handleExportCSV}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-sm border border-slate-200 transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs border border-slate-200 transition-all cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[18px] text-blue-600">download</span>
+              <span className="material-symbols-outlined text-[18px] text-indigo-600">download</span>
               <span>Export CSV</span>
             </button>
 
             <button
               onClick={() => navigate('/instructor/create-course')}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
               <span className="material-symbols-outlined text-[18px]">add_circle</span>
               <span>Create Course</span>

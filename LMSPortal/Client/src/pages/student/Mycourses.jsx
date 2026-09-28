@@ -2,15 +2,21 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../../services/api';
 import { toast } from 'sonner';
+import { getCache, setCache } from '../../utils/fastCache';
 
 export default function Mycourses() {
   const navigate = useNavigate();
 
+  // Instant cached initialization for zero-wait transition
+  const cachedEnrollments = getCache('student_enrollments');
+  const cachedCertificates = getCache('student_certificates');
+  const cachedCatalog = getCache('student_catalog_preview');
+
   // State
-  const [enrollments, setEnrollments] = useState([]);
-  const [certificates, setCertificates] = useState([]);
-  const [catalogCourses, setCatalogCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [enrollments, setEnrollments] = useState(cachedEnrollments || []);
+  const [certificates, setCertificates] = useState(cachedCertificates || []);
+  const [catalogCourses, setCatalogCourses] = useState(cachedCatalog || []);
+  const [loading, setLoading] = useState(!cachedEnrollments);
   const [activeFilter, setActiveFilter] = useState('all'); // all, in-progress, completed, certificates
   const [searchQuery, setSearchQuery] = useState('');
   const [viewLayout, setViewLayout] = useState('grid'); // grid, list
@@ -20,7 +26,7 @@ export default function Mycourses() {
     let isMounted = true;
     const fetchCourses = async () => {
       try {
-        setLoading(true);
+        if (!cachedEnrollments) setLoading(true);
         const [enrollmentRes, certRes, catalogRes] = await Promise.allSettled([
           API.get('/enrollments/my-courses'),
           API.get('/certificates/student/my-certificates'),
@@ -31,13 +37,19 @@ export default function Mycourses() {
           if (enrollmentRes.status === 'fulfilled') {
             const raw = enrollmentRes.value.data?.enrollments || [];
             // Filter out any enrollments where course was deleted
-            setEnrollments(raw.filter((e) => Boolean(e.course)));
+            const cleanEnrollments = raw.filter((e) => Boolean(e.course));
+            setEnrollments(cleanEnrollments);
+            setCache('student_enrollments', cleanEnrollments);
           }
           if (certRes.status === 'fulfilled') {
-            setCertificates(certRes.value.data?.certificates || []);
+            const cleanCerts = certRes.value.data?.certificates || [];
+            setCertificates(cleanCerts);
+            setCache('student_certificates', cleanCerts);
           }
           if (catalogRes.status === 'fulfilled') {
-            setCatalogCourses(catalogRes.value.data?.courses || []);
+            const cleanCourses = catalogRes.value.data?.courses || [];
+            setCatalogCourses(cleanCourses);
+            setCache('student_catalog_preview', cleanCourses);
           }
         }
       } catch (err) {

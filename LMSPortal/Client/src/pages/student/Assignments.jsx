@@ -4,12 +4,14 @@ import { useSelector } from 'react-redux';
 import API from '../../services/api';
 import { EmptyState, Skeleton } from '../../components/ui';
 import { toast } from 'sonner';
+import { getCache, setCache } from '../../utils/fastCache';
 
 export default function Assignments() {
   const { user } = useSelector((state) => state.auth);
 
-  const [assignments, setAssignments] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const cachedAssignments = getCache('student_assignments');
+  const [assignments, setAssignments] = useState(cachedAssignments || []);
+  const [loading, setLoading] = useState(!cachedAssignments);
   const [activeTab, setActiveTab] = useState('all'); // all, pending, submitted, under_review, needs_revision, passed, failed
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourseFilter, setSelectedCourseFilter] = useState('all');
@@ -29,10 +31,11 @@ export default function Assignments() {
   // Fetch real practical assignments
   const fetchAssignments = async () => {
     try {
-      setLoading(true);
+      if (!cachedAssignments) setLoading(true);
       const res = await API.get('/assignments');
       if (res.data?.success && Array.isArray(res.data.assignments)) {
         setAssignments(res.data.assignments);
+        setCache('student_assignments', res.data.assignments);
       }
     } catch (err) {
       console.error('Failed to load practical assignments:', err);

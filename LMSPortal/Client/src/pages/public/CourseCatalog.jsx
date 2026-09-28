@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-do
 import { useSelector } from 'react-redux';
 import API from '../../services/api';
 import NeuralBackground from '../../components/NeuralBackground';
+import Navbar from '../../components/Navbar';
 
 const FLAGSHIP_COURSES = [
   {
@@ -669,144 +670,12 @@ const CourseCatalog = ({ embedded = false }) => {
     : '/student/dashboard';
 
   return (
-    <div className={`bg-transparent text-slate-900 antialiased min-h-screen flex flex-col font-sans selection:bg-blue-100 selection:text-blue-800 ${isEmbedded ? 'w-full' : ''}`}>
+    <div className={`bg-transparent text-slate-900 antialiased min-h-screen flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-800 ${isEmbedded ? 'w-full' : ''}`}>
       {/* ================= FIXED TOP HEADER ================= */}
-      {!isEmbedded && (
-        <header className="fixed top-0 left-0 right-0 w-full z-50 bg-surface-container-lowest/85 backdrop-blur-xl shadow-[0_1px_16px_rgba(0,0,0,0.4)]">
-        <div className="h-16 w-full px-gutter flex items-center justify-between gap-space-md">
-          {/* Brand Logo & Version */}
-          <div className="flex items-center gap-space-lg shrink-0">
-            <Link to="/" className="flex items-center gap-space-sm group">
-              <img
-                alt="Nova LMS Logo"
-                className="h-8 w-8 object-contain rounded-md group-hover:scale-105 transition-transform"
-                src="/nova-icon.png"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = '/nova-icon.png';
-                }}
-              />
-              <div className="flex flex-col">
-                <span className="font-headline-sm text-headline-sm tracking-tight text-on-surface leading-none">
-                  Nova <span className="text-primary font-code-md text-body-sm font-semibold">LMS</span>
-                </span>
-              </div>
-            </Link>
-
-            {/* Desktop Nav */}
-            <nav className="hidden xl:flex items-center gap-space-xs p-1 rounded-xl bg-surface-container-low">
-              <Link
-                to="/courses"
-                className="px-space-md py-1.5 transition-colors bg-primary-container text-on-primary-container font-semibold rounded-lg shadow-[0_0_16px_rgba(128,131,255,0.3)]"
-              >
-                Courses
-              </Link>
-              <a
-                href="#categories"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById('catalog-sidebar')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="px-space-md py-1.5 rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors hover:text-on-surface hover:bg-surface-container-high"
-              >
-                Categories
-              </a>
-              <Link
-                to="/courses"
-                className="px-space-md py-1.5 rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors hover:text-on-surface hover:bg-surface-container-high"
-              >
-                Learning Paths
-              </Link>
-              <Link
-                to={isAuthenticated ? dashboardPath : '/login'}
-                className="px-space-md py-1.5 rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors hover:text-on-surface hover:bg-surface-container-high"
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/about"
-                className="px-space-md py-1.5 rounded-lg text-on-surface-variant font-label-md text-label-md transition-colors hover:text-on-surface hover:bg-surface-container-high"
-              >
-                Docs
-              </Link>
-            </nav>
-          </div>
-
-          {/* Right Header Controls */}
-          <div className="flex items-center gap-space-md shrink-0">
-            {/* Search Box Trigger */}
-            <div
-              onClick={() => document.getElementById('course-search-input')?.focus()}
-              className="hidden md:flex items-center bg-surface-container-low rounded-lg px-space-sm py-1.5 gap-space-sm w-56 lg:w-72 shadow-inner cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-on-surface-variant text-base">search</span>
-              <span className="text-on-surface-variant font-body-sm text-body-sm flex-1 truncate">
-                {searchQuery || 'Search modules, syntax...'}
-              </span>
-              <kbd className="px-1.5 py-0.5 rounded bg-surface-container-highest font-code-md text-label-sm text-on-surface-variant uppercase">
-                ⌘K
-              </kbd>
-            </div>
-
-            {/* Notification Bell */}
-            <div className="relative flex items-center justify-center">
-              <Link
-                to="/notifications"
-                aria-label="Notifications"
-                className="p-2 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors flex items-center justify-center"
-              >
-                <span className="material-symbols-outlined text-xl">notifications</span>
-              </Link>
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_#4cd7f6]"></span>
-            </div>
-
-            {/* Profile Avatar / Login */}
-            {isAuthenticated && user ? (
-              <Link to={dashboardPath} className="flex items-center gap-space-sm pl-space-xs">
-                <div className="hidden lg:flex flex-col text-right">
-                  <span className="font-label-md text-label-md text-on-surface leading-tight">{user.name}</span>
-                  <span className="font-label-sm text-label-sm text-secondary font-medium tracking-wide capitalize">
-                    {user.role || 'Fellow'}
-                  </span>
-                </div>
-                {user.avatar ? (
-                  <img
-                    alt={user.name}
-                    className="w-8 h-8 rounded-full object-cover shadow-[0_0_12px_rgba(192,193,255,0.2)] border border-primary/30"
-                    src={user.avatar}
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-500 shadow-sm">
-                    <span className="material-symbols-outlined text-[18px]">person</span>
-                  </div>
-                )}
-              </Link>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Link
-                  to="/login"
-                  className="px-3 py-1.5 rounded-lg text-on-surface-variant font-label-md text-label-md hover:text-on-surface transition-colors"
-                >
-                  Log in
-                </Link>
-                <Link
-                  to="/register"
-                  className="px-3.5 py-1.5 rounded-xl bg-primary-container text-on-primary-container font-label-md text-label-md font-bold shadow-md hover:bg-primary hover:text-on-primary transition-all"
-                >
-                  Join Fellow
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-      )}
+      {!isEmbedded && <Navbar />}
 
       {/* ================= MAIN CONTENT AREA ================= */}
-      <main className={`w-full ${isEmbedded ? 'bg-transparent pt-0' : 'bg-slate-50 pt-16'} min-h-screen flex-1`}>
+      <main className={`w-full ${isEmbedded ? 'bg-transparent pt-0' : 'bg-slate-50/70 pt-2'} min-h-screen flex-1`}>
         <div className="flex flex-col w-full text-slate-800">
           {/* Ambient Glow Orbs & 3D Neural Synapse Graph (Public view only) */}
           {!isEmbedded && (
@@ -860,26 +729,26 @@ const CourseCatalog = ({ embedded = false }) => {
               /* Public Header */
               <div className="flex flex-col gap-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex items-center gap-2 text-xs font-mono text-slate-500">
-                    <Link to="/" className="text-blue-600 hover:underline cursor-pointer">
-                      ACADEMY
+                  <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+                    <Link to="/" className="text-indigo-600 hover:text-indigo-700 hover:underline">
+                      Academy
                     </Link>
                     <span>/</span>
-                    <span className="text-slate-800 font-semibold">EXPLORE COURSES</span>
+                    <span className="text-slate-800 font-semibold">Explore Courses</span>
                     <span>/</span>
-                    <span className="text-cyan-600">CATALOG DISCOVERY</span>
+                    <span className="text-indigo-500 font-mono text-[11px] uppercase tracking-wider">Catalog Discovery</span>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-slate-200 shadow-sm text-xs font-semibold text-slate-800">
-                      <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200/90 shadow-sm text-xs font-semibold text-slate-800">
+                      <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
                       <span>248 Verified Courses</span>
                     </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-slate-200 shadow-sm text-xs text-slate-600">
-                      <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                    <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200/90 shadow-sm text-xs text-slate-700 font-medium">
+                      <span className="w-2 h-2 rounded-full bg-violet-500"></span>
                       <span>18 Specialization Tracks</span>
                     </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 shadow-sm text-xs font-semibold">
+                    <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50/90 border border-emerald-200/80 text-emerald-700 shadow-sm text-xs font-semibold">
                       <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                       <span>100% Free Access</span>
                     </div>
@@ -900,8 +769,8 @@ const CourseCatalog = ({ embedded = false }) => {
             )}
 
             {/* Clean Modern Search Field & Instant Filter Tag Pills */}
-            <div className="w-full rounded-2xl bg-white border border-slate-200/90 p-4 shadow-sm flex flex-col gap-3">
-              <div className="relative flex items-center w-full bg-slate-50 border border-slate-200/80 rounded-xl px-4 py-2.5 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all">
+            <div className="w-full rounded-2xl bg-white border border-slate-200/90 p-4 shadow-sm flex flex-col gap-3.5">
+              <div className="relative flex items-center w-full bg-slate-50/80 border border-slate-200 rounded-xl px-4 py-2.5 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
                 <span className="material-symbols-outlined text-slate-400 text-xl mr-3">search</span>
                 <input
                   id="course-search-input"
@@ -920,7 +789,7 @@ const CourseCatalog = ({ embedded = false }) => {
                       CLEAR
                     </button>
                   )}
-                  <kbd className="hidden sm:inline-block px-2 py-0.5 rounded bg-slate-200 text-slate-600 font-mono text-xs border border-slate-300">
+                  <kbd className="hidden sm:inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-mono text-xs border border-slate-200">
                     ⌘K
                   </kbd>
                 </div>
@@ -942,10 +811,10 @@ const CourseCatalog = ({ embedded = false }) => {
                           setSelectedCategories([]);
                         }
                       }}
-                      className={`px-3 py-1 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
                         isSelected
-                          ? 'bg-blue-600 text-white shadow-sm'
-                          : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                          ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/20'
+                          : 'bg-slate-100/90 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/60'
                       }`}
                     >
                       {opt.label}
@@ -965,11 +834,11 @@ const CourseCatalog = ({ embedded = false }) => {
                   {/* Sidebar Header */}
                   <div className="flex items-center justify-between pb-3 border-b border-slate-200">
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-blue-600 text-xl">tune</span>
+                      <span className="material-symbols-outlined text-indigo-600 text-xl">tune</span>
                       <span className="font-bold text-slate-900 text-base">Filter Criteria</span>
                     </div>
                     {activeFiltersCount > 0 && (
-                      <button onClick={clearAllFilters} className="text-xs font-semibold text-blue-600 hover:underline">
+                      <button onClick={clearAllFilters} className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:underline">
                         Clear All ({activeFiltersCount})
                       </button>
                     )}
@@ -993,15 +862,15 @@ const CourseCatalog = ({ embedded = false }) => {
                               <div
                                 className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
                                   isChecked
-                                    ? 'bg-blue-600 border-blue-600 text-white'
-                                    : 'border-slate-300 bg-white group-hover:border-blue-400'
+                                    ? 'bg-gradient-to-r from-indigo-600 to-violet-600 border-indigo-600 text-white shadow-xs'
+                                    : 'border-slate-300 bg-white group-hover:border-indigo-400'
                                 }`}
                               >
                                 {isChecked && <span className="material-symbols-outlined text-xs font-bold leading-none">check</span>}
                               </div>
                               <span
                                 className={`text-sm transition-colors ${
-                                  isChecked ? 'text-slate-900 font-semibold' : 'text-slate-600 group-hover:text-slate-900'
+                                  isChecked ? 'text-indigo-700 font-semibold' : 'text-slate-600 group-hover:text-slate-900'
                                 }`}
                               >
                                 {cat.name}
@@ -1039,15 +908,15 @@ const CourseCatalog = ({ embedded = false }) => {
                               <div
                                 className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
                                   isChecked
-                                    ? 'bg-blue-600 border-blue-600 text-white'
-                                    : 'border-slate-300 bg-white group-hover:border-blue-400'
+                                    ? 'bg-gradient-to-r from-indigo-600 to-violet-600 border-indigo-600 text-white shadow-xs'
+                                    : 'border-slate-300 bg-white group-hover:border-indigo-400'
                                 }`}
                               >
                                 {isChecked && <span className="material-symbols-outlined text-xs font-bold leading-none">check</span>}
                               </div>
                               <span
                                 className={`text-sm transition-colors ${
-                                  isChecked ? 'text-slate-900 font-semibold' : 'text-slate-600 group-hover:text-slate-900'
+                                  isChecked ? 'text-indigo-700 font-semibold' : 'text-slate-600 group-hover:text-slate-900'
                                 }`}
                               >
                                 {lvl.name}
@@ -1079,12 +948,12 @@ const CourseCatalog = ({ embedded = false }) => {
                             onClick={() => setSelectedDuration(isActive ? '' : d.key)}
                             className={`p-2.5 rounded-xl cursor-pointer transition-all flex flex-col items-center text-center text-xs ${
                               isActive
-                                ? 'bg-blue-50 border-2 border-blue-600 text-blue-700 font-bold shadow-sm'
-                                : 'bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700'
+                                ? 'bg-indigo-50/80 border-2 border-indigo-600 text-indigo-700 font-bold shadow-sm shadow-indigo-500/10'
+                                : 'bg-slate-50 border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50/20 text-slate-700'
                             }`}
                           >
                             <span className="font-semibold">{d.label}</span>
-                            <span className={`text-[10px] ${isActive ? 'text-blue-600' : 'text-slate-400'}`}>
+                            <span className={`text-[10px] ${isActive ? 'text-indigo-600' : 'text-slate-400'}`}>
                               {d.count}
                             </span>
                           </div>
@@ -1140,15 +1009,15 @@ const CourseCatalog = ({ embedded = false }) => {
                               <div
                                 className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
                                   isChecked
-                                    ? 'bg-blue-600 border-blue-600 text-white'
-                                    : 'border-slate-300 bg-white group-hover:border-blue-400'
+                                    ? 'bg-gradient-to-r from-indigo-600 to-violet-600 border-indigo-600 text-white shadow-xs'
+                                    : 'border-slate-300 bg-white group-hover:border-indigo-400'
                                 }`}
                               >
                                 {isChecked && <span className="material-symbols-outlined text-xs font-bold leading-none">check</span>}
                               </div>
                               <span
                                 className={`text-sm transition-colors ${
-                                  isChecked ? 'text-blue-600 font-semibold' : 'text-slate-600 group-hover:text-slate-900'
+                                  isChecked ? 'text-indigo-700 font-semibold' : 'text-slate-600 group-hover:text-slate-900'
                                 }`}
                               >
                                 {inst.name}
@@ -1184,11 +1053,11 @@ const CourseCatalog = ({ embedded = false }) => {
                     {/* Active Filter Badges */}
                     <div className="flex flex-wrap items-center gap-1.5">
                       {selectedLevel && selectedLevel !== 'All Levels' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 text-xs font-semibold">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/80 text-xs font-semibold">
                           {selectedLevel}
                           <span
                             onClick={() => setSelectedLevel('All Levels')}
-                            className="material-symbols-outlined text-xs cursor-pointer hover:text-blue-900"
+                            className="material-symbols-outlined text-xs cursor-pointer hover:text-indigo-900"
                           >
                             close
                           </span>
@@ -1197,12 +1066,12 @@ const CourseCatalog = ({ embedded = false }) => {
                       {selectedCategories.map((c) => (
                         <span
                           key={c}
-                          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/80 text-xs font-semibold"
+                          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/80 text-xs font-semibold"
                         >
                           {c}
                           <span
                             onClick={() => toggleCategory(c)}
-                            className="material-symbols-outlined text-xs cursor-pointer hover:text-blue-900"
+                            className="material-symbols-outlined text-xs cursor-pointer hover:text-indigo-900"
                           >
                             close
                           </span>
@@ -1246,7 +1115,7 @@ const CourseCatalog = ({ embedded = false }) => {
                         onClick={() => setViewLayout('grid')}
                         className={`p-1.5 rounded-lg flex items-center justify-center transition-all ${
                           viewLayout === 'grid'
-                            ? 'bg-blue-600 text-white shadow-sm'
+                            ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-sm'
                             : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200'
                         }`}
                         title="4-Column Grid"
@@ -1257,7 +1126,7 @@ const CourseCatalog = ({ embedded = false }) => {
                         onClick={() => setViewLayout('list')}
                         className={`p-1.5 rounded-lg flex items-center justify-center transition-all ${
                           viewLayout === 'list'
-                            ? 'bg-blue-600 text-white shadow-sm'
+                            ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-sm'
                             : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200'
                         }`}
                         title="List View"
@@ -1284,7 +1153,7 @@ const CourseCatalog = ({ embedded = false }) => {
                         <div className="flex items-center gap-3 mt-6">
                           <button
                             onClick={clearAllFilters}
-                            className="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-all shadow-sm"
+                            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-semibold hover:from-indigo-500 hover:to-violet-500 transition-all shadow-md shadow-indigo-500/20"
                           >
                             Reset All Filters
                           </button>
@@ -1296,7 +1165,7 @@ const CourseCatalog = ({ embedded = false }) => {
                         {filteredCourses.map((c, idx) => (
                           <div
                             key={c.title + idx}
-                            className="group relative bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-blue-500/40 transition-all duration-300 flex flex-col"
+                            className="group relative bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:border-indigo-300 transition-all duration-300 flex flex-col"
                           >
                             {/* Thumbnail Banner */}
                             <Link to={getCourseDetailPath(c)} className="relative h-44 w-full overflow-hidden bg-slate-100 block cursor-pointer">
@@ -1312,15 +1181,16 @@ const CourseCatalog = ({ embedded = false }) => {
                                 decoding="async"
                               />
 
-                              {/* Category Badge */}
-                              <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/80 flex items-center gap-1.5 text-xs font-semibold text-slate-800 shadow-sm">
-                                <span className={`w-1.5 h-1.5 rounded-full ${c.dotColor || 'bg-blue-600'}`}></span>
-                                <span>{c.badge}</span>
-                              </div>
+                              {/* Category & Difficulty Badges */}
+                              <div className="absolute top-3 inset-x-3 flex items-center justify-between gap-1.5 z-10 pointer-events-none">
+                                <div className="px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/80 flex items-center gap-1.5 text-[11px] font-semibold text-slate-800 shadow-xs max-w-[62%] truncate">
+                                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${c.dotColor || 'bg-indigo-600'}`}></span>
+                                  <span className="truncate">{c.badge}</span>
+                                </div>
 
-                              {/* Difficulty Pill */}
-                              <div className="absolute top-3 right-3 px-2.5 py-0.5 rounded-full bg-slate-900/80 text-white font-medium text-xs backdrop-blur-md shadow-sm">
-                                {c.levelPill}
+                                <div className="px-2 py-0.5 rounded-full bg-slate-900/85 text-white font-semibold text-[10px] font-mono tracking-wider uppercase backdrop-blur-md shadow-xs shrink-0">
+                                  {c.levelPill}
+                                </div>
                               </div>
                             </Link>
 
@@ -1328,7 +1198,7 @@ const CourseCatalog = ({ embedded = false }) => {
                             <div className="p-4 flex-1 flex flex-col justify-between gap-4">
                               <div>
                                 <Link to={getCourseDetailPath(c)}>
-                                  <h3 className="font-bold text-base text-slate-900 group-hover:text-blue-600 transition-colors leading-snug line-clamp-2 cursor-pointer">
+                                  <h3 className="font-bold text-base text-slate-900 group-hover:text-indigo-600 transition-colors leading-snug line-clamp-2 cursor-pointer">
                                     {c.title}
                                   </h3>
                                 </Link>
@@ -1352,7 +1222,7 @@ const CourseCatalog = ({ embedded = false }) => {
                                     decoding="async"
                                   />
                                 ) : (
-                                  <div className="w-7 h-7 rounded-full bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center font-mono text-xs font-bold">
+                                  <div className="w-7 h-7 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center justify-center font-mono text-xs font-bold">
                                     {c.initials || 'ST'}
                                   </div>
                                 )}
@@ -1372,7 +1242,7 @@ const CourseCatalog = ({ embedded = false }) => {
                                   <span className="text-slate-400">({c.reviews})</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
-                                  <span className="material-symbols-outlined text-sm text-blue-500">schedule</span>
+                                  <span className="material-symbols-outlined text-sm text-indigo-500">schedule</span>
                                   <span>{c.duration}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
@@ -1397,7 +1267,7 @@ const CourseCatalog = ({ embedded = false }) => {
                                 </div>
                                 <Link
                                   to={getCourseDetailPath(c)}
-                                  className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm hover:shadow transition-all flex items-center gap-1"
+                                  className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 transition-all flex items-center gap-1"
                                 >
                                   <span>Enroll Free</span>
                                   <span className="material-symbols-outlined text-sm">arrow_forward</span>
@@ -1413,7 +1283,7 @@ const CourseCatalog = ({ embedded = false }) => {
                         {filteredCourses.map((c, idx) => (
                           <div
                             key={c.title + idx}
-                            className="group relative bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-blue-500/40 transition-all duration-300 flex flex-col md:flex-row items-stretch"
+                            className="group relative bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:border-indigo-300 transition-all duration-300 flex flex-col md:flex-row items-stretch"
                           >
                             <Link to={getCourseDetailPath(c)} className="relative md:w-64 shrink-0 h-48 md:h-auto overflow-hidden bg-slate-100 block cursor-pointer">
                               <img
@@ -1427,7 +1297,7 @@ const CourseCatalog = ({ embedded = false }) => {
                                 loading="lazy"
                               />
                               <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/80 flex items-center gap-1.5 text-xs font-semibold text-slate-800 shadow-sm">
-                                <span className={`w-1.5 h-1.5 rounded-full ${c.dotColor || 'bg-blue-600'}`}></span>
+                                <span className={`w-1.5 h-1.5 rounded-full ${c.dotColor || 'bg-indigo-600'}`}></span>
                                 <span>{c.badge}</span>
                               </div>
                             </Link>
@@ -1435,7 +1305,7 @@ const CourseCatalog = ({ embedded = false }) => {
                               <div className="flex flex-col md:flex-row md:items-start justify-between gap-2">
                                 <div>
                                   <Link to={getCourseDetailPath(c)}>
-                                    <h3 className="font-bold text-lg text-slate-900 group-hover:text-blue-600 transition-colors cursor-pointer">
+                                    <h3 className="font-bold text-lg text-slate-900 group-hover:text-indigo-600 transition-colors cursor-pointer">
                                       {c.title}
                                     </h3>
                                   </Link>
@@ -1467,7 +1337,7 @@ const CourseCatalog = ({ embedded = false }) => {
                                 </div>
                                 <Link
                                   to={getCourseDetailPath(c)}
-                                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center gap-1 shadow-sm transition-all"
+                                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold flex items-center gap-1 shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 transition-all"
                                 >
                                   <span>Enroll Free</span>
                                   <span className="material-symbols-outlined text-sm">arrow_forward</span>
@@ -1529,7 +1399,7 @@ const CourseCatalog = ({ embedded = false }) => {
                             clearAllFilters();
                             setActiveState('catalog');
                           }}
-                          className="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-all shadow-sm"
+                          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-semibold hover:from-indigo-500 hover:to-violet-500 transition-all shadow-md shadow-indigo-500/20"
                         >
                           Reset All Filters
                         </button>
@@ -1557,7 +1427,7 @@ const CourseCatalog = ({ embedded = false }) => {
                       <div className="flex items-center gap-4 pt-2">
                         <button
                           onClick={() => setActiveState('catalog')}
-                          className="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-semibold shadow-sm hover:bg-blue-700 transition-all flex items-center gap-2"
+                          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-semibold shadow-md shadow-indigo-500/20 hover:from-indigo-500 hover:to-violet-500 transition-all flex items-center gap-2"
                         >
                           <span className="material-symbols-outlined text-sm">refresh</span>
                           <span>Retry Index Connection</span>
@@ -1588,7 +1458,7 @@ const CourseCatalog = ({ embedded = false }) => {
                       onClick={() => setCurrentPage(1)}
                       className={`w-8 h-8 rounded-lg font-bold flex items-center justify-center transition-all ${
                         currentPage === 1
-                          ? 'bg-blue-600 text-white shadow-sm'
+                          ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/20'
                           : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                       }`}
                     >
@@ -1599,7 +1469,7 @@ const CourseCatalog = ({ embedded = false }) => {
                         onClick={() => setCurrentPage(2)}
                         className={`w-8 h-8 rounded-lg font-bold flex items-center justify-center transition-all ${
                           currentPage === 2
-                            ? 'bg-blue-600 text-white shadow-sm'
+                            ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/20'
                             : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                         }`}
                       >
@@ -1637,24 +1507,27 @@ const CourseCatalog = ({ embedded = false }) => {
 
       {/* ================= FOOTER ================= */}
       {!isEmbedded && (
-        <footer className="w-full bg-surface-container-lowest py-space-xl shadow-[0_-1px_16px_rgba(0,0,0,0.5)] border-t border-surface-container-high/40">
-          <div className="w-full px-gutter max-w-[1680px] mx-auto flex flex-col gap-space-lg">
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-space-lg">
-              <div className="flex flex-col gap-space-xs">
-                <div className="flex items-center gap-space-sm">
-                  <span className="font-headline-sm text-headline-sm tracking-tight text-on-surface">
-                    Nova <span className="text-primary font-code-md text-body-sm font-semibold">LMS</span>
+        <footer className="w-full bg-white border-t border-slate-200/80 py-12 transition-colors">
+          <div className="w-full px-6 sm:px-10 lg:px-16 max-w-[1680px] mx-auto flex flex-col gap-8">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg overflow-hidden shadow-sm">
+                    <img alt="Nova LMS" className="w-full h-full object-contain" src="/nova-icon.png" />
+                  </div>
+                  <span className="font-bold text-lg text-slate-900 tracking-tight">
+                    Nova<span className="text-indigo-600"> LMS</span>
                   </span>
-                  <span className="px-space-xs py-0.5 rounded bg-surface-container-high text-tertiary font-code-md text-label-sm">
-                    TLS 1.3 VERIFIED
+                  <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-mono text-[10px] font-semibold border border-indigo-200">
+                    TLS 1.3 SECURE
                   </span>
                 </div>
-                <p className="font-body-sm text-body-sm text-on-surface-variant max-w-lg">
+                <p className="text-xs text-slate-500 max-w-lg leading-relaxed">
                   Autonomous cyber-academic workspace and high-throughput interactive learning catalog engineered for research fellows and technical engineers.
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-space-md font-label-md text-label-md text-on-surface-variant">
-                <Link to="/courses" className="hover:text-on-surface transition-colors">
+              <div className="flex flex-wrap items-center gap-6 text-sm text-slate-600 font-medium">
+                <Link to="/courses" className="hover:text-indigo-600 transition-colors">
                   Curriculum
                 </Link>
                 <a
@@ -1663,25 +1536,27 @@ const CourseCatalog = ({ embedded = false }) => {
                     e.preventDefault();
                     document.getElementById('catalog-sidebar')?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="hover:text-on-surface transition-colors"
+                  className="hover:text-indigo-600 transition-colors"
                 >
                   Disciplines
                 </a>
-                <Link to="/courses" className="hover:text-on-surface transition-colors">
-                  Pathways
+                <Link to="/about" className="hover:text-indigo-600 transition-colors">
+                  About Academy
                 </Link>
-                <Link to="/about" className="hover:text-on-surface transition-colors">
-                  API Engine
-                </Link>
-                <Link to="/contact" className="hover:text-on-surface transition-colors">
-                  Academic Integrity
+                <Link to="/contact" className="hover:text-indigo-600 transition-colors">
+                  Support & Contact
                 </Link>
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row justify-between items-center gap-space-sm pt-space-md bg-surface-container-low/40 rounded-xl px-space-md py-space-sm">
-              <div className="font-body-sm text-body-sm text-on-surface-variant">
-                © 2025 Nova LMS Virtual Academy. All rights reserved.
+            <div className="flex flex-col md:flex-row justify-between items-center gap-3 pt-6 border-t border-slate-100 text-xs text-slate-500">
+              <div>
+                © {new Date().getFullYear()} Nova LMS Virtual Academy. All rights reserved.
+              </div>
+              <div className="flex items-center gap-4">
+                <span>Zero Tuition Policy</span>
+                <span>•</span>
+                <span>Open Science & Engineering</span>
               </div>
             </div>
           </div>

@@ -164,6 +164,12 @@ export default function StudentDashboard() {
         targetRole: newTargetRole,
         nextActionRec: newRec,
       });
+
+      // Synchronize shared caches so MyCourses, CodingLab, and Projects open instantly in 0ms
+      if (newEnrollments.length > 0) setCache('student_enrollments', newEnrollments);
+      if (newCertificates.length > 0) setCache('student_certificates', newCertificates);
+      if (newChallenges.length > 0) setCache('student_challenges', newChallenges);
+      if (newProjects.length > 0) setCache('student_projects', newProjects);
     } catch (err) {
       console.warn('Dashboard telemetry fetch notice:', err);
       setFetchError('Could not fetch latest learning telemetry. Please check server connection.');

@@ -888,11 +888,16 @@ const Home = () => {
                           e.target.src = c.fallbackImage;
                         }}
                       />
-                      <div className="absolute top-3 left-3 px-2.5 py-1 rounded bg-surface-container-lowest/90 backdrop-blur-md">
-                        <span className="font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold">{c.category}</span>
-                      </div>
-                      <div className="absolute top-3 right-3 px-2 py-0.5 rounded bg-surface-container-high/90 text-on-surface font-label-sm text-label-sm font-semibold">
-                        {c.level}
+                      {/* Category & Level Badges */}
+                      <div className="absolute top-3 inset-x-3 flex items-center justify-between gap-1.5 z-10 pointer-events-none">
+                        <div className="px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-xs max-w-[62%] truncate">
+                          <span className="text-[11px] uppercase tracking-wider text-indigo-600 font-bold truncate block">
+                            {c.category}
+                          </span>
+                        </div>
+                        <div className="px-2 py-0.5 rounded-full bg-slate-900/85 text-white font-mono text-[10px] font-semibold uppercase tracking-wider backdrop-blur-md shadow-xs shrink-0">
+                          {c.level}
+                        </div>
                       </div>
                     </Link>
 

@@ -72,24 +72,24 @@ const StudentLayout = () => {
           to={item.to}
           onClick={onNavigate}
           className={`flex items-center justify-between ${
-            isMobile ? 'px-3 py-2 rounded-lg text-sm' : 'px-space-md py-2 rounded-lg'
-          } transition-all ${
+            isMobile ? 'px-3 py-2 rounded-xl text-sm' : 'px-3.5 py-2.5 rounded-xl text-sm'
+          } transition-all duration-150 ${
             isActive
-              ? 'bg-blue-50 text-blue-600 font-semibold border border-blue-200/80 shadow-sm'
-              : 'text-slate-600 font-medium hover:bg-slate-100/80 hover:text-slate-900'
+              ? 'bg-gradient-to-r from-indigo-50/90 to-purple-50/40 text-indigo-700 font-semibold border-l-[3.5px] border-indigo-600 shadow-xs'
+              : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900'
           }`}
         >
-          <div className="flex items-center gap-space-sm">
-            <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+          <div className="flex items-center gap-3">
+            <span className={`material-symbols-outlined text-[20px] ${isActive ? 'text-indigo-600' : 'text-slate-400'}`}>{item.icon}</span>
             <span>{item.label}</span>
           </div>
           <div className="flex items-center gap-1.5">
             {isActive && item.dot && (
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_6px_#3b82f6]"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 shadow-[0_0_6px_#4f46e5]"></span>
             )}
             {item.badge && !isActive && (
               <span
-                className={`font-code-md text-label-sm px-2 py-0.5 rounded-full ${item.badgeColor || 'bg-slate-100 text-slate-700'}`}
+                className={`font-mono text-xs px-2 py-0.5 rounded-full font-semibold ${item.badgeColor || 'bg-slate-100 text-slate-700'}`}
               >
                 {item.badge}
               </span>
@@ -103,14 +103,14 @@ const StudentLayout = () => {
   return (
     <div className="bg-slate-50 text-slate-900 font-body-md antialiased min-h-screen blueprint-grid">
       {/* ================= DESKTOP SIDEBAR ================= */}
-      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 xl:w-72 bg-white z-50 flex-col justify-between border-r border-slate-200/80 shadow-sm transition-all duration-200">
+      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 xl:w-72 bg-white z-50 flex-col justify-between border-r border-slate-200/80 shadow-xs transition-all duration-200">
         <div className="flex flex-col flex-1 min-h-0">
           {/* Logo Header */}
-          <div className="h-16 px-space-md flex items-center justify-between bg-white/80 backdrop-blur-xl border-b border-slate-200/80 shrink-0">
+          <div className="h-16 px-5 flex items-center justify-between bg-white border-b border-slate-200/80 shrink-0">
             <Link to="/student/dashboard" className="flex items-center gap-3 group min-w-0 overflow-hidden">
               <img
                 alt="Nova LMS Logo"
-                className="h-10 w-10 shrink-0 object-contain group-hover:scale-105 transition-transform"
+                className="h-9 w-9 shrink-0 object-contain group-hover:scale-105 transition-transform"
                 src="/nova-icon.png"
                 onError={(e) => {
                   e.target.onerror = null;
@@ -118,35 +118,29 @@ const StudentLayout = () => {
                 }}
               />
               <div className="flex flex-col min-w-0 flex-1 overflow-hidden">
-                <span className="font-extrabold text-slate-900 text-lg tracking-tight leading-none font-sans">
-                  Nova <span className="text-blue-600">LMS</span>
+                <span className="font-extrabold text-slate-900 text-base tracking-tight leading-none font-sans">
+                  Nova <span className="text-indigo-600">LMS</span>
                 </span>
-                <div
-                  className="overflow-hidden w-full max-w-[190px] mt-1 relative [mask-image:linear-gradient(to_right,black_85%,transparent)]"
-                  title="Nova Next-Gen Outcome-based Virtual Academy"
-                >
-                  <div className="animate-marquee-roll text-[10.5px] text-blue-600 font-semibold tracking-wide whitespace-nowrap">
-                    <span>Nova Next-Gen Outcome-based Virtual Academy&nbsp;•&nbsp;</span>
-                    <span>Nova Next-Gen Outcome-based Virtual Academy&nbsp;•&nbsp;</span>
-                  </div>
-                </div>
+                <span className="text-[10px] font-mono uppercase font-bold text-slate-400 tracking-wider mt-1">
+                  Student Workspace
+                </span>
               </div>
             </Link>
           </div>
 
           {/* Categorized Navigation List */}
-          <nav className="flex-1 overflow-y-auto px-space-sm py-space-sm space-y-space-md">
+          <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
             {/* Category 1: Core Portal */}
             <div className="space-y-1">
-              <div className="px-space-md py-1 font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
-                Core Portal
+              <div className="px-3.5 py-1 text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">
+                Learning Hub
               </div>
               {renderNavGroup(coreNavItems)}
             </div>
 
             {/* Category 2: Communications */}
             <div className="space-y-1">
-              <div className="px-space-md py-1 font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+              <div className="px-3.5 py-1 text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">
                 Communications
               </div>
               {renderNavGroup(commsNavItems)}
@@ -154,21 +148,49 @@ const StudentLayout = () => {
 
             {/* Category 3: Identity & System */}
             <div className="space-y-1">
-              <div className="px-space-md py-1 font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
-                Identity & System
+              <div className="px-3.5 py-1 text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">
+                Account & Settings
               </div>
               {renderNavGroup(systemNavItems)}
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center justify-between px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-error-container/20 hover:text-error transition-all font-label-lg text-label-lg cursor-pointer text-left group"
-              >
-                <div className="flex items-center gap-space-sm">
-                  <span className="material-symbols-outlined text-[20px] text-error group-hover:scale-110 transition-transform">logout</span>
-                  <span>Sign Out</span>
-                </div>
-              </button>
             </div>
           </nav>
+
+          {/* User Footer Profile Card */}
+          <div className="p-3 border-t border-slate-200/80 bg-slate-50/70 shrink-0">
+            <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-white border border-slate-200/80 shadow-xs">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="relative shrink-0">
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user?.name || 'User'}
+                      className="w-8 h-8 rounded-full object-cover border border-indigo-200"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 font-bold text-xs">
+                      {user?.name?.charAt(0) || 'S'}
+                    </div>
+                  )}
+                  <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-xs font-bold text-slate-900 truncate">
+                    {user?.name || 'Student'}
+                  </span>
+                  <span className="text-[10px] text-indigo-600 font-semibold uppercase">
+                    Active Scholar
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                title="Sign Out"
+              >
+                <span className="material-symbols-outlined text-[18px]">logout</span>
+              </button>
+            </div>
+          </div>
         </div>
 
       </aside>

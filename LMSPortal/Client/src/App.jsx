@@ -71,16 +71,16 @@ const AdminStudents = lazy(() => import('./pages/admin/AdminStudents'));
 const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
 const AdminNotifications = lazy(() => import('./pages/admin/AdminNotifications'));
 
-// Lightweight cybernetic loading skeleton for route transitions
+// Lightweight, seamless loading indicator for instantaneous route transitions
 const PageLoadingFallback = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-slate-200">
-    <div className="relative w-14 h-14 flex items-center justify-center">
+  <div className="min-h-[50vh] w-full flex flex-col items-center justify-center bg-transparent text-slate-600">
+    <div className="relative w-10 h-10 flex items-center justify-center">
       <div className="absolute inset-0 rounded-full border-2 border-indigo-500/20 animate-ping"></div>
-      <div className="w-10 h-10 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin"></div>
+      <div className="w-8 h-8 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin"></div>
     </div>
-    <p className="mt-4 font-mono text-xs text-cyan-400 tracking-wider uppercase animate-pulse">
-      Loading Workspace Module...
-    </p>
+    <span className="mt-3 text-xs font-semibold text-slate-500 font-sans tracking-wide">
+      Loading workspace module...
+    </span>
   </div>
 );
 

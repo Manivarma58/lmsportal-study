@@ -51,8 +51,9 @@ const FloatingAIMentor = () => {
     }
   }, [isOpen, messages, loading]);
 
-  // Load Context on component mount
+  // Load Context lazily when mentor widget is opened (prevents blocking student page loads)
   useEffect(() => {
+    if (!isOpen || learnerContext) return;
     let isMounted = true;
     const fetchContext = async () => {
       try {
@@ -86,7 +87,7 @@ const FloatingAIMentor = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [isOpen, learnerContext]);
 
   // Send message
   const handleSendMessage = async (textToSend = null) => {

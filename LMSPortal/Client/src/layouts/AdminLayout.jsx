@@ -80,17 +80,17 @@ const AdminLayout = () => {
           <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
             {/* Core Administration */}
             <nav className="space-y-1">
-              <div className="px-3 py-1 text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">
+              <div className="px-3.5 py-1 text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">
                 Core Administration
               </div>
               <NavLink
                 to="/admin/dashboard"
                 end
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs transition-all ${
+                  `flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 ${
                     isActive
-                      ? 'bg-blue-50 text-blue-600 font-semibold border border-blue-200/80 shadow-sm'
-                      : 'text-slate-600 font-medium hover:bg-slate-100 hover:text-slate-900'
+                      ? 'bg-gradient-to-r from-indigo-50/90 to-purple-50/40 text-indigo-700 font-semibold border-l-[3.5px] border-indigo-600 shadow-xs'
+                      : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900'
                   }`
                 }
               >
@@ -101,10 +101,10 @@ const AdminLayout = () => {
               <NavLink
                 to="/admin/users"
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs transition-all ${
+                  `flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 ${
                     isActive
-                      ? 'bg-blue-50 text-blue-600 font-semibold border border-blue-200/80 shadow-sm'
-                      : 'text-slate-600 font-medium hover:bg-slate-100 hover:text-slate-900'
+                      ? 'bg-gradient-to-r from-indigo-50/90 to-purple-50/40 text-indigo-700 font-semibold border-l-[3.5px] border-indigo-600 shadow-xs'
+                      : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900'
                   }`
                 }
               >
@@ -115,10 +115,10 @@ const AdminLayout = () => {
               <NavLink
                 to="/admin/students"
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs transition-all ${
+                  `flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 ${
                     isActive
-                      ? 'bg-blue-50 text-blue-600 font-semibold border border-blue-200/80 shadow-sm'
-                      : 'text-slate-600 font-medium hover:bg-slate-100 hover:text-slate-900'
+                      ? 'bg-gradient-to-r from-indigo-50/90 to-purple-50/40 text-indigo-700 font-semibold border-l-[3.5px] border-indigo-600 shadow-xs'
+                      : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900'
                   }`
                 }
               >
@@ -129,10 +129,10 @@ const AdminLayout = () => {
               <NavLink
                 to="/admin/instructors"
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs transition-all ${
+                  `flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 ${
                     isActive
-                      ? 'bg-blue-50 text-blue-600 font-semibold border border-blue-200/80 shadow-sm'
-                      : 'text-slate-600 font-medium hover:bg-slate-100 hover:text-slate-900'
+                      ? 'bg-gradient-to-r from-indigo-50/90 to-purple-50/40 text-indigo-700 font-semibold border-l-[3.5px] border-indigo-600 shadow-xs'
+                      : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900'
                   }`
                 }
               >
@@ -143,16 +143,16 @@ const AdminLayout = () => {
 
             {/* Academic Catalog */}
             <nav className="space-y-1">
-              <div className="px-3 py-1 text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">
+              <div className="px-3.5 py-1 text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">
                 Academic Catalog
               </div>
               <NavLink
                 to="/admin/courses"
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs transition-all ${
+                  `flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 ${
                     isActive
-                      ? 'bg-blue-50 text-blue-600 font-semibold border border-blue-200/80 shadow-sm'
-                      : 'text-slate-600 font-medium hover:bg-slate-100 hover:text-slate-900'
+                      ? 'bg-gradient-to-r from-indigo-50/90 to-purple-50/40 text-indigo-700 font-semibold border-l-[3.5px] border-indigo-600 shadow-xs'
+                      : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900'
                   }`
                 }
               >
@@ -163,10 +163,10 @@ const AdminLayout = () => {
               <NavLink
                 to="/admin/courses?filter=categories"
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs transition-all ${
+                  `flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 ${
                     isActive
-                      ? 'bg-blue-50 text-blue-600 font-semibold border border-blue-200/80 shadow-sm'
-                      : 'text-slate-600 font-medium hover:bg-slate-100 hover:text-slate-900'
+                      ? 'bg-gradient-to-r from-indigo-50/90 to-purple-50/40 text-indigo-700 font-semibold border-l-[3.5px] border-indigo-600 shadow-xs'
+                      : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900'
                   }`
                 }
               >
@@ -176,7 +176,7 @@ const AdminLayout = () => {
 
               <NavLink
                 to="/student/quizzes"
-                className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs text-slate-600 font-medium hover:bg-slate-100 hover:text-slate-900 transition-all"
+                className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900 transition-all"
               >
                 <span className="material-symbols-outlined text-[20px]">quiz</span>
                 <span>Quizzes</span>
@@ -184,7 +184,7 @@ const AdminLayout = () => {
 
               <NavLink
                 to="/student/certificates"
-                className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs text-slate-600 font-medium hover:bg-slate-100 hover:text-slate-900 transition-all"
+                className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900 transition-all"
               >
                 <span className="material-symbols-outlined text-[20px]">verified</span>
                 <span>Certificates</span>
@@ -193,16 +193,16 @@ const AdminLayout = () => {
 
             {/* Intelligence & Operations */}
             <nav className="space-y-1">
-              <div className="px-3 py-1 text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">
+              <div className="px-3.5 py-1 text-[11px] font-mono uppercase tracking-wider text-slate-400 font-bold">
                 Intelligence & Operations
               </div>
               <NavLink
                 to="/admin/analytics"
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs transition-all ${
+                  `flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 ${
                     isActive
-                      ? 'bg-blue-50 text-blue-600 font-semibold border border-blue-200/80 shadow-sm'
-                      : 'text-slate-600 font-medium hover:bg-slate-100 hover:text-slate-900'
+                      ? 'bg-gradient-to-r from-indigo-50/90 to-purple-50/40 text-indigo-700 font-semibold border-l-[3.5px] border-indigo-600 shadow-xs'
+                      : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900'
                   }`
                 }
               >
@@ -213,10 +213,10 @@ const AdminLayout = () => {
               <NavLink
                 to="/admin/notifications"
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs transition-all ${
+                  `flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 ${
                     isActive
-                      ? 'bg-blue-50 text-blue-600 font-semibold border border-blue-200/80 shadow-sm'
-                      : 'text-slate-600 font-medium hover:bg-slate-100 hover:text-slate-900'
+                      ? 'bg-gradient-to-r from-indigo-50/90 to-purple-50/40 text-indigo-700 font-semibold border-l-[3.5px] border-indigo-600 shadow-xs'
+                      : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900'
                   }`
                 }
               >
@@ -226,7 +226,7 @@ const AdminLayout = () => {
 
               <button
                 onClick={() => toast.info('System Settings Dialog opened', { description: 'Security policies, cluster keys, and TLS configurations are active.' })}
-                className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs text-slate-600 font-medium hover:bg-slate-100 hover:text-slate-900 transition-all text-left"
+                className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900 transition-all text-left"
               >
                 <span className="material-symbols-outlined text-[20px]">tune</span>
                 <span>System Settings</span>

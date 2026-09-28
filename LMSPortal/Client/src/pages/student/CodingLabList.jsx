@@ -15,6 +15,7 @@ import {
   Award,
 } from 'lucide-react';
 import { Skeleton } from '../../components/ui';
+import { getCache, setCache } from '../../utils/fastCache';
 
 const difficultyStyles = {
   Easy: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200/80 dark:border-emerald-800',
@@ -24,8 +25,9 @@ const difficultyStyles = {
 };
 
 export const CodingLabList = () => {
-  const [challenges, setChallenges] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const cachedChallenges = getCache('student_challenges');
+  const [challenges, setChallenges] = useState(cachedChallenges || []);
+  const [loading, setLoading] = useState(!cachedChallenges);
   const [search, setSearch] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('All');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -34,7 +36,9 @@ export const CodingLabList = () => {
     let isMounted = true;
     const fetchChallenges = async () => {
       try {
-        setLoading(true);
+        if (!cachedChallenges && selectedDifficulty === 'All' && selectedCategory === 'All' && !search) {
+          setLoading(true);
+        }
         const res = await API.get('/challenges', {
           params: {
             difficulty: selectedDifficulty !== 'All' ? selectedDifficulty : undefined,
@@ -43,7 +47,11 @@ export const CodingLabList = () => {
           },
         });
         if (isMounted) {
-          setChallenges(res.data?.challenges || []);
+          const list = res.data?.challenges || [];
+          setChallenges(list);
+          if (selectedDifficulty === 'All' && selectedCategory === 'All' && !search) {
+            setCache('student_challenges', list);
+          }
         }
       } catch (err) {
         console.warn('Failed to fetch coding challenges:', err);

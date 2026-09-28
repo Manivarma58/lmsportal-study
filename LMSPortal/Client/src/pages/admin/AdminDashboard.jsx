@@ -297,7 +297,7 @@ export default function AdminDashboard() {
           {/* Run Integrity Diagnostics Button */}
           <button
             onClick={handleRunDiagnostics}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-xs shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             id="btn-diag"
           >
             {diagnosticsRunning ? (

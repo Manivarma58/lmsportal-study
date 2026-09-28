@@ -201,102 +201,137 @@ table {
   display: flex;
   justify-content: center;
   align-items: center;
+  background: radial-gradient(ellipse at top, rgba(238, 242, 255, 0.8), rgba(248, 250, 252, 1));
 }
 
 .auth-card {
-  background-color: #0F4C75;
-  width: 420px;
-  padding: 40px;
-  border-radius: 14px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 440px;
+  padding: 2.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(0, 0, 0, 0.02);
 }
 
 .auth-title {
   text-align: center;
-  color: #BBE1FA;
-  margin-bottom: 25px;
+  color: #0f172a;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
 }
 
 /* Inputs */
 .auth-input {
   width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  margin-bottom: 15px;
-  font-size: 15px;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #0f172a;
+  margin-bottom: 1rem;
+  font-size: 0.9375rem;
+  transition: all 0.2s ease;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 /* Buttons */
 .auth-btn {
   width: 100%;
-  padding: 12px;
+  padding: 0.75rem 1.25rem;
   border: none;
-  border-radius: 8px;
-  background-color: #3282B8;
-  color: #BBE1FA;
-  font-size: 15px;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #ffffff;
+  font-size: 0.9375rem;
+  font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.28);
+  transition: all 0.2s ease;
 }
 
 .auth-btn:hover {
-  opacity: 0.9;
+  opacity: 0.96;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px 0 rgba(79, 70, 229, 0.35);
+}
+
+.auth-btn:active {
+  transform: translateY(0);
 }
 
 /* Role buttons */
 .role-switch {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  background-color: #f1f5f9;
+  padding: 0.25rem;
+  border-radius: 0.75rem;
 }
 
 .role-btn {
   flex: 1;
-  background-color: #1B262C;
-  color: #BBE1FA;
-  padding: 10px;
-  border-radius: 8px;
+  background-color: transparent;
+  color: #64748b;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
   border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .role-btn.active {
-  background-color: #3282B8;
+  background-color: #ffffff;
+  color: #4f46e5;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 /* Links */
 .auth-link {
   text-align: center;
-  color: #BBE1FA;
+  color: #4f46e5;
   cursor: pointer;
-  margin-top: 12px;
-  font-size: 14px;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
-/* Removed @tailwind directives because Tailwind is not configured or supported in the current build tool. */
+
+.auth-link:hover {
+  text-decoration: underline;
+}
 
 @layer base {
   :root {
-    /* Base colors from your images */
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --card: 228 29% 17%;
-    --card-foreground: 210 40% 98%;
-    --popover: 228 29% 17%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 262 83% 58%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 214 32% 91%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11%;
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 224 76% 48%;
-    --radius: 0.5rem;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 239 84% 67%;
+    --radius: 0.75rem;
   }
 
   * {
@@ -304,27 +339,28 @@ table {
   }
 
   body {
-    background-color: #141827;
-    color: white;
+    background-color: #f8fafc;
+    color: #0f172a;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
 @layer components {
-  /* Custom admin components */
+  /* Modern Premium SaaS Admin & Layout Components */
   .admin-container {
     display: flex;
     min-height: 100vh;
-    background-color: #141827;
+    background-color: #f8fafc;
   }
 
   .admin-sidebar {
     display: none;
     width: 16rem;
-    background-color: #1a1f37;
+    background-color: #ffffff;
     min-height: 100vh;
-    padding: 1.5rem;
-    border-right: 1px solid #334155;
+    padding: 1.25rem;
+    border-right: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   }
 
   @media (min-width: 1024px) {
@@ -334,264 +370,311 @@ table {
   }
 
   .admin-header {
-    background-color: #1a1f37;
-    border-bottom: 1px solid #334155;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
     padding-top: 1rem;
     padding-bottom: 1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
   }
 
   .admin-card {
-    background-color: #1e2746;
+    background-color: #ffffff;
     border-radius: 1rem;
     padding: 1.5rem;
-    border: 1px solid rgba(51, 65, 85, 0.5);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
   }
 
   .stat-card {
-    background-color: #1e2746;
+    background-color: #ffffff;
     border-radius: 1rem;
     padding: 1.5rem;
-    border: 1px solid rgba(51, 65, 85, 0.5);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+    transition: all 0.25s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.07);
+    border-color: rgba(99, 102, 241, 0.3);
   }
 
   .course-card {
-    background-color: #1e2746;
-    border-radius: 0.75rem;
-    padding: 1rem;
-    border: 1px solid rgba(51, 65, 85, 0.5);
-    transition: all 0.3s ease;
+    background-color: #ffffff;
+    border-radius: 1rem;
+    padding: 1.25rem;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 2px 10px -2px rgba(15, 23, 42, 0.03);
+    transition: all 0.25s ease;
   }
 
   .course-card:hover {
-    border-color: rgba(71, 85, 105, 1);
+    transform: translateY(-3px);
+    border-color: rgba(99, 102, 241, 0.35);
+    box-shadow: 0 12px 30px -6px rgba(79, 70, 229, 0.12), 0 4px 10px rgba(0, 0, 0, 0.03);
   }
 
   .nav-item {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    border-radius: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    border-radius: 0.625rem;
     transition: all 0.2s ease;
-    color: #94a3b8;
+    color: #64748b;
+    font-size: 0.875rem;
+    font-weight: 500;
   }
 
   .nav-item:hover {
-    color: white;
-    background-color: rgba(30, 41, 59, 0.5);
+    color: #0f172a;
+    background-color: #f1f5f9;
   }
 
   .nav-item.active {
-    background-color: #2563eb;
-    color: white;
-    box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.25);
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(124, 58, 237, 0.04));
+    color: #4f46e5;
+    font-weight: 600;
+    border-left: 3px solid #4f46e5;
   }
 
   /* Form styles */
   .admin-input {
     width: 100%;
-    padding: 0.5rem 0.75rem;
-    background-color: #141827;
-    border: 1px solid #374151;
-    border-radius: 0.5rem;
-    color: white;
+    padding: 0.625rem 0.875rem;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.625rem;
+    color: #0f172a;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
   }
 
   .admin-input::placeholder {
-    color: #6b7280;
+    color: #94a3b8;
   }
 
   .admin-input:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 1px #3b82f6;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
   }
 
   .admin-select {
     width: 100%;
-    padding: 0.5rem 0.75rem;
-    background-color: #141827;
-    border: 1px solid #374151;
-    border-radius: 0.5rem;
-    color: white;
+    padding: 0.625rem 0.875rem;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.625rem;
+    color: #0f172a;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
   }
 
   .admin-select:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 1px #3b82f6;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
   }
 
   .admin-textarea {
     width: 100%;
-    padding: 0.5rem 0.75rem;
-    background-color: #141827;
-    border: 1px solid #374151;
-    border-radius: 0.5rem;
-    color: white;
+    padding: 0.625rem 0.875rem;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.625rem;
+    color: #0f172a;
+    font-size: 0.875rem;
     resize: none;
+    transition: all 0.2s ease;
   }
 
   .admin-textarea::placeholder {
-    color: #6b7280;
+    color: #94a3b8;
   }
 
   .admin-textarea:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 1px #3b82f6;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
   }
 
   /* Button styles */
   .btn-primary {
-    background-color: #2563eb;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
     color: white;
-    font-weight: 500;
+    font-weight: 600;
     padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.2s ease;
+    border-radius: 0.625rem;
+    box-shadow: 0 2px 10px 0 rgba(79, 70, 229, 0.25);
+    transition: all 0.2s ease;
+    border: none;
   }
 
   .btn-primary:hover {
-    background-color: #1d4ed8;
+    opacity: 0.95;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.35);
   }
 
   .btn-outline {
-    border: 1px solid #475569;
-    color: #cbd5e1;
+    border: 1px solid #e2e8f0;
+    background-color: #ffffff;
+    color: #334155;
     font-weight: 500;
     padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
+    border-radius: 0.625rem;
     transition: all 0.2s ease;
   }
 
   .btn-outline:hover {
-    background-color: #374151;
-    color: white;
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
   }
 
   .btn-ghost {
-    color: #94a3b8;
+    color: #64748b;
     font-weight: 500;
     padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
+    border-radius: 0.625rem;
     transition: all 0.2s ease;
   }
 
   .btn-ghost:hover {
-    color: white;
-    background-color: #1e293b;
+    color: #0f172a;
+    background-color: #f1f5f9;
   }
 
-  /* Badge styles */
+  /* Badge styles - Modern SaaS Pills */
   .badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.125rem 0.625rem;
+    padding: 0.15rem 0.625rem;
     border-radius: 9999px;
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 600;
+    border: 1px solid transparent;
   }
 
   .badge-blue {
-    background-color: rgba(59, 130, 246, 0.2);
-    color: #60a5fa;
+    background-color: #eff6ff;
+    color: #2563eb;
+    border-color: #bfdbfe;
   }
 
   .badge-purple {
-    background-color: rgba(168, 85, 247, 0.2);
-    color: #c084fc;
+    background-color: #f5f3ff;
+    color: #7c3aed;
+    border-color: #ddd6fe;
   }
 
   .badge-green {
-    background-color: rgba(16, 185, 129, 0.2);
-    color: #6ee7b7;
+    background-color: #ecfdf5;
+    color: #059669;
+    border-color: #a7f3d0;
   }
 
   .badge-orange {
-    background-color: rgba(249, 115, 22, 0.2);
-    color: #fdba74;
+    background-color: #fff7ed;
+    color: #d97706;
+    border-color: #fed7aa;
   }
 
   .badge-pink {
-    background-color: rgba(236, 72, 153, 0.2);
-    color: #f472b6;
+    background-color: #fdf2f8;
+    color: #db2777;
+    border-color: #fbcfe8;
   }
 
   .badge-cyan {
-    background-color: rgba(34, 211, 238, 0.2);
-    color: #67e8f9;
+    background-color: #ecfeff;
+    color: #0891b2;
+    border-color: #a5f3fc;
   }
 
   .badge-red {
-    background-color: rgba(239, 68, 68, 0.2);
-    color: #fca5a5;
+    background-color: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
   }
 
   .badge-gray {
-    background-color: rgba(100, 116, 139, 0.2);
-    color: #94a3b8;
+    background-color: #f1f5f9;
+    color: #475569;
+    border-color: #e2e8f0;
   }
 
   /* Table styles */
   .admin-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
   }
 
   .admin-table th {
     padding: 0.75rem 1rem;
     text-align: left;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #94a3b8;
-    background-color: #141827;
-    border-bottom: 1px solid #1e293b;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
   }
 
   .admin-table td {
-    padding: 0.75rem 1rem;
+    padding: 0.875rem 1rem;
     font-size: 0.875rem;
-    color: #cbd5e1;
-    border-bottom: 1px solid rgba(30, 41, 59, 0.5);
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+    background-color: #ffffff;
   }
 
-  .admin-table tr:hover {
-    background-color: rgba(20, 24, 39, 0.5);
+  .admin-table tr:hover td {
+    background-color: #f8fafc;
   }
 
   /* Chart container */
   .chart-container {
-    background-color: #1e2746;
+    background-color: #ffffff;
     border-radius: 1rem;
     padding: 1.5rem;
-    border: 1px solid rgba(51, 65, 85, 0.5);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
   }
 
   /* Hero banner */
   .hero-banner {
-    background: linear-gradient(to right, #1e3a5f, #2d4a6f);
-    border-radius: 1rem;
-    padding: 2rem;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    border-radius: 1.25rem;
+    padding: 2.25rem;
     margin-bottom: 2rem;
     position: relative;
     overflow: hidden;
+    color: #ffffff;
+    box-shadow: 0 12px 36px -4px rgba(79, 70, 229, 0.25);
   }
 
   /* Promo card */
   .promo-card {
     border-radius: 1rem;
-    padding: 1rem;
+    padding: 1.25rem;
+    color: #ffffff;
   }
 
   .promo-card-cyan {
-    background: linear-gradient(to bottom right, #06b6d4, #0891b2);
+    background: linear-gradient(135deg, #0284c7, #06b6d4);
+    box-shadow: 0 8px 24px -4px rgba(2, 132, 199, 0.25);
   }
 
   .promo-card-orange {
-    background: linear-gradient(to bottom right, #f97316, #ef4444);
+    background: linear-gradient(135deg, #ea580c, #f97316);
+    box-shadow: 0 8px 24px -4px rgba(234, 88, 12, 0.25);
   }
 }
 

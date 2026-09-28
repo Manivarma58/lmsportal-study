@@ -84,29 +84,44 @@ const Navbar = () => {
             </Link>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden md:flex items-center gap-1">
+            <div className="hidden md:flex items-center gap-1.5 ml-2">
               <Link
                 to="/courses"
-                className="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/70 transition-all flex items-center gap-2"
               >
-                <BookOpen className="w-4 h-4" /> Explore Courses
+                <BookOpen className="w-4 h-4 text-indigo-500" /> Explore Courses
+              </Link>
+              <Link
+                to="/about"
+                className="px-3.5 py-2 rounded-xl text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-slate-100/80 transition-all"
+              >
+                About
+              </Link>
+              <Link
+                to="/contact"
+                className="px-3.5 py-2 rounded-xl text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-slate-100/80 transition-all"
+              >
+                Contact
               </Link>
             </div>
           </div>
 
-          {/* Search Bar */}
+          {/* Search Bar - Modern SaaS Input with Shortcut */}
           <form
             onSubmit={handleSearchSubmit}
-            className="hidden sm:flex flex-1 max-w-md relative items-center"
+            className="hidden sm:flex flex-1 max-w-md relative items-center group"
           >
+            <Search className="w-4 h-4 text-slate-400 group-focus-within:text-indigo-600 absolute left-3.5 transition-colors pointer-events-none" />
             <input
               type="text"
-              placeholder="Search courses, skills, topics..."
+              placeholder="Search courses, skills, tracks..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm bg-slate-100 dark:bg-slate-800 border-none rounded-full focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all"
+              className="w-full pl-10 pr-12 py-2 text-sm bg-slate-100/80 border border-transparent rounded-xl focus:bg-white focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10 text-slate-900 placeholder-slate-400 outline-none transition-all shadow-xs"
             />
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5" />
+            <span className="absolute right-3 hidden lg:flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-400 bg-white border border-slate-200 shadow-xs pointer-events-none">
+              ⌘K
+            </span>
           </form>
 
           {/* Right Action Icons & Profile */}
@@ -241,16 +256,16 @@ const Navbar = () => {
               </>
             ) : (
               /* Public Auth Buttons */
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                  className="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-indigo-600 transition-colors"
                 >
                   Log in
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-600/20 transition-all hover:scale-102 active:scale-98"
+                  className="px-4.5 py-2 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all hover:-translate-y-0.5 active:translate-y-0"
                 >
                   Get Started
                 </Link>
